@@ -1,11 +1,12 @@
 import { NextPage } from "next";
 import { useEffect, useRef, useState, Fragment, useCallback } from "react";
-import maplibregl, { DataDrivenPropertyValueSpecification, FilterSpecification, GeoJSONSource, MapLayerMouseEvent, MapMouseEvent } from "maplibre-gl";
+import maplibregl, { DataDrivenPropertyValueSpecification, ExpressionSpecification, FilterSpecification, GeoJSONSource, MapLayerMouseEvent, MapMouseEvent } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-
 import { DateTime } from 'luxon';
 
-import { Mission, Filters } from '~/shared/types';
+import { useControl } from "~/context/controlContext";
+
+import { Mission, Frame, Filters } from '~/shared/types';
 
 const TILE_URLS = [
     'https://djellr4yg949p.cloudfront.net/keyhole',
@@ -110,7 +111,7 @@ const LINE_WIDTH_EXPR: DataDrivenPropertyValueSpecification<any> = [
 ]
 
 interface SwathLayer {
-    designator: string | undefined,
+    designator: string,
     source: string,
     sourceLayer: string,
     lineLayer: string,
@@ -118,12 +119,10 @@ interface SwathLayer {
 }
 
 interface Props {
-    filters: Filters;
-    mission: Mission | undefined;
+
 }
 
-const getDesignatorSourceInfo = (d: string | undefined): SwathLayer => {
-    // const d = designator ? designator : props.filters.designator;
+const getLayerFromDesignator = (d: string): SwathLayer => {
     const source = `swaths-${d}`;
     const sourceLayer = 'swaths';
     const lineLayer = `swaths-${d}-line`;
@@ -142,12 +141,26 @@ const Map: NextPage<Props> = (props) => {
     const mapContainer = useRef<HTMLDivElement | null>(null);
     const [map, setMap] = useState<maplibregl.Map | null>(null);
 
-    const [selectedMission, setSelectedMission] = useState<Mission | undefined>(undefined);
     const [hoveredFrame, setHoveredFrame] = useState<string | undefined>(undefined);
-    const [selectedSwathLayer, setSelectedSwathLayer] = useState<SwathLayer | undefined>(undefined);
+    const [prevHoveredFrame, setPrevHoveredFrame] = useState<string | undefined>(undefined);
+    const [clickedFrame, setClickedFrame] = useState<string | undefined>(undefined);
+    const [prevClickedFrame, setPrevClickedFrame] = useState<string | undefined>(undefined);
+
+    const [swathLayer, setSwathLayer] = useState<SwathLayer | null>(null);
+
+    const {
+        selectedDesignator,
+        selectedResolution,
+        selectedMission,
+        rangeAcquisitionYears,
+        selectedCameraType,
+        showDownloads,
+        showFrame,
+        mission,
+        setFrame,
+    } = useControl();
 
     useEffect(() => {
-        console.log('map')
 
         if (map) return;
 
@@ -161,7 +174,6 @@ const Map: NextPage<Props> = (props) => {
 
         maplibreMap.on("load", () => {
 
-            setMap(maplibreMap);
             maplibreMap.resize();
 
             const layers = maplibreMap.getStyle().layers;
@@ -191,18 +203,19 @@ const Map: NextPage<Props> = (props) => {
                     'fill-antialias': false
                 },
                 'layout': {
+                    'visibility': 'visible',
                     'fill-sort-key': ['get', 'o']
                 }
             }, firstSymbolId);
 
             DESIGNATOR_NAMES.forEach((designatorName) => {
 
-                const d = getDesignatorSourceInfo(designatorName);
+                const layer = getLayerFromDesignator(designatorName);
 
-                maplibreMap.addSource(d.source, {
+                maplibreMap.addSource(layer.source, {
                     'type': 'vector',
                     'tiles': TILE_URLS.map(
-                        u => `${u}/swaths/${d.designator}/{z}/{x}/{y}.pbf`
+                        u => `${u}/swaths/${layer.designator}/{z}/{x}/{y}.pbf`
                     ),
                     'minzoom': 0,
                     'maxzoom': 8,
@@ -210,10 +223,10 @@ const Map: NextPage<Props> = (props) => {
                 });
 
                 maplibreMap.addLayer({
-                    'id': d.fillLayer,
+                    'id': layer.fillLayer,
                     'type': 'fill',
-                    'source': d.source,
-                    'source-layer': d.sourceLayer,
+                    'source': layer.source,
+                    'source-layer': layer.sourceLayer,
                     'paint': {
                         'fill-color': SWATHS_FILL_COLOR_EXPR_1,
                         'fill-opacity': [
@@ -231,10 +244,10 @@ const Map: NextPage<Props> = (props) => {
                 }, firstSymbolId);
 
                 maplibreMap.addLayer({
-                    'id': d.lineLayer,
+                    'id': layer.lineLayer,
                     'type': 'line',
-                    'source': d.source,
-                    'source-layer': d.sourceLayer,
+                    'source': layer.source,
+                    'source-layer': layer.sourceLayer,
                     'paint': {
                         'line-opacity': 1,
                         'line-width': LINE_WIDTH_EXPR,
@@ -247,84 +260,158 @@ const Map: NextPage<Props> = (props) => {
                 }, firstSymbolId);
 
             });
+
+            setMap(maplibreMap);
         });
 
     }, [map]);
 
     useEffect(() => {
-        console.log("map_selectedMission");
+        if (!mission) {
+            setSwathLayer(null);
+            return;
+        };
+        const layer = getLayerFromDesignator(mission.d);
+        setSwathLayer(layer);
+    }, [mission]);
+
+    useEffect(() => {
 
         if (!map) return;
+        if (!swathLayer) return;
 
         const onMouseMoveFill = (e: MapLayerMouseEvent) => {
             map.getCanvas().style.cursor = 'pointer';
             if (e.features) {
-                if (!hoveredFrame) {
-                    // setMapFeatureState(d.source, d.sourceLayer, state.hoverID, { hover: false });
-                }
-                setHoveredFrame(e.features[0].id as string);
-                // setMapFeatureState(d.source, d.sourceLayer, state.hoverID, { hover: true });
+                const frameID = e.features[0].id as string;
+                setHoveredFrame(frameID);
             }
         }
 
         const onMouseLeaveFill = (e: MapLayerMouseEvent) => {
             map.getCanvas().style.cursor = '';
-            if (hoveredFrame) {
-                // setMapFeatureState(d.source, d.sourceLayer, state.hoverID, { hover: false });
-            }
             setHoveredFrame(undefined);
         }
 
-        const setMapFeatureState = (source: string, sourceLayer: string, id: string, state: string) => {
-            map.setFeatureState(
-                { source: source, sourceLayer: sourceLayer, id: id },
-                state
-            );
+        const onClickFill = (e: MapLayerMouseEvent) => {
+            e.preventDefault();
+            if (e.features) {
+                const frameID = e.features[0].id as string;
+                setClickedFrame(frameID);
+                setFrame(e.features[0].properties as Frame);
+                console.log(e.features[0].properties);
+            }
         }
+
+        const onClick = (e: MapLayerMouseEvent) => {
+            if (e.defaultPrevented === false) {
+                setClickedFrame(undefined);
+                setFrame(null);
+            }
+        }
+
+        map.on('click', onClick);
 
         DESIGNATOR_NAMES.forEach((designatorName) => {
-            const d = getDesignatorSourceInfo(designatorName);
-            if (selectedMission && selectedMission.d == designatorName) {
-
-                map.setFilter(d.lineLayer, ['==', ['get', 'm'], selectedMission.m]);
-                map.setFilter(d.fillLayer, ['==', ['get', 'm'], selectedMission.m]);
-
-                map.setLayoutProperty(d.lineLayer, 'visibility', 'visible');
-                map.setLayoutProperty(d.fillLayer, 'visibility', 'visible');
-
-                map.on('mousemove', d.fillLayer, onMouseMoveFill);
-                map.on('mouseleave', d.fillLayer, onMouseLeaveFill);
-            } else {
-
-                map.setFilter(d.lineLayer, false);
-                map.setFilter(d.fillLayer, false);
-
-                map.setLayoutProperty(d.lineLayer, 'visibility', 'none');
-                map.setLayoutProperty(d.fillLayer, 'visibility', 'none');
-
-                map.off('mousemove', d.fillLayer, onMouseMoveFill);
-                map.off('mouseleave', d.fillLayer, onMouseLeaveFill);
-            }
+            const layer = getLayerFromDesignator(designatorName);
+            map.setLayoutProperty(layer.lineLayer, 'visibility', 'none');
+            map.setLayoutProperty(layer.fillLayer, 'visibility', 'none');
+            map.off('mousemove', layer.fillLayer, onMouseMoveFill);
+            map.off('mouseleave', layer.fillLayer, onMouseLeaveFill);
+            map.off('click', layer.fillLayer, onClickFill);
         });
 
-    }, [map, selectedMission]);
+        map.setLayoutProperty(swathLayer.lineLayer, 'visibility', 'visible');
+        map.setLayoutProperty(swathLayer.fillLayer, 'visibility', 'visible');
+        map.on('mousemove', swathLayer.fillLayer, onMouseMoveFill);
+        map.on('mouseleave', swathLayer.fillLayer, onMouseLeaveFill);
+        map.on('click', swathLayer.fillLayer, onClickFill);
 
-    useEffect(() => {
-        console.log("props.mission")
+        var missionFilter: FilterSpecification = ['has', 'm'];
+        var cameraTypeFilter: FilterSpecification = ['has', 'c'];
 
-        setSelectedMission(props.mission);
-        if (selectedMission) {
-            const swathLayer = getDesignatorSourceInfo(selectedMission.d)
-            setSelectedSwathLayer(swathLayer);
-        } else {
-            setSelectedSwathLayer(undefined);
+        console.log(mission);
+
+        if (mission) {
+            missionFilter = ['==', ['get', 'm'], mission.m];
         }
-    }, [props.mission]);
 
+        if (selectedCameraType && selectedCameraType != 'ALL') {
+            cameraTypeFilter = ['==', ['get', 'c'], selectedCameraType];
+        }
+
+        const filterExpressions: FilterSpecification = ['all', missionFilter, cameraTypeFilter];
+
+        map.setFilter(swathLayer.lineLayer, filterExpressions);
+        map.setFilter(swathLayer.fillLayer, filterExpressions);
+
+        console.log(map.getLayer(swathLayer.lineLayer))
+
+    }, [map, mission, swathLayer, selectedCameraType]);
+
+    // HOVER FRAME
     useEffect(() => {
-        console.log(`hoveredFrame: ${hoveredFrame}`);
-    }, [hoveredFrame]);
+        if (!map) return;
+        if (!swathLayer) return;
 
+        if (prevHoveredFrame && hoveredFrame != prevHoveredFrame) {
+            map.setFeatureState({
+                source: swathLayer.source,
+                sourceLayer: swathLayer.sourceLayer, id: prevHoveredFrame
+            }, { hover: false });
+        }
+        if (hoveredFrame) {
+            map.setFeatureState({
+                source: swathLayer.source,
+                sourceLayer: swathLayer.sourceLayer, id: hoveredFrame
+            }, { hover: true });
+        }
+
+        setPrevHoveredFrame(hoveredFrame);
+
+    }, [map, swathLayer, hoveredFrame, prevHoveredFrame]);
+
+    // CLICKED FRAME
+    useEffect(() => {
+        if (!map) return;
+        if (!swathLayer) return;
+
+        if (prevClickedFrame && clickedFrame != prevClickedFrame) {
+            map.setFeatureState({
+                source: swathLayer.source,
+                sourceLayer: swathLayer.sourceLayer, id: prevClickedFrame
+            }, { click: false });
+        }
+        if (clickedFrame) {
+            map.setFeatureState({
+                source: swathLayer.source,
+                sourceLayer: swathLayer.sourceLayer, id: clickedFrame
+            }, { click: true });
+        }
+
+        setPrevClickedFrame(clickedFrame);
+
+    }, [map, swathLayer, clickedFrame, prevClickedFrame]);
+
+    // SHOW DOWNLOADS
+    useEffect(() => {
+        if (!map) return;
+        if (!mission || !swathLayer) return;
+
+        var lineExpr: ExpressionSpecification = SWATHS_LINE_COLOR_EXPR_2;
+        var fillExpr: ExpressionSpecification = SWATHS_FILL_COLOR_EXPR_2;
+
+        if (showDownloads) {
+            lineExpr = SWATHS_LINE_COLOR_EXPR_1;
+            fillExpr = SWATHS_FILL_COLOR_EXPR_1;
+        }
+
+        map.setPaintProperty(swathLayer.lineLayer, 'line-color', lineExpr);
+        map.setPaintProperty(swathLayer.fillLayer, 'fill-color', fillExpr);
+
+    }, [map, swathLayer, mission, showDownloads]);
+
+    // MISSIONS FILTERS
     useEffect(() => {
         console.log('map_props.filters')
 
@@ -335,23 +422,23 @@ const Map: NextPage<Props> = (props) => {
         var designatorFilter: FilterSpecification = ['has', 'd'];
         var resolutionFilter: FilterSpecification = ['has', 'r'];
         var missionFilter: FilterSpecification = ['has', 'm'];
-        var yearsFilter: FilterSpecification = ['has', 'y'];
+        var yearsFilter: FilterSpecification = ['has', 'e'];
 
-        if (props.filters.designator) {
-            designatorFilter = ['==', ['get', 'd'], props.filters.designator];
+        if (selectedDesignator) {
+            designatorFilter = ['==', ['get', 'd'], selectedDesignator];
         }
 
-        if (props.filters.resolution) {
-            resolutionFilter = ['==', ['get', 'r'], props.filters.resolution];
+        if (selectedResolution) {
+            resolutionFilter = ['==', ['get', 'r'], selectedResolution];
         }
 
-        if (props.filters.mission) {
-            missionFilter = ['==', ['get', 'm'], props.filters.mission];
+        if (selectedMission) {
+            missionFilter = ['==', ['get', 'm'], selectedMission];
         }
 
-        if (props.filters.years) {
-            const dt_e = DateTime.fromFormat(`${props.filters.years[0].toString()}-01-01`, 'yyyy-mm-dd');
-            const dt_l = DateTime.fromFormat(`${props.filters.years[1].toString()}-12-31`, 'yyyy-MM-dd');
+        if (rangeAcquisitionYears) {
+            const dt_e = DateTime.fromFormat(`${rangeAcquisitionYears[0].toString()}-01-01`, 'yyyy-MM-dd');
+            const dt_l = DateTime.fromFormat(`${rangeAcquisitionYears[1].toString()}-12-31`, 'yyyy-MM-dd');
             yearsFilter = [
                 'all',
                 ['>=', ['get', 'e'], dt_e.toSeconds()],
@@ -360,13 +447,9 @@ const Map: NextPage<Props> = (props) => {
         }
 
         const filterExpressions: FilterSpecification = ['all', designatorFilter, resolutionFilter, missionFilter, yearsFilter];
-
         map.setFilter('missions-fill', filterExpressions);
 
-        console.log(map);
-        console.log(map.getLayer('missions-fill'))
-
-    }, [map, props.filters]);
+    }, [map, selectedDesignator, selectedResolution, selectedMission, rangeAcquisitionYears]);
 
     return (
         <div ref={mapContainer} style={{

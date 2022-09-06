@@ -27,21 +27,25 @@ const Home: NextPage = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [missionData, setMissionData] = useState<MissionData | null>(null);
 
-
-  // FILTERS
-  const [filters, setFilters] = useState<Filters>({ designator: null, resolution: null, mission: null, years: [1960, 1984] });
-  const [mission, setMission] = useState<Mission | undefined>(undefined);
-
-  const [projection, setProjection] = useState<string | undefined>('globe');
-
-  // SELECTIONS
-  const [frame, setFrame] = useState<string | null>(null);
-
   // INTERFACE
   // const [open, setOpen] = useState(true);
   // const toggleDrawer = () => {
   //   setOpen(!open);
   // };
+
+  const {
+    selectedDesignator,
+    selectedResolution,
+    selectedMission,
+    rangeAcquisitionYears,
+    setRangeAcquisitionYears,
+    selectedCameraType,
+    setSelectedCameraType,
+    showDownloads,
+    showFrame,
+    mission,
+    frame,
+  } = useControl();
 
   useEffect(() => {
     console.log("[]")
@@ -66,6 +70,9 @@ const Home: NextPage = () => {
 
     fetchData()
       .catch(console.error);
+
+    setRangeAcquisitionYears([1960, 1984]);
+    setSelectedCameraType("ALL");
 
   }, [])
 
@@ -96,10 +103,7 @@ const Home: NextPage = () => {
             flex: 1,
           }
         }}>
-          <Map
-            filters={filters}
-            mission={mission}
-          />
+          <Map />
         </Box>
         <Box sx={{
           flex: 1,
@@ -118,18 +122,16 @@ const Home: NextPage = () => {
           </Typography>
           <ControlPane
             missionData={missionData}
-            filters={filters}
-            setFilters={setFilters}
-            setFrame={setFrame}
-            setMission={setMission}
           />
-          {filters.mission && mission &&
+          {mission &&
             <MissionPane
               mission={mission}
             />
           }
           {frame &&
-            <FramePane />
+            <FramePane
+              frame={frame}
+            />
           }
           {/* <CtrlMap
             projection={projection}

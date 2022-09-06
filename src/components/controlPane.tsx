@@ -7,34 +7,18 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import Slider from '@mui/material/Slider';
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+
+import { useControl } from "~/context/controlContext";
 
 import { MissionData, Mission, Filters } from '~/shared/types';
 import * as utils from '~/shared/utils';
 
 import resolutionIcon from '~/assets/resolution.svg';
 
-const CAMERA_TYPES = {
-    "A": "AFT PANORAMIC",
-    "F": "FORWARD PANORAMIC",
-    "C": "MAPPING",
-    "V": "VERTICAL",
-    "M": "MAPPING",
-    "S": "SURVEILLANCE"
-};
+
 
 interface Props {
     missionData: MissionData | null
-    filters: Filters;
-    setFilters: Dispatch<SetStateAction<Filters>>
-    setFrame: Dispatch<SetStateAction<string | null>>;
-    setMission: Dispatch<SetStateAction<Mission | undefined>>;
 }
 
 const ts2dt = (ts: number): string => {
@@ -44,32 +28,25 @@ const ts2dt = (ts: number): string => {
 
 const ControlPane: NextPage<Props> = (props) => {
 
-    const [cameraType, setCameraType] = useState<string>('ALL');
-    const [cameraTypes, setCameraTypes] = useState<string | undefined>(undefined);
-    const [showFrame, setShowFrame] = useState<boolean>(false);
+    const {
+        selectedDesignator,
+        setSelectedDesignator,
+        selectedResolution,
+        setSelectedResolution,
+        selectedMission,
+        setSelectedMission,
+        rangeAcquisitionYears,
+        setRangeAcquisitionYears,
+        selectedCameraType,
+        setSelectedCameraType,
+        showDownloads,
+        setShowDownloads,
+        mission,
+        setMission,
+    } = useControl();
 
     const handleYearsChange = (event: Event, newValue: number | number[]) => {
-        props.setFilters(prevFilters => ({
-            ...prevFilters,
-            years: newValue as number[]
-        }));
-    };
-
-    const handleCameraTypesChange = (event: SelectChangeEvent) => {
-        setCameraType(event.target.value);
-    };
-
-    const handleShowDownloadsChange = (event: ChangeEvent<HTMLInputElement>) => {
-        console.log(`show_downloads: ${event.target.checked}`);
-    };
-
-    const handleShowFrameChange = (event: ChangeEvent<HTMLInputElement>) => {
-        console.log(`show_frame: ${event.target.checked}`);
-        setShowFrame(event.target.checked);
-    };
-
-    const handleOpenUSGSMetadataChange = (event: ChangeEvent<HTMLInputElement>) => {
-        console.log(`open_usgs_metadata: ${event.target.checked}`);
+        setRangeAcquisitionYears(newValue as number[])
     };
 
     const options = props.missionData ? props.missionData.map((option) => {
@@ -79,11 +56,6 @@ const ControlPane: NextPage<Props> = (props) => {
             resolution: option.r,
         };
     }) : [{ designator: 'none', resolution: 0, mission: 'none' }];
-
-    useEffect(() => {
-        console.log("props.filters.mission_showFrame")
-        props.filters.mission && showFrame ? props.setFrame('123') : props.setFrame(null);
-    }, [props.filters.mission, showFrame])
 
     return (
         <Box sx={{
@@ -107,10 +79,7 @@ const ControlPane: NextPage<Props> = (props) => {
                 options={[...new Set(options.map(opt => opt.designator))].sort()}
                 getOptionLabel={(option) => utils.getDesignatorLabel(option)}
                 onChange={(_event, newDesignator) => {
-                    props.setFilters(prevFilters => ({
-                        ...prevFilters,
-                        designator: newDesignator as string | null
-                    }));
+                    setSelectedDesignator(newDesignator);
                 }}
                 renderInput={(params) => <TextField {...params} label="DESIGNATOR" />}
             />
@@ -123,10 +92,8 @@ const ControlPane: NextPage<Props> = (props) => {
                 options={[...new Set(options.map(opt => opt.resolution))].sort()}
                 getOptionLabel={(option) => utils.getResolutionLabel(option)}
                 onChange={(_event, newResolution) => {
-                    props.setFilters(prevFilters => ({
-                        ...prevFilters,
-                        resolution: newResolution as number | null
-                    }));
+                    setSelectedResolution(newResolution);
+
                 }}
                 renderInput={(params) => <TextField {...params} label="RESOLUTION" />}
             />
@@ -142,15 +109,11 @@ const ControlPane: NextPage<Props> = (props) => {
                 isOptionEqualToValue={(option, value) => option.mission == value.mission}
                 onChange={(_event, newMission) => {
                     const m: string | null = newMission ? newMission.mission : null; // props.setMission(newMission.mission) : props.setMission(null)
-                    props.setFilters(prevFilters => ({
-                        ...prevFilters,
-                        mission: m
-                    }))
-
-                    const selectedMission = props.missionData?.find((mission) => {
+                    setSelectedMission(m);
+                    const mission = props.missionData?.find((mission) => {
                         return mission.m === m;
                     });
-                    props.setMission(selectedMission);
+                    setMission(mission)
                 }}
                 renderInput={(params) => <TextField {...params} label="MISSION" />}
             />
@@ -161,10 +124,10 @@ const ControlPane: NextPage<Props> = (props) => {
             <Box
                 sx={{ mt: 4, p: 2.25 }}
             >
-                {props.filters.years &&
+                {rangeAcquisitionYears &&
                     < Slider
                         getAriaLabel={() => 'Acquisition Years'}
-                        value={props.filters.years}
+                        value={rangeAcquisitionYears}
                         onChange={handleYearsChange}
                         valueLabelDisplay="on"
                         getAriaValueText={ts2dt}
@@ -173,48 +136,6 @@ const ControlPane: NextPage<Props> = (props) => {
                     />
                 }
             </Box>
-            {props.filters.mission &&
-                <Box
-                >
-                    <FormControl variant="standard" sx={{ m: 1, minWidth: 200 }}>
-                        <InputLabel id="select-camera-type-label">CAMERA TYPE</InputLabel>
-                        <Select
-                            labelId="select-camera-type"
-                            id="select-camera-type"
-                            value={cameraType}
-                            onChange={handleCameraTypesChange}
-                            label="CAMERA TYPES"
-                        >
-                            <MenuItem value="ALL">
-                                <em>ALL</em>
-                            </MenuItem>
-                            <MenuItem value={'A'}>AFT PANORAMIC</MenuItem>
-                            <MenuItem value={'F'}>FORWARD PANORAMIC</MenuItem>
-                        </Select>
-                    </FormControl>
-                    <FormGroup>
-                        <FormControlLabel control={
-                            <Switch
-                                onChange={handleShowDownloadsChange}
-                            />
-                        } label="SHOW DOWNLOADS" />
-                    </FormGroup>
-                    <FormGroup>
-                        <FormControlLabel control={
-                            <Switch
-                                onChange={handleShowFrameChange}
-                            />
-                        } label="SHOW FRAME (X)" />
-                    </FormGroup>
-                    <FormGroup>
-                        <FormControlLabel control={
-                            <Switch
-                                onChange={handleOpenUSGSMetadataChange}
-                            />
-                        } label="OPEN USGS METADATA" />
-                    </FormGroup>
-                </Box>
-            }
         </Box>
     );
 }
