@@ -23,25 +23,11 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import Slider from '@mui/material/Slider';
 
 import { useControl } from "~/context/controlContext";
 
 import { Mission } from '~/shared/types';
 import * as utils from '~/shared/utils';
-
-// const CAMERA_TYPES = {
-//     "A": "AFT PANORAMIC",
-//     "F": "FORWARD PANORAMIC",
-//     "C": "MAPPING",
-//     "V": "VERTICAL",
-//     "M": "MAPPING",
-//     "S": "SURVEILLANCE"
-// };
-
-// function hasKey<O>(obj: O, key: PropertyKey): key is keyof O {
-//     return key in obj
-// }
 
 type Row = {
     label: string,
@@ -51,13 +37,9 @@ type Row = {
 interface Props {
 };
 
-
-
 const MissionPane: NextPage<Props> = (props) => {
 
     const {
-        rangeAcquisitionDays,
-        setRangeAcquisitionDays,
         selectedCameraType,
         setSelectedCameraType,
         setShowDownloads,
@@ -68,18 +50,12 @@ const MissionPane: NextPage<Props> = (props) => {
     const [expanded, setExpanded] = useState<boolean>(true);
     const [rows, setRows] = useState<Row[]>([]);
 
-    const [defaultRangeAcquisitionDays, setDefaultRangeAcquisitionDays] = useState<number[] | null>(null);
-
     const handleCameraTypesChange = (event: SelectChangeEvent) => {
         setSelectedCameraType(event.target.value);
     };
 
     const handleShowDownloadsChange = (event: ChangeEvent<HTMLInputElement>) => {
         setShowDownloads(event.target.checked);
-    };
-
-    const handleDaysChange = (event: Event, newValue: number | number[]) => {
-        setRangeAcquisitionDays(newValue as number[])
     };
 
     const handleExpanded = (event: React.SyntheticEvent, newExpanded: boolean) => {
@@ -94,16 +70,7 @@ const MissionPane: NextPage<Props> = (props) => {
             { label: 'LATEST ACQUISITION', value: `${DateTime.fromSeconds(mission.l).toLocaleString()}` },
         ]
         setRows(rows);
-
-        const numDays = utils.TimestampsDaysDiff([mission.l, mission.e]);
-
-        setDefaultRangeAcquisitionDays([0, numDays]);
-        setRangeAcquisitionDays([0, numDays]);
     }, [mission]);
-
-    useEffect(() => {
-        console.log(rangeAcquisitionDays)
-    }, [rangeAcquisitionDays]);
 
     return (
         mission ? (
@@ -174,17 +141,6 @@ const MissionPane: NextPage<Props> = (props) => {
                                         />
                                     } label="SHOW DOWNLOADS" />
                                 </FormGroup>
-                                {rangeAcquisitionDays && defaultRangeAcquisitionDays &&
-                                    < Slider
-                                        getAriaLabel={() => 'ACQUISITIONS'}
-                                        value={rangeAcquisitionDays}
-                                        onChange={handleDaysChange}
-                                        valueLabelDisplay="off"
-                                        getAriaValueText={utils.TimestampsToDatetime}
-                                        min={defaultRangeAcquisitionDays[0]}
-                                        max={defaultRangeAcquisitionDays[1]}
-                                    />
-                                }
                             </Box>
                         </AccordionDetails>
                     </Accordion >
