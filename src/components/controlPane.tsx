@@ -309,7 +309,7 @@ const ControlPane: NextPage<Props> = (props) => {
             /> */}
 
             <Typography id="input-slider" gutterBottom>
-                ACQUISITION YEARS
+                ACQUISITIONS
             </Typography>
             <Typography id="input-slider" gutterBottom>
                 {rangeAcquisitionYears && `FROM ${rangeAcquisitionYears[0]} TO ${rangeAcquisitionYears[1]}`}
@@ -319,7 +319,7 @@ const ControlPane: NextPage<Props> = (props) => {
             >
                 {rangeAcquisitionYears &&
                     < Slider
-                        getAriaLabel={() => 'Acquisition Years'}
+                        getAriaLabel={() => 'ACQUISITIONS'}
                         value={rangeAcquisitionYears}
                         onChange={handleYearsChange}
                         valueLabelDisplay="off"
