@@ -13,8 +13,6 @@ import MapPane from '~/components/mapPane';
 
 import { useControl } from "~/context/controlContext";
 
-import { MissionData, Mission, Filters } from '~/shared/types';
-
 import styles from "../styles/Home.module.css";
 import Switch from "@mui/material/Switch";
 
@@ -23,9 +21,6 @@ const label = { inputProps: { "aria-label": "Switch demo" } };
 // mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
 const Home: NextPage = () => {
-
-  const [isLoading, setLoading] = useState<boolean>(false);
-  const [missionData, setMissionData] = useState<MissionData | null>(null);
 
   // INTERFACE
   // const [open, setOpen] = useState(true);
@@ -45,6 +40,10 @@ const Home: NextPage = () => {
     showFrame,
     mission,
     frame,
+    dataLoading,
+    setDataLoading,
+    missionData,
+    setMissionData,
   } = useControl();
 
   useEffect(() => {
@@ -65,7 +64,7 @@ const Home: NextPage = () => {
       }
       const missions = await response.json();
       setMissionData(missions);
-      setLoading(false);
+      setDataLoading(false);
     }
 
     fetchData()
@@ -87,57 +86,57 @@ const Home: NextPage = () => {
           bottom: 0,
           height: '100%',
           width: '100%',
+          maxWidth: '100%',
+          minWidth: '100%',
           overflow: 'none',
-          display: 'flex',
-          '@media (min-width: 600px)': {
-            padding: 0,
-          },
-          '@media (min-width: 1200px)': {
-            maxWidth: '100%',
-          }
         }}
+        disableGutters
       >
         <Box sx={{
-          flex: 7,
-          '@media (max-width: 600px)': {
-            flex: 1,
-          }
+          height: '100%',
+          width: '100%',
         }}>
           <Map />
         </Box>
+
         <Box sx={{
-          flex: 1,
-          '@media (max-width: 600px)': {
-            flex: 0,
-          },
-          overflow: 'none',
-          backgroundColor: 'rgba(255,0,0,0.5)',
+          position: 'absolute',
+          height: 350,
+          width: 200,
+          top: 5,
+          right: 5,
         }}>
-          <Typography
-            color="inherit"
-            noWrap
-            sx={{ flexGrow: 1 }}
-          >
-            KEYHOLE
-          </Typography>
           <ControlPane
-            missionData={missionData}
           />
-          {mission &&
-            <MissionPane
-              mission={mission}
-            />
-          }
-          {frame &&
-            <FramePane
-              frame={frame}
-            />
-          }
-          {/* <CtrlMap
+        </Box>
+
+        {mission && <Box sx={{
+          position: 'absolute',
+          height: 300,
+          width: 300,
+          top: 5,
+          left: 5,
+        }}>
+          <MissionPane />
+        </Box>
+        }
+
+        {frame && <Box sx={{
+          position: 'absolute',
+          height: 300,
+          width: 300,
+          maxWidth: 300,
+          bottom: 5,
+          left: 5,
+        }}>
+          <FramePane />
+        </Box>
+        }
+
+        {/* <CtrlMap
             projection={projection}
             setProjection={setProjection}
           /> */}
-        </Box>
         {/*       
         <BottomToolBar
           projection={projection}

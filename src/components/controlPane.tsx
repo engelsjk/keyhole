@@ -1,12 +1,20 @@
 import { NextPage } from "next";
-import { useEffect, useRef, useState, ChangeEvent, Fragment, useCallback, Dispatch, SetStateAction } from "react";
+import { useEffect, useState } from "react";
 import { DateTime } from 'luxon';
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Slider from '@mui/material/Slider';
+
+// import { makeStyles } from "@material-ui/core/styles";
+
+import { useTheme } from '@mui/system';
 
 import { useControl } from "~/context/controlContext";
 
@@ -15,11 +23,15 @@ import * as utils from '~/shared/utils';
 
 import resolutionIcon from '~/assets/resolution.svg';
 
-
-
-interface Props {
-    missionData: MissionData | null
+type Option = {
+    designator: string
+    resolution: number
+    mission: string
 }
+
+interface Props { }
+
+const DEFAULT_ACQUISITION_RANGE = [1960, 1984];
 
 const ts2dt = (ts: number): string => {
     const dt = DateTime.fromSeconds(ts)
@@ -27,6 +39,8 @@ const ts2dt = (ts: number): string => {
 }
 
 const ControlPane: NextPage<Props> = (props) => {
+
+    const theme = useTheme();
 
     const {
         selectedDesignator,
@@ -43,27 +57,169 @@ const ControlPane: NextPage<Props> = (props) => {
         setShowDownloads,
         mission,
         setMission,
+        frame,
+        setFrame,
+        missionData,
     } = useControl();
+
+    // const [options, setOptions] = useState<Option[] | null>([]);
+
+    const [designatorOptions, setDesignatorOptions] = useState<string[]>([]);
+    const [resolutionOptions, setResolutionOptions] = useState<string[]>([]);
+    const [missionOptions, setMissionOptions] = useState<MissionData>([]);
+
+    const handleChangeDesignator = (event: SelectChangeEvent) => {
+        setSelectedDesignator(event.target.value as string);
+    };
+
+    const handleChangeResolution = (event: SelectChangeEvent) => {
+        setSelectedResolution(event.target.value);
+    };
+
+    const handleChangeMission = (event: SelectChangeEvent) => {
+        setSelectedMission(event.target.value as string);
+    };
 
     const handleYearsChange = (event: Event, newValue: number | number[]) => {
         setRangeAcquisitionYears(newValue as number[])
     };
 
-    const options = props.missionData ? props.missionData.map((option) => {
-        return {
-            designator: option.d,
-            mission: option.m,
-            resolution: option.r,
-        };
-    }) : [{ designator: 'none', resolution: 0, mission: 'none' }];
+    useEffect(() => {
+        if (!mission) {
+            setFrame(null);
+        }
+    }, [mission]);
+
+    useEffect(() => {
+        if (!missionData) return;
+
+        // TODO: fix bad string => number casting!
+
+        var filteredMissionData = selectedDesignator ?
+            missionData.filter(m => { return m.d == selectedDesignator }) : missionData;
+
+        const resolutionOptions = [...new Set(
+            filteredMissionData
+                .sort((a, b) => (a.r > b.r) ? 1 : -1)
+                .map(m => m.r as unknown as string)
+        )];
+        setResolutionOptions(resolutionOptions);
+
+        filteredMissionData = !selectedDesignator && selectedResolution ?
+            filteredMissionData.filter(m => { return m.r == Number(selectedResolution) }) : filteredMissionData;
+
+        const earliestMission = filteredMissionData.reduce((prev, current) => {
+            return (prev.e < current.e) ? prev : current;
+        })
+        const latestMission = filteredMissionData.reduce((prev, current) => {
+            return (prev.l > current.l) ? prev : current;
+        })
+
+        const r = utils.time2range([earliestMission.e, latestMission.l])
+        setRangeAcquisitionYears(r);
+
+    }, [missionData, selectedDesignator]);
+
+    useEffect(() => {
+        if (!missionData) return;
+
+        // TODO: fix bad string => number casting!
+
+        var filteredMissionData = selectedResolution ?
+            missionData.filter(m => { return m.r == Number(selectedResolution) }) : missionData;
+
+        const designatorOptions = [...new Set(
+            filteredMissionData
+                .sort((a, b) => (a.d > b.d) ? 1 : -1)
+                .map(m => m.d)
+        )];
+        setDesignatorOptions(designatorOptions);
+
+        filteredMissionData = !selectedResolution && selectedDesignator ?
+            filteredMissionData.filter(m => { return m.d == selectedDesignator }) : filteredMissionData;
+
+        const earliestMission = filteredMissionData.reduce((prev, current) => {
+            return (prev.e < current.e) ? prev : current;
+        })
+        const latestMission = filteredMissionData.reduce((prev, current) => {
+            return (prev.l > current.l) ? prev : current;
+        })
+
+        const r = utils.time2range([earliestMission.e, latestMission.l])
+        setRangeAcquisitionYears(r);
+
+    }, [missionData, selectedResolution]);
+
+    useEffect(() => {
+        if (!missionData) return;
+
+        const ts = utils.range2time(rangeAcquisitionYears);
+
+        // TODO: fix bad string => number casting!
+
+        var filteredMissionDataForResolution = selectedDesignator ?
+            missionData.filter(m => { return m.d == selectedDesignator }) : missionData;
+
+        filteredMissionDataForResolution = !selectedDesignator && !selectedResolution ?
+            filteredMissionDataForResolution
+                .filter(m => { return m.e >= ts[0] && m.l <= ts[1] }) : filteredMissionDataForResolution;
+
+        const resolutionOptions = [...new Set(
+            filteredMissionDataForResolution
+                .sort((a, b) => (a.r > b.r) ? 1 : -1)
+                .map(m => m.r as unknown as string)
+        )];
+        setResolutionOptions(resolutionOptions);
+
+        // DESIGNATOR
+
+        var filteredMissionDataForDesignator = selectedResolution ?
+            missionData.filter(m => { return m.r == Number(selectedResolution) }) : missionData;
+
+        filteredMissionDataForDesignator = !selectedDesignator && !selectedResolution ?
+            filteredMissionDataForDesignator
+                .filter(m => { return m.e >= ts[0] && m.l <= ts[1] }) : filteredMissionDataForDesignator;
+
+        const designatorOptions = [...new Set(
+            filteredMissionDataForDesignator
+                .sort((a, b) => (a.d > b.d) ? 1 : -1)
+                .map(m => m.d)
+        )];
+        setDesignatorOptions(designatorOptions);
+
+    }, [missionData, rangeAcquisitionYears]);
+
+    useEffect(() => {
+        if (!missionData) return;
+
+        const ts = utils.range2time(rangeAcquisitionYears);
+
+        // TODO: fix bad string => number casting!
+
+        const missionOpts = missionData
+            .filter(m => {
+                return (
+                    (selectedDesignator ? m.d == selectedDesignator : true) &&
+                    (selectedResolution ? m.r == selectedResolution as unknown as number : true) &&
+                    (rangeAcquisitionYears ? m.e >= ts[0] && m.l <= ts[1] : true)
+                )
+            })
+            .sort((a, b) => (a.m > b.m) ? 1 : -1);
+        setMissionOptions(missionOpts);
+    }, [missionData, selectedDesignator, selectedResolution, rangeAcquisitionYears]);
 
     return (
-        <Box sx={{
-            flexGrow: 1,
-            borderStyle: 'solid',
-            borderColor: 'black',
-            p: 1
-        }}>
+        <Box
+            sx={{
+                flexGrow: 1,
+                borderStyle: 'solid',
+                borderColor: 'black',
+                p: 1,
+                borderRadius: 2,
+            }}
+            color='#424242'
+            bgcolor='secondary.main'
+        >
             <Typography
                 color="inherit"
                 noWrap
@@ -71,7 +227,34 @@ const ControlPane: NextPage<Props> = (props) => {
             >
                 FILTERS
             </Typography>
-            <Autocomplete
+            <FormControl
+                fullWidth
+                size="small"
+                sx={{ mr: 1, mt: 1.5, mb: 1.5, minWidth: 150 }}
+            >
+                <InputLabel id="filter-designator-label">DESIGNATOR</InputLabel>
+                <Select
+                    labelId="filter-designator-label"
+                    id="filter-designator"
+                    value={selectedDesignator}
+                    label="DESIGNATOR"
+                    onChange={handleChangeDesignator}
+                    disabled={mission != undefined}
+                >
+                    <MenuItem value="">
+                        <em>None</em>
+                    </MenuItem>
+                    {
+                        designatorOptions.map(d => {
+                            const designator = utils.getDesignatorLabel(d);
+                            return (
+                                <MenuItem key={d} value={d}>{designator}</MenuItem>
+                            )
+                        })
+                    }
+                </Select>
+            </FormControl>
+            {/* <Autocomplete
                 size="small"
                 sx={{ mr: 1, mt: 1, mb: 1.5, minWidth: 200 }}
                 disablePortal
@@ -82,9 +265,36 @@ const ControlPane: NextPage<Props> = (props) => {
                     setSelectedDesignator(newDesignator);
                 }}
                 renderInput={(params) => <TextField {...params} label="DESIGNATOR" />}
-            />
+            /> */}
 
-            <Autocomplete
+            <FormControl
+                fullWidth
+                size="small"
+                sx={{ mr: 1, mt: 1, mb: 1.5, minWidth: 150 }}
+            >
+                <InputLabel id="filter-resolution-label">RESOLUTION</InputLabel>
+                <Select
+                    labelId="filter-resolution-label"
+                    id="filter-resolution"
+                    value={selectedResolution}
+                    label="RESOLUTION"
+                    onChange={handleChangeResolution}
+                    disabled={mission != undefined}
+                >
+                    <MenuItem value="">
+                        <em>None</em>
+                    </MenuItem>
+                    {
+                        resolutionOptions.map(r => {
+                            const resolution = utils.getResolutionLabel(Number(r));
+                            return (
+                                <MenuItem key={r} value={r}>{resolution}</MenuItem>
+                            )
+                        })
+                    }
+                </Select>
+            </FormControl>
+            {/* <Autocomplete
                 size="small"
                 sx={{ mr: 1, mb: 1.5, minWidth: 150 }}
                 disablePortal
@@ -96,48 +306,51 @@ const ControlPane: NextPage<Props> = (props) => {
 
                 }}
                 renderInput={(params) => <TextField {...params} label="RESOLUTION" />}
-            />
-
-            <Autocomplete
-                size="small"
-                sx={{ mr: 1, mb: 1.5, minWidth: 150 }}
-                disablePortal
-                id="filter-mission"
-                options={options.sort((a, b) => a.designator.localeCompare(b.designator))}
-                groupBy={(option) => option.designator}
-                getOptionLabel={(option) => option.mission}
-                isOptionEqualToValue={(option, value) => option.mission == value.mission}
-                onChange={(_event, newMission) => {
-                    console.log('onChange')
-                    const m: string | null = newMission ? newMission.mission : null; // props.setMission(newMission.mission) : props.setMission(null)
-                    setSelectedMission(m);
-                    const mission = props.missionData?.find((mission) => {
-                        return mission.m === m;
-                    });
-                    setMission(mission)
-                }}
-                renderInput={(params) => <TextField {...params} label="MISSION" />}
-            />
+            /> */}
 
             <Typography id="input-slider" gutterBottom>
                 ACQUISITION YEARS
             </Typography>
+            <Typography id="input-slider" gutterBottom>
+                {rangeAcquisitionYears && `FROM ${rangeAcquisitionYears[0]} TO ${rangeAcquisitionYears[1]}`}
+            </Typography>
             <Box
-                sx={{ mt: 4, p: 2.25 }}
+                sx={{ mt: 0, pr: 2.25, pl: 2.25 }}
             >
                 {rangeAcquisitionYears &&
                     < Slider
                         getAriaLabel={() => 'Acquisition Years'}
                         value={rangeAcquisitionYears}
                         onChange={handleYearsChange}
-                        valueLabelDisplay="on"
+                        valueLabelDisplay="off"
                         getAriaValueText={ts2dt}
-                        min={1960}
-                        max={1984}
+                        disabled={mission != undefined}
+                        min={DEFAULT_ACQUISITION_RANGE[0]}
+                        max={DEFAULT_ACQUISITION_RANGE[1]}
                     />
                 }
             </Box>
-        </Box>
+
+            <Autocomplete
+                size="small"
+                sx={{ mt: 1, mb: 1.5, minWidth: 150 }}
+                disablePortal
+                id="filter-mission"
+                options={missionOptions.sort((a, b) => a.d.localeCompare(b.d))}
+                groupBy={(option) => option.d}
+                getOptionLabel={(option) => option.m}
+                isOptionEqualToValue={(option, value) => option.m == value.m}
+                onChange={(_event, newMission) => {
+                    const m: string | null = newMission ? newMission.m : null;
+                    setSelectedMission(m);
+                    const mission = missionData?.find((mission) => {
+                        return mission.m === m;
+                    });
+                    setMission(mission)
+                }}
+                renderInput={(params) => <TextField {...params} label="MISSION" />}
+            />
+        </Box >
     );
 }
 

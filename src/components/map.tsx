@@ -7,6 +7,7 @@ import { DateTime } from 'luxon';
 import { useControl } from "~/context/controlContext";
 
 import { Mission, Frame, Filters } from '~/shared/types';
+import * as utils from '~/shared/utils';
 
 const TILE_URLS = [
     'https://djellr4yg949p.cloudfront.net/keyhole',
@@ -40,6 +41,12 @@ const COLOR_BY_RESOLUTION_EXPR: DataDrivenPropertyValueSpecification<string> =
         "grey",
     ];
 
+const MISSIONS_LINE_WIDTH_EXPR: DataDrivenPropertyValueSpecification<string> = [
+    'case',
+    ['boolean', ['feature-state', 'hover'], false],
+    5,
+    0
+];
 
 const SWATHS_FILL_COLOR_EXPR_1: DataDrivenPropertyValueSpecification<string> = [
     'case',
@@ -80,7 +87,7 @@ const SWATHS_LINE_COLOR_EXPR_2: DataDrivenPropertyValueSpecification<string> = [
     SWATHS_FILL_COLOR_EXPR_2
 ];
 
-const LINE_WIDTH_EXPR: DataDrivenPropertyValueSpecification<any> = [
+const SWATHS_LINE_WIDTH_EXPR: DataDrivenPropertyValueSpecification<any> = [
     'interpolate',
     ['exponential', 0.5],
     ['zoom'],
@@ -118,9 +125,7 @@ interface SwathLayer {
     fillLayer: string
 }
 
-interface Props {
-
-}
+interface Props { }
 
 const getLayerFromDesignator = (d: string): SwathLayer => {
     const source = `swaths-${d}`;
@@ -140,6 +145,9 @@ const Map: NextPage<Props> = (props) => {
 
     const mapContainer = useRef<HTMLDivElement | null>(null);
     const [map, setMap] = useState<maplibregl.Map | null>(null);
+
+    const [hoveredMission, setHoveredMission] = useState<string | undefined>(undefined);
+    const [prevHoveredMission, setPrevHoveredMission] = useState<string | undefined>(undefined);
 
     const [hoveredFrame, setHoveredFrame] = useState<string | undefined>(undefined);
     const [prevHoveredFrame, setPrevHoveredFrame] = useState<string | undefined>(undefined);
@@ -161,8 +169,6 @@ const Map: NextPage<Props> = (props) => {
     } = useControl();
 
     useEffect(() => {
-        console.log('map')
-
         if (map) return;
 
         let maplibreMap = new maplibregl.Map({
@@ -174,8 +180,6 @@ const Map: NextPage<Props> = (props) => {
         });
 
         maplibreMap.on("load", () => {
-
-            console.log('map_onload')
 
             maplibreMap.resize();
 
@@ -192,7 +196,8 @@ const Map: NextPage<Props> = (props) => {
                 'type': 'vector',
                 'tiles': TILE_URLS.map(u => `${u}/missions/{z}/{x}/{y}.pbf`),
                 'minzoom': 0,
-                'maxzoom': 8
+                'maxzoom': 8,
+                'promoteId': 'm'
             });
 
             maplibreMap.addLayer({
@@ -210,6 +215,37 @@ const Map: NextPage<Props> = (props) => {
                     'fill-sort-key': ['get', 'o']
                 }
             }, firstSymbolId);
+
+            // maplibreMap.addLayer({
+            //     'id': 'missions-line',
+            //     'type': 'line',
+            //     'source': 'missions',
+            //     'source-layer': 'missions',
+            //     'paint': {
+            //         'line-opacity': 1,
+            //         'line-width': MISSIONS_LINE_WIDTH_EXPR,
+            //         'line-color': 'white'
+            //     },
+            //     'layout': {
+            //         'visibility': 'visible',
+            //     }
+            // }, firstSymbolId);
+
+            // const onMouseMoveFill = (e: MapLayerMouseEvent) => {
+            //     maplibreMap.getCanvas().style.cursor = 'pointer';
+            //     if (e.features) {
+            //         const missionID = e.features[0].id as string;
+            //         setHoveredMission(missionID);
+            //     }
+            // }
+
+            // const onMouseLeaveFill = (e: MapLayerMouseEvent) => {
+            //     maplibreMap.getCanvas().style.cursor = '';
+            //     setHoveredMission(undefined);
+            // }
+
+            // maplibreMap.on('mousemove', 'missions-fill', onMouseMoveFill);
+            // maplibreMap.on('mouseleave', 'missions-fill', onMouseLeaveFill);
 
             DESIGNATOR_NAMES.forEach((designatorName) => {
 
@@ -253,7 +289,7 @@ const Map: NextPage<Props> = (props) => {
                     'source-layer': layer.sourceLayer,
                     'paint': {
                         'line-opacity': 1,
-                        'line-width': LINE_WIDTH_EXPR,
+                        'line-width': SWATHS_LINE_WIDTH_EXPR,
                         'line-color': SWATHS_LINE_COLOR_EXPR_1
                     },
                     'layout': {
@@ -271,8 +307,6 @@ const Map: NextPage<Props> = (props) => {
 
     // MISSIONS FILTERS
     useEffect(() => {
-        console.log('mission_filters')
-
         if (!map) {
             return;
         }
@@ -302,12 +336,11 @@ const Map: NextPage<Props> = (props) => {
         }
 
         if (rangeAcquisitionYears) {
-            const dt_e = DateTime.fromFormat(`${rangeAcquisitionYears[0].toString()}-01-01`, 'yyyy-MM-dd');
-            const dt_l = DateTime.fromFormat(`${rangeAcquisitionYears[1].toString()}-12-31`, 'yyyy-MM-dd');
+            const ts = utils.range2time(rangeAcquisitionYears);
             yearsFilter = [
                 'all',
-                ['>=', ['get', 'e'], dt_e.toSeconds()],
-                ['<=', ['get', 'l'], dt_l.toSeconds()]
+                ['>=', ['get', 'e'], ts[0]],
+                ['<=', ['get', 'l'], ts[1]]
             ];
         }
 
@@ -318,8 +351,6 @@ const Map: NextPage<Props> = (props) => {
 
     // SWATH FILTER
     useEffect(() => {
-        console.log('swath_filter')
-
         if (!map) return;
 
         const onMouseMoveFill = (e: MapLayerMouseEvent) => {
@@ -341,7 +372,6 @@ const Map: NextPage<Props> = (props) => {
                 const frameID = e.features[0].id as string;
                 setClickedFrame(frameID);
                 setFrame(e.features[0].properties as Frame);
-                console.log(e.features[0].properties);
             }
         }
 
@@ -395,10 +425,30 @@ const Map: NextPage<Props> = (props) => {
 
     }, [selectedMission, selectedCameraType]);
 
+    // HOVER MISSION
+    // useEffect(() => {
+    //     if (!map) return;
+    //     if (mission) return;
+
+    //     if (prevHoveredMission && hoveredMission != prevHoveredMission) {
+    //         map.setFeatureState({
+    //             source: 'missions',
+    //             sourceLayer: 'missions', id: prevHoveredMission
+    //         }, { hover: false });
+    //     }
+    //     if (hoveredMission) {
+    //         map.setFeatureState({
+    //             source: 'missions',
+    //             sourceLayer: 'missions', id: hoveredMission
+    //         }, { hover: true });
+    //     }
+
+    //     setPrevHoveredMission(hoveredMission);
+
+    // }, [hoveredMission, prevHoveredMission]);
+
     // HOVER FRAME
     useEffect(() => {
-        console.log('hover_frame')
-
         if (!map) return;
         if (!swathLayer) return;
 
@@ -421,8 +471,6 @@ const Map: NextPage<Props> = (props) => {
 
     // CLICKED FRAME
     useEffect(() => {
-        console.log('clicked_frame')
-
         if (!map) return;
         if (!swathLayer) return;
 
@@ -445,8 +493,6 @@ const Map: NextPage<Props> = (props) => {
 
     // SHOW DOWNLOADS
     useEffect(() => {
-        console.log('show_downloads')
-
         if (!map) return;
         if (!mission || !swathLayer) return;
 

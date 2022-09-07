@@ -1,11 +1,11 @@
 import { createContext, useContext, ReactNode, useState, Dispatch, SetStateAction } from 'react';
-import { Mission, Frame } from '~/shared/types';
+import { MissionData, Mission, Frame } from '~/shared/types';
 
 type controlContextType = {
-    selectedDesignator: string | null;
-    setSelectedDesignator: Dispatch<SetStateAction<string | null>>
-    selectedResolution: number | null;
-    setSelectedResolution: Dispatch<SetStateAction<number | null>>
+    selectedDesignator: string;
+    setSelectedDesignator: Dispatch<SetStateAction<string>>
+    selectedResolution: string;
+    setSelectedResolution: Dispatch<SetStateAction<string>>
     selectedMission: string | null;
     setSelectedMission: Dispatch<SetStateAction<string | null>>
     rangeAcquisitionYears: number[] | null;
@@ -21,13 +21,17 @@ type controlContextType = {
     setMission: Dispatch<SetStateAction<Mission | undefined>>,
     frame: Frame | null;
     setFrame: Dispatch<SetStateAction<Frame | null>>,
+    dataLoading: boolean,
+    setDataLoading: Dispatch<SetStateAction<boolean>>,
+    missionData: MissionData | null;
+    setMissionData: Dispatch<SetStateAction<MissionData | null>>,
 
 };
 
 const controlContextDefaultValues: controlContextType = {
-    selectedDesignator: null,
+    selectedDesignator: '',
     setSelectedDesignator: () => { },
-    selectedResolution: null,
+    selectedResolution: '',
     setSelectedResolution: () => { },
     selectedMission: null,
     setSelectedMission: () => { },
@@ -44,6 +48,10 @@ const controlContextDefaultValues: controlContextType = {
     setMission: () => { },
     frame: null,
     setFrame: () => { },
+    dataLoading: true,
+    setDataLoading: () => { },
+    missionData: null,
+    setMissionData: () => { },
 };
 
 const ControlContext = createContext<controlContextType>(controlContextDefaultValues);
@@ -58,8 +66,8 @@ type Props = {
 
 export function ControlProvider({ children }: Props) {
 
-    const [selectedDesignator, setSelectedDesignator] = useState<string | null>(null);
-    const [selectedResolution, setSelectedResolution] = useState<number | null>(null);
+    const [selectedDesignator, setSelectedDesignator] = useState<string>('');
+    const [selectedResolution, setSelectedResolution] = useState<string>('');
     const [selectedMission, setSelectedMission] = useState<string | null>(null);
     const [mission, setMission] = useState<Mission | undefined>(undefined);
     const [frame, setFrame] = useState<Frame | null>(null);
@@ -68,6 +76,9 @@ export function ControlProvider({ children }: Props) {
     const [selectedCameraType, setSelectedCameraType] = useState<string | null>(null);
     const [showDownloads, setShowDownloads] = useState<boolean>(true);
     const [showFrame, setShowFrame] = useState<boolean>(false);
+
+    const [dataLoading, setDataLoading] = useState<boolean>(false);
+    const [missionData, setMissionData] = useState<MissionData | null>(null);
 
     const openUSGSMetadata = () => {
         console.log('openUSGSMetadata')
@@ -92,6 +103,10 @@ export function ControlProvider({ children }: Props) {
         setMission,
         frame,
         setFrame,
+        dataLoading,
+        setDataLoading,
+        missionData,
+        setMissionData,
         openUSGSMetadata,
     }
 
