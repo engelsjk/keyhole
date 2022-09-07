@@ -162,6 +162,7 @@ const Map: NextPage<Props> = (props) => {
         selectedMission,
         rangeAcquisitionYears,
         selectedCameraType,
+        rangeAcquisitionDays,
         showDownloads,
         showFrame,
         mission,
@@ -336,7 +337,7 @@ const Map: NextPage<Props> = (props) => {
         }
 
         if (rangeAcquisitionYears) {
-            const ts = utils.range2time(rangeAcquisitionYears);
+            const ts = utils.YearRangeToTimestamps(rangeAcquisitionYears);
             yearsFilter = [
                 'all',
                 ['>=', ['get', 'e'], ts[0]],
@@ -409,6 +410,7 @@ const Map: NextPage<Props> = (props) => {
 
         var missionFilter: FilterSpecification = ['has', 'm'];
         var cameraTypeFilter: FilterSpecification = ['has', 'c'];
+        var rangeAcquisitionDaysFilter: FilterSpecification = ['has', 'd'];
 
         if (mission) {
             missionFilter = ['==', ['get', 'm'], mission.m];
@@ -418,12 +420,21 @@ const Map: NextPage<Props> = (props) => {
             cameraTypeFilter = ['==', ['get', 'c'], selectedCameraType];
         }
 
-        const filterExpressions: FilterSpecification = ['all', missionFilter, cameraTypeFilter];
+        if (rangeAcquisitionDays) {
+            const ts = utils.DayRangeToTimestamps(mission.e, rangeAcquisitionDays);
+            rangeAcquisitionDaysFilter = [
+                'all',
+                ['>=', ['get', 'd'], ts[0]],
+                ['<=', ['get', 'd'], ts[1]]
+            ];
+        }
+
+        const filterExpressions: FilterSpecification = ['all', missionFilter, cameraTypeFilter, rangeAcquisitionDaysFilter];
 
         map.setFilter(layer.lineLayer, filterExpressions);
         map.setFilter(layer.fillLayer, filterExpressions);
 
-    }, [selectedMission, selectedCameraType]);
+    }, [selectedMission, selectedCameraType, rangeAcquisitionDays]);
 
     // HOVER MISSION
     // useEffect(() => {

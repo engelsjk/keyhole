@@ -64,7 +64,7 @@ export const getCameraTypeLabel = (value: string | undefined) => {
 //     return key in obj
 // }
 
-export const range2time = (r: number[] | null) => {
+export const YearRangeToTimestamps = (r: number[] | null) => {
     if (!r) {
         return [];
     }
@@ -73,13 +73,34 @@ export const range2time = (r: number[] | null) => {
     return ([e, l])
 }
 
-export const time2range = (t: number[] | null) => {
-    if (!t) {
+export const DayRangeToTimestamps = (s: number, r: number[] | null) => {
+    if (!r) {
         return [];
     }
-    const e = DateTime.fromSeconds(t[0]).get('year');
-    const l = DateTime.fromSeconds(t[1]).get('year');
+    const dt = DateTime.fromSeconds(s);
+    const e = dt.plus({ days: r[0] }).toSeconds();
+    const l = dt.plus({ days: r[1] }).toSeconds();
     return ([e, l])
+}
+
+export const TimestampsToYearRange = (ts: number[] | null) => {
+    if (!ts) {
+        return [];
+    }
+    const e = DateTime.fromSeconds(ts[0]).get('year');
+    const l = DateTime.fromSeconds(ts[1]).get('year');
+    return ([e, l])
+}
+
+export const TimestampsToDatetime = (ts: number): string => {
+    const dt = DateTime.fromSeconds(ts)
+    return `${dt.toLocaleString()}`;
+}
+
+export const TimestampsDaysDiff = (ts: number[]) => {
+    const e = DateTime.fromSeconds(ts[0]);
+    const l = DateTime.fromSeconds(ts[1]);
+    return e.diff(l, ['days']).get('days');
 }
 
 // export const arrayEquals = (a: any, b: any) => {

@@ -35,12 +35,7 @@ type Option = {
 
 interface Props { }
 
-const DEFAULT_ACQUISITION_RANGE = [1960, 1984];
-
-const ts2dt = (ts: number): string => {
-    const dt = DateTime.fromSeconds(ts)
-    return `${dt.toLocaleString()}`;
-}
+const DEFAULT_RANGE_ACQUISITION_YEARS = [1960, 1984];
 
 const FilterPane: NextPage<Props> = (props) => {
 
@@ -124,7 +119,7 @@ const FilterPane: NextPage<Props> = (props) => {
             return (prev.l > current.l) ? prev : current;
         })
 
-        const r = utils.time2range([earliestMission.e, latestMission.l])
+        const r = utils.TimestampsToYearRange([earliestMission.e, latestMission.l])
         setRangeAcquisitionYears(r);
 
     }, [missionData, selectedDesignator]);
@@ -154,7 +149,7 @@ const FilterPane: NextPage<Props> = (props) => {
             return (prev.l > current.l) ? prev : current;
         })
 
-        const r = utils.time2range([earliestMission.e, latestMission.l])
+        const r = utils.TimestampsToYearRange([earliestMission.e, latestMission.l])
         setRangeAcquisitionYears(r);
 
     }, [missionData, selectedResolution]);
@@ -162,7 +157,7 @@ const FilterPane: NextPage<Props> = (props) => {
     useEffect(() => {
         if (!missionData) return;
 
-        const ts = utils.range2time(rangeAcquisitionYears);
+        const ts = utils.YearRangeToTimestamps(rangeAcquisitionYears);
 
         // TODO: fix bad string => number casting!
 
@@ -201,7 +196,7 @@ const FilterPane: NextPage<Props> = (props) => {
     useEffect(() => {
         if (!missionData) return;
 
-        const ts = utils.range2time(rangeAcquisitionYears);
+        const ts = utils.YearRangeToTimestamps(rangeAcquisitionYears);
 
         // TODO: fix bad string => number casting!
 
@@ -313,10 +308,10 @@ const FilterPane: NextPage<Props> = (props) => {
                                 value={rangeAcquisitionYears}
                                 onChange={handleYearsChange}
                                 valueLabelDisplay="off"
-                                getAriaValueText={ts2dt}
+                                getAriaValueText={utils.TimestampsToDatetime}
                                 disabled={mission != undefined}
-                                min={DEFAULT_ACQUISITION_RANGE[0]}
-                                max={DEFAULT_ACQUISITION_RANGE[1]}
+                                min={DEFAULT_RANGE_ACQUISITION_YEARS[0]}
+                                max={DEFAULT_RANGE_ACQUISITION_YEARS[1]}
                             />
                         }
                     </Box>

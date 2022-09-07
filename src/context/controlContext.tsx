@@ -10,6 +10,8 @@ type controlContextType = {
     setSelectedMission: Dispatch<SetStateAction<string | null>>
     rangeAcquisitionYears: number[] | null;
     setRangeAcquisitionYears: Dispatch<SetStateAction<number[] | null>>
+    rangeAcquisitionDays: number[] | null;
+    setRangeAcquisitionDays: Dispatch<SetStateAction<number[] | null>>
     selectedCameraType: string | null;
     setSelectedCameraType: Dispatch<SetStateAction<string | null>>
     showDownloads: boolean;
@@ -37,6 +39,8 @@ const controlContextDefaultValues: controlContextType = {
     setSelectedMission: () => { },
     rangeAcquisitionYears: null,
     setRangeAcquisitionYears: () => { },
+    rangeAcquisitionDays: null,
+    setRangeAcquisitionDays: () => { },
     selectedCameraType: null,
     setSelectedCameraType: () => { },
     showDownloads: true,
@@ -73,6 +77,8 @@ export function ControlProvider({ children }: Props) {
     const [frame, setFrame] = useState<Frame | null>(null);
 
     const [rangeAcquisitionYears, setRangeAcquisitionYears] = useState<number[] | null>(null);
+    const [rangeAcquisitionDays, setRangeAcquisitionDays] = useState<number[] | null>(null);
+
     const [selectedCameraType, setSelectedCameraType] = useState<string | null>(null);
     const [showDownloads, setShowDownloads] = useState<boolean>(true);
     const [showFrame, setShowFrame] = useState<boolean>(false);
@@ -93,6 +99,8 @@ export function ControlProvider({ children }: Props) {
         setSelectedMission,
         rangeAcquisitionYears,
         setRangeAcquisitionYears,
+        rangeAcquisitionDays,
+        setRangeAcquisitionDays,
         selectedCameraType,
         setSelectedCameraType,
         showDownloads,
