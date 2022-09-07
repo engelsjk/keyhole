@@ -36,6 +36,34 @@ export const getResolutionLabel = (value: number | undefined) => {
     return labels[value];
 };
 
+export const getCameraTypeLabel = (value: string | undefined) => {
+    if (!value) {
+        return "None";
+    }
+    const labels: { [key: string]: string } = {
+        "A": "AFT PANORAMIC",
+        "F": "FORWARD PANORAMIC",
+        "C": "MAPPING",
+        "V": "VERTICAL",
+        "M": "MAPPING",
+        "S": "SURVEILLANCE"
+    }
+    return labels[value];
+};
+
+// const CAMERA_TYPES = {
+//     "A": "AFT PANORAMIC",
+//     "F": "FORWARD PANORAMIC",
+//     "C": "MAPPING",
+//     "V": "VERTICAL",
+//     "M": "MAPPING",
+//     "S": "SURVEILLANCE"
+// };
+
+// function hasKey<O>(obj: O, key: PropertyKey): key is keyof O {
+//     return key in obj
+// }
+
 export const range2time = (r: number[] | null) => {
     if (!r) {
         return [];

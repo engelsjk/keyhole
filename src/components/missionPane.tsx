@@ -16,26 +16,41 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
 
 import { useControl } from "~/context/controlContext";
 
 import { Mission } from '~/shared/types';
+import * as utils from '~/shared/utils';
 
-const CAMERA_TYPES = {
-    "A": "AFT PANORAMIC",
-    "F": "FORWARD PANORAMIC",
-    "C": "MAPPING",
-    "V": "VERTICAL",
-    "M": "MAPPING",
-    "S": "SURVEILLANCE"
+// const CAMERA_TYPES = {
+//     "A": "AFT PANORAMIC",
+//     "F": "FORWARD PANORAMIC",
+//     "C": "MAPPING",
+//     "V": "VERTICAL",
+//     "M": "MAPPING",
+//     "S": "SURVEILLANCE"
+// };
+
+// function hasKey<O>(obj: O, key: PropertyKey): key is keyof O {
+//     return key in obj
+// }
+
+type Row = {
+    label: string,
+    value: string,
 };
-
-function hasKey<O>(obj: O, key: PropertyKey): key is keyof O {
-    return key in obj
-}
 
 interface Props {
 };
+
+
 
 const MissionPane: NextPage<Props> = (props) => {
 
@@ -57,6 +72,7 @@ const MissionPane: NextPage<Props> = (props) => {
     } = useControl();
 
     const [expanded, setExpanded] = useState<boolean>(true);
+    const [rows, setRows] = useState<Row[]>([]);
 
     const handleCameraTypesChange = (event: SelectChangeEvent) => {
         setSelectedCameraType(event.target.value);
@@ -71,16 +87,26 @@ const MissionPane: NextPage<Props> = (props) => {
         setExpanded(newExpanded);
     };
 
+    useEffect(() => {
+        if (!mission) return;
+        const rows: Row[] = [
+            { label: 'NUM. FRAMES', value: `${mission.f}` },
+            { label: 'EARLIEST ACQUISITION', value: `${DateTime.fromSeconds(mission.e).toLocaleString()}` },
+            { label: 'LATEST ACQUISITION', value: `${DateTime.fromSeconds(mission.l).toLocaleString()}` },
+        ]
+        setRows(rows);
+    }, [mission]);
+
     return (
         mission ? (
             <div>
                 <Box sx={{
                     flexGrow: 1,
-                    borderStyle: 'solid',
-                    borderColor: 'black',
-                    p: 1
+                    mt: 1
+                    // borderStyle: 'solid',
+                    // borderColor: 'black',
+                    // p: 1
                 }}
-                    bgcolor='primary.main'
                 >
                     <Accordion expanded={expanded} onChange={handleExpanded}>
                         <AccordionSummary
@@ -91,15 +117,26 @@ const MissionPane: NextPage<Props> = (props) => {
                             <Typography> {`MISSION ${mission.m}`}</Typography>
                         </AccordionSummary>
                         <AccordionDetails>
-                            <Chip label={`DESIGNATOR: ${mission.d}`} />
-                            <Chip label={`RESOLUTION: ${mission.r}`} />
-                            <Chip label={`NUM. FRAMES: ${mission.f}`} />
-                            <Chip label={`EARLIEST ACQUISITION: ${DateTime.fromSeconds(mission.e).toLocaleString()}`} />
-                            <Chip label={`LATEST ACQUISITION: ${DateTime.fromSeconds(mission.l).toLocaleString()}`} />
-
+                            <TableContainer component={Paper}>
+                                <Table size="small" aria-label="a dense table">
+                                    <TableBody>
+                                        {rows.map((row) => (
+                                            <TableRow
+                                                key={row.label}
+                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                            >
+                                                <TableCell component="th" scope="row">
+                                                    {row.label}
+                                                </TableCell>
+                                                <TableCell align="right">{row.value}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
                             <Box
                             >
-                                <FormControl variant="standard" sx={{ m: 1, minWidth: 200 }}>
+                                <FormControl variant="standard" sx={{ mt: 2, minWidth: 200 }}>
                                     <InputLabel id="select-camera-type-label">CAMERA TYPE</InputLabel>
                                     <Select
                                         labelId="select-camera-type"
@@ -113,10 +150,7 @@ const MissionPane: NextPage<Props> = (props) => {
                                         </MenuItem>
                                         {
                                             mission.c.map(c => {
-                                                var cameraType = "UNKNOWN";
-                                                if (hasKey(CAMERA_TYPES, c)) {
-                                                    cameraType = CAMERA_TYPES[c] // works fine!
-                                                }
+                                                const cameraType = utils.getCameraTypeLabel(c);
                                                 return (
                                                     <MenuItem key={c} value={c}>{cameraType}</MenuItem>
                                                 )
@@ -124,7 +158,7 @@ const MissionPane: NextPage<Props> = (props) => {
                                         }
                                     </Select>
                                 </FormControl>
-                                <FormGroup>
+                                <FormGroup sx={{ mt: 1 }}>
                                     <FormControlLabel control={
                                         <Switch
                                             defaultChecked

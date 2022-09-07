@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
 import Map from '~/components/map';
-import ControlPane from '~/components/controlPane';
+import FilterPane from '~/components/filterPane';
 import MissionPane from '~/components/missionPane';
 import FramePane from '~/components/framePane';
 import MapPane from '~/components/mapPane';
@@ -101,37 +101,29 @@ const Home: NextPage = () => {
 
         <Box sx={{
           position: 'absolute',
-          height: 350,
-          width: 200,
+          height: 'auto',
+          width: 350,
           top: 5,
           right: 5,
+          padding: 2,
+          color: '#424242',
+          bgcolor: 'secondary.main',
         }}>
-          <ControlPane
-          />
+          <Typography variant="h5" gutterBottom>
+            KEYHOLE //SWATHS//
+          </Typography>
+          <FilterPane />
+          {mission &&
+            <Box sx={{}}>
+              <MissionPane />
+            </Box>
+          }
+          {frame &&
+            <Box sx={{}}>
+              <FramePane />
+            </Box>
+          }
         </Box>
-
-        {mission && <Box sx={{
-          position: 'absolute',
-          height: 300,
-          width: 300,
-          top: 5,
-          left: 5,
-        }}>
-          <MissionPane />
-        </Box>
-        }
-
-        {frame && <Box sx={{
-          position: 'absolute',
-          height: 300,
-          width: 300,
-          maxWidth: 300,
-          bottom: 5,
-          left: 5,
-        }}>
-          <FramePane />
-        </Box>
-        }
 
         {/* <CtrlMap
             projection={projection}
