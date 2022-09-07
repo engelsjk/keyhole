@@ -161,6 +161,7 @@ const Map: NextPage<Props> = (props) => {
     } = useControl();
 
     useEffect(() => {
+        console.log('map')
 
         if (map) return;
 
@@ -173,6 +174,8 @@ const Map: NextPage<Props> = (props) => {
         });
 
         maplibreMap.on("load", () => {
+
+            console.log('map_onload')
 
             maplibreMap.resize();
 
@@ -251,7 +254,7 @@ const Map: NextPage<Props> = (props) => {
                     'paint': {
                         'line-opacity': 1,
                         'line-width': LINE_WIDTH_EXPR,
-                        'line-color': 'white' // SWATHS_LINE_COLOR_EXPR_1
+                        'line-color': SWATHS_LINE_COLOR_EXPR_1
                     },
                     'layout': {
                         'visibility': 'none' //'visible' //'none'
@@ -266,19 +269,58 @@ const Map: NextPage<Props> = (props) => {
 
     }, [map]);
 
+    // MISSIONS FILTERS
     useEffect(() => {
-        if (!mission) {
-            setSwathLayer(null);
-            return;
-        };
-        const layer = getLayerFromDesignator(mission.d);
-        setSwathLayer(layer);
-    }, [mission]);
+        console.log('mission_filters')
 
+        if (!map) {
+            return;
+        }
+
+        if (mission) {
+            map.setLayoutProperty('missions-fill', 'visibility', 'none');
+            return;
+        }
+
+        map.setLayoutProperty('missions-fill', 'visibility', 'visible');
+
+        var designatorFilter: FilterSpecification = ['has', 'd'];
+        var resolutionFilter: FilterSpecification = ['has', 'r'];
+        var missionFilter: FilterSpecification = ['has', 'm'];
+        var yearsFilter: FilterSpecification = ['has', 'e'];
+
+        if (selectedDesignator) {
+            designatorFilter = ['==', ['get', 'd'], selectedDesignator];
+        }
+
+        if (selectedResolution) {
+            resolutionFilter = ['==', ['get', 'r'], selectedResolution];
+        }
+
+        if (selectedMission) {
+            missionFilter = ['==', ['get', 'm'], selectedMission];
+        }
+
+        if (rangeAcquisitionYears) {
+            const dt_e = DateTime.fromFormat(`${rangeAcquisitionYears[0].toString()}-01-01`, 'yyyy-MM-dd');
+            const dt_l = DateTime.fromFormat(`${rangeAcquisitionYears[1].toString()}-12-31`, 'yyyy-MM-dd');
+            yearsFilter = [
+                'all',
+                ['>=', ['get', 'e'], dt_e.toSeconds()],
+                ['<=', ['get', 'l'], dt_l.toSeconds()]
+            ];
+        }
+
+        const filterExpressions: FilterSpecification = ['all', designatorFilter, resolutionFilter, missionFilter, yearsFilter];
+        map.setFilter('missions-fill', filterExpressions);
+
+    }, [selectedDesignator, selectedResolution, selectedMission, rangeAcquisitionYears]);
+
+    // SWATH FILTER
     useEffect(() => {
+        console.log('swath_filter')
 
         if (!map) return;
-        if (!swathLayer) return;
 
         const onMouseMoveFill = (e: MapLayerMouseEvent) => {
             map.getCanvas().style.cursor = 'pointer';
@@ -321,16 +363,22 @@ const Map: NextPage<Props> = (props) => {
             map.off('click', layer.fillLayer, onClickFill);
         });
 
-        map.setLayoutProperty(swathLayer.lineLayer, 'visibility', 'visible');
-        map.setLayoutProperty(swathLayer.fillLayer, 'visibility', 'visible');
-        map.on('mousemove', swathLayer.fillLayer, onMouseMoveFill);
-        map.on('mouseleave', swathLayer.fillLayer, onMouseLeaveFill);
-        map.on('click', swathLayer.fillLayer, onClickFill);
+        if (!mission) {
+            setSwathLayer(null);
+            return;
+        };
+
+        const layer = getLayerFromDesignator(mission.d);
+        setSwathLayer(layer);
+
+        map.setLayoutProperty(layer.lineLayer, 'visibility', 'visible');
+        map.setLayoutProperty(layer.fillLayer, 'visibility', 'visible');
+        map.on('mousemove', layer.fillLayer, onMouseMoveFill);
+        map.on('mouseleave', layer.fillLayer, onMouseLeaveFill);
+        map.on('click', layer.fillLayer, onClickFill);
 
         var missionFilter: FilterSpecification = ['has', 'm'];
         var cameraTypeFilter: FilterSpecification = ['has', 'c'];
-
-        console.log(mission);
 
         if (mission) {
             missionFilter = ['==', ['get', 'm'], mission.m];
@@ -342,15 +390,15 @@ const Map: NextPage<Props> = (props) => {
 
         const filterExpressions: FilterSpecification = ['all', missionFilter, cameraTypeFilter];
 
-        map.setFilter(swathLayer.lineLayer, filterExpressions);
-        map.setFilter(swathLayer.fillLayer, filterExpressions);
+        map.setFilter(layer.lineLayer, filterExpressions);
+        map.setFilter(layer.fillLayer, filterExpressions);
 
-        console.log(map.getLayer(swathLayer.lineLayer))
-
-    }, [map, mission, swathLayer, selectedCameraType]);
+    }, [selectedMission, selectedCameraType]);
 
     // HOVER FRAME
     useEffect(() => {
+        console.log('hover_frame')
+
         if (!map) return;
         if (!swathLayer) return;
 
@@ -369,10 +417,12 @@ const Map: NextPage<Props> = (props) => {
 
         setPrevHoveredFrame(hoveredFrame);
 
-    }, [map, swathLayer, hoveredFrame, prevHoveredFrame]);
+    }, [hoveredFrame, prevHoveredFrame]);
 
     // CLICKED FRAME
     useEffect(() => {
+        console.log('clicked_frame')
+
         if (!map) return;
         if (!swathLayer) return;
 
@@ -391,10 +441,12 @@ const Map: NextPage<Props> = (props) => {
 
         setPrevClickedFrame(clickedFrame);
 
-    }, [map, swathLayer, clickedFrame, prevClickedFrame]);
+    }, [clickedFrame, prevClickedFrame]);
 
     // SHOW DOWNLOADS
     useEffect(() => {
+        console.log('show_downloads')
+
         if (!map) return;
         if (!mission || !swathLayer) return;
 
@@ -409,47 +461,7 @@ const Map: NextPage<Props> = (props) => {
         map.setPaintProperty(swathLayer.lineLayer, 'line-color', lineExpr);
         map.setPaintProperty(swathLayer.fillLayer, 'fill-color', fillExpr);
 
-    }, [map, swathLayer, mission, showDownloads]);
-
-    // MISSIONS FILTERS
-    useEffect(() => {
-        console.log('map_props.filters')
-
-        if (!map) {
-            return;
-        }
-
-        var designatorFilter: FilterSpecification = ['has', 'd'];
-        var resolutionFilter: FilterSpecification = ['has', 'r'];
-        var missionFilter: FilterSpecification = ['has', 'm'];
-        var yearsFilter: FilterSpecification = ['has', 'e'];
-
-        if (selectedDesignator) {
-            designatorFilter = ['==', ['get', 'd'], selectedDesignator];
-        }
-
-        if (selectedResolution) {
-            resolutionFilter = ['==', ['get', 'r'], selectedResolution];
-        }
-
-        if (selectedMission) {
-            missionFilter = ['==', ['get', 'm'], selectedMission];
-        }
-
-        if (rangeAcquisitionYears) {
-            const dt_e = DateTime.fromFormat(`${rangeAcquisitionYears[0].toString()}-01-01`, 'yyyy-MM-dd');
-            const dt_l = DateTime.fromFormat(`${rangeAcquisitionYears[1].toString()}-12-31`, 'yyyy-MM-dd');
-            yearsFilter = [
-                'all',
-                ['>=', ['get', 'e'], dt_e.toSeconds()],
-                ['<=', ['get', 'l'], dt_l.toSeconds()]
-            ];
-        }
-
-        const filterExpressions: FilterSpecification = ['all', designatorFilter, resolutionFilter, missionFilter, yearsFilter];
-        map.setFilter('missions-fill', filterExpressions);
-
-    }, [map, selectedDesignator, selectedResolution, selectedMission, rangeAcquisitionYears]);
+    }, [showDownloads]);
 
     return (
         <div ref={mapContainer} style={{

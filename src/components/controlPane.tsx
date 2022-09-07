@@ -108,6 +108,7 @@ const ControlPane: NextPage<Props> = (props) => {
                 getOptionLabel={(option) => option.mission}
                 isOptionEqualToValue={(option, value) => option.mission == value.mission}
                 onChange={(_event, newMission) => {
+                    console.log('onChange')
                     const m: string | null = newMission ? newMission.mission : null; // props.setMission(newMission.mission) : props.setMission(null)
                     setSelectedMission(m);
                     const mission = props.missionData?.find((mission) => {
