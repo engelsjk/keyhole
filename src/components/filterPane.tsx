@@ -89,6 +89,7 @@ const FilterPane: NextPage<Props> = (props) => {
     }, [mission]);
 
     useEffect(() => {
+        console.log('selectedDesignator')
         if (!missionData) return;
 
         // TODO: fix bad string => number casting!
@@ -119,6 +120,8 @@ const FilterPane: NextPage<Props> = (props) => {
     }, [missionData, selectedDesignator]);
 
     useEffect(() => {
+        console.log('selectedResolution')
+
         if (!missionData) return;
 
         // TODO: fix bad string => number casting!
@@ -149,6 +152,8 @@ const FilterPane: NextPage<Props> = (props) => {
     }, [missionData, selectedResolution]);
 
     useEffect(() => {
+        console.log('rangeAcquisitionYears')
+
         if (!missionData) return;
 
         const ts = utils.YearRangeToTimestamps(rangeAcquisitionYears);
@@ -216,11 +221,12 @@ const FilterPane: NextPage<Props> = (props) => {
                     expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel1a-content"
                     id="panel1a-header"
+                    sx={{ m: 0 }}
                 >
                     <Typography
                         color="inherit"
                         noWrap
-                        sx={{ flexGrow: 1 }}
+                        sx={{ flexGrow: 1, mb: 0 }}
                     >
                         FILTERS
                     </Typography>
@@ -229,7 +235,7 @@ const FilterPane: NextPage<Props> = (props) => {
                     <FormControl
                         fullWidth
                         size="small"
-                        sx={{ mr: 1, mt: 1.5, mb: 1.5, maxWidth: 150 }}
+                        sx={{ mr: 1, mt: 0, mb: 0, maxWidth: 150 }}
                     >
                         <InputLabel id="filter-designator-label">DESIGNATOR</InputLabel>
                         <Select
