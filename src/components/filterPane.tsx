@@ -8,16 +8,18 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { SelectChangeEvent } from '@mui/material/Select';
 import Slider from '@mui/material/Slider';
+
+import Autocomplete from '~/components/styled/Autocomplete';
+import Select from '~/components/styled/Select';
 
 import { useAppContext } from "~/context/appContext";
 
-import { MissionData } from '~/shared/types';
+import { MissionData, Mission } from '~/shared/types';
 import * as utils from '~/shared/utils';
 
 interface Props { }
@@ -47,12 +49,12 @@ const FilterPane: NextPage<Props> = (props) => {
     const [resolutionOptions, setResolutionOptions] = useState<string[]>([]);
     const [missionOptions, setMissionOptions] = useState<MissionData>([]);
 
-    const handleChangeDesignator = (event: SelectChangeEvent) => {
+    const handleChangeDesignator = (event: SelectChangeEvent<unknown>) => {
         setSelectedDesignator(event.target.value as string);
     };
 
-    const handleChangeResolution = (event: SelectChangeEvent) => {
-        setSelectedResolution(event.target.value);
+    const handleChangeResolution = (event: SelectChangeEvent<unknown>) => {
+        setSelectedResolution(event.target.value as string);
     };
 
     const handleYearsChange = (event: Event, newValue: number | number[]) => {
@@ -194,29 +196,36 @@ const FilterPane: NextPage<Props> = (props) => {
         >
             <Accordion expanded={expanded} onChange={handleExpanded}>
                 <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1a-content"
-                    id="panel1a-header"
-                    sx={{ m: 0 }}
+                    expandIcon={<ExpandMoreIcon sx={{ color: 'primary.main' }} />}
+                    sx={{ m: 0, backgroundColor: 'primary.dark' }}
                 >
                     <Typography
-                        color="inherit"
+                        color="primary.main"
                         noWrap
                         sx={{ flexGrow: 1, mb: 0 }}
                     >
                         FILTERS
                     </Typography>
                 </AccordionSummary>
-                <AccordionDetails>
+                <AccordionDetails
+                    sx={{ color: 'primary.light', backgroundColor: 'primary.dark' }}
+                >
                     <FormControl
                         fullWidth
                         size="small"
-                        sx={{ mr: 1, mt: 0, mb: 0, maxWidth: 150 }}
+                        sx={{
+                            mr: 1,
+                            mt: 0,
+                            mb: 0,
+                            maxWidth: 200,
+                        }}
                     >
-                        <InputLabel id="filter-designator-label">DESIGNATOR</InputLabel>
+                        <InputLabel
+                            sx={{ color: 'primary.light' }}
+                        >
+                            DESIGNATOR
+                        </InputLabel>
                         <Select
-                            labelId="filter-designator-label"
-                            id="filter-designator"
                             value={selectedDesignator}
                             label="DESIGNATOR"
                             onChange={handleChangeDesignator}
@@ -239,12 +248,19 @@ const FilterPane: NextPage<Props> = (props) => {
                     <FormControl
                         fullWidth
                         size="small"
-                        sx={{ mr: 1, mt: 1, mb: 1.5, maxWidth: 150 }}
+                        sx={{
+                            mr: 1,
+                            mt: 1.5,
+                            mb: 1.5,
+                            maxWidth: 200
+                        }}
                     >
-                        <InputLabel id="filter-resolution-label">RESOLUTION</InputLabel>
+                        <InputLabel
+                            sx={{ color: 'primary.light' }}
+                        >
+                            RESOLUTION
+                        </InputLabel>
                         <Select
-                            labelId="filter-resolution-label"
-                            id="filter-resolution"
                             value={selectedResolution}
                             label="RESOLUTION"
                             onChange={handleChangeResolution}
@@ -264,14 +280,19 @@ const FilterPane: NextPage<Props> = (props) => {
                         </Select>
                     </FormControl>
 
-                    <Typography id="input-slider" gutterBottom>
+                    <Typography gutterBottom>
                         ACQUISITIONS
                     </Typography>
-                    <Typography id="input-slider" gutterBottom>
+                    <Typography gutterBottom>
                         {rangeAcquisitionYears && `FROM ${rangeAcquisitionYears[0]} TO ${rangeAcquisitionYears[1]}`}
                     </Typography>
                     <Box
-                        sx={{ mt: 0, pr: 1, pl: 1, maxWidth: 200 }}
+                        sx={{
+                            mt: 0,
+                            pr: 1,
+                            pl: 1,
+                            maxWidth: 200
+                        }}
                     >
                         {rangeAcquisitionYears &&
                             < Slider
@@ -289,22 +310,31 @@ const FilterPane: NextPage<Props> = (props) => {
 
                     <Autocomplete
                         size="small"
-                        sx={{ mt: 1, mb: 1.5, maxWidth: 150 }}
+                        sx={{
+                            mt: 1,
+                            mb: 1.5,
+                            maxWidth: 200,
+
+                        }}
                         disablePortal
-                        id="filter-mission"
                         options={missionOptions.sort((a, b) => a.d.localeCompare(b.d))}
-                        groupBy={(option) => option.d}
-                        getOptionLabel={(option) => option.m}
-                        isOptionEqualToValue={(option, value) => option.m == value.m}
+                        groupBy={(option: unknown) => (option as Mission).d}
+                        getOptionLabel={(option: unknown) => (option as Mission).m}
+                        isOptionEqualToValue={(option: unknown) => (option as Mission).m == (option as Mission).m}
                         onChange={(_event, newMission) => {
-                            const m: string | null = newMission ? newMission.m : null;
+                            const m: string | null = newMission ? (newMission as Mission).m : null;
                             setSelectedMission(m);
                             const mission = missionData?.find((mission) => {
                                 return mission.m === m;
                             });
                             setMission(mission)
                         }}
-                        renderInput={(params) => <TextField {...params} label="MISSION" />}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="MISSION"
+                            />
+                        )}
                     />
                 </AccordionDetails>
             </Accordion>

@@ -77,25 +77,41 @@ const FramePane: NextPage<Props> = (props) => {
                         sx={{}}
                     >
                         <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="panel1a-content"
-                            id="panel1a-header"
+                            expandIcon={<ExpandMoreIcon sx={{ color: 'primary.main' }} />}
+                            sx={{ m: 0, backgroundColor: 'primary.dark' }}
                         >
-                            <Typography>{`FRAME ${frame.e}`}</Typography>
+                            <Typography
+                                color="primary.main"
+                            >
+                                {`FRAME ${frame.e}`}
+                            </Typography>
                         </AccordionSummary>
-                        <AccordionDetails>
+                        <AccordionDetails
+                            sx={{ color: 'primary.light', backgroundColor: 'primary.dark' }}
+                        >
                             <TableContainer component={Paper}>
-                                <Table size="small" aria-label="a dense table">
+                                <Table
+                                 size="small"
+                                 sx={{ color: 'primary.light', backgroundColor: 'primary.dark' }}
+
+                                 >
                                     <TableBody>
                                         {rows.map((row) => (
                                             <TableRow
                                                 key={row.label}
                                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                             >
-                                                <TableCell component="th" scope="row">
+                                                <TableCell
+                                                 component="th" 
+                                                 scope="row"
+                                                 sx={{color: 'primary.light'}}
+                                                 >
                                                     {row.label}
                                                 </TableCell>
-                                                <TableCell align="right">{row.value}</TableCell>
+                                                <TableCell 
+                                                align="right"
+                                                sx={{color: 'primary.light'}}
+                                                >{row.value}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>

@@ -13,13 +13,15 @@ import Switch from '@mui/material/Switch';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { SelectChangeEvent } from '@mui/material/Select';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+
+import Select from '~/components/styled/Select';
 
 import { useAppContext } from "~/context/appContext";
 
@@ -44,8 +46,8 @@ const MissionPane: NextPage<Props> = (props) => {
     const [expanded, setExpanded] = useState<boolean>(true);
     const [rows, setRows] = useState<Row[]>([]);
 
-    const handleCameraTypesChange = (event: SelectChangeEvent) => {
-        setSelectedCameraType(event.target.value);
+    const handleCameraTypesChange = (event: SelectChangeEvent<unknown>) => {
+        setSelectedCameraType(event.target.value as string);
     };
 
     const handleShowDownloadsChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -78,25 +80,47 @@ const MissionPane: NextPage<Props> = (props) => {
                 >
                     <Accordion expanded={expanded} onChange={handleExpanded}>
                         <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="panel1a-content"
-                            id="panel1a-header"
+                            expandIcon={<ExpandMoreIcon sx={{ color: 'primary.main' }} />}
+                            sx={{ m: 0, backgroundColor: 'primary.dark' }}
                         >
-                            <Typography> {`MISSION ${mission.m}`}</Typography>
+                            <Typography
+                                color="primary.main"
+                            >
+                                {`MISSION ${mission.m}`}
+                            </Typography>
                         </AccordionSummary>
-                        <AccordionDetails>
-                            <TableContainer component={Paper}>
-                                <Table size="small" aria-label="a dense table">
+                        <AccordionDetails
+                            sx={{ color: 'primary.light', backgroundColor: 'primary.dark' }}
+                        >
+                            <TableContainer 
+                                component={Paper}
+                            >
+                                <Table 
+                                    size="small"
+                                    sx={{ color: 'primary.light', backgroundColor: 'primary.dark' }}
+
+                                >
                                     <TableBody>
                                         {rows.map((row) => (
                                             <TableRow
                                                 key={row.label}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                sx={{ 
+                                                    '&:last-child td, &:last-child th': { border: 0 },
+                                                 }}
                                             >
-                                                <TableCell component="th" scope="row">
+                                                <TableCell 
+                                                component="th" 
+                                                scope="row"
+                                                sx={{ color: 'primary.light' }}
+                                                >
                                                     {row.label}
                                                 </TableCell>
-                                                <TableCell align="right">{row.value}</TableCell>
+                                                <TableCell
+                                                 align="right"
+                                                 sx={{                                              
+                                                    color: 'primary.light'
+                                                }}
+                                                 >{row.value}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
@@ -105,10 +129,10 @@ const MissionPane: NextPage<Props> = (props) => {
                             <Box
                             >
                                 <FormControl variant="standard" sx={{ mt: 2, minWidth: 200 }}>
-                                    <InputLabel id="select-camera-type-label">CAMERA TYPE</InputLabel>
+                                    <InputLabel
+                                    sx={{ color: 'primary.light' }}
+                                    >CAMERA TYPE</InputLabel>
                                     <Select
-                                        labelId="select-camera-type"
-                                        id="select-camera-type"
                                         value={selectedCameraType ? selectedCameraType : "ALL"}
                                         onChange={handleCameraTypesChange}
                                         label="CAMERA TYPES"
