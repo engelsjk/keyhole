@@ -1,12 +1,11 @@
 import { NextPage } from "next";
-import { useEffect, useRef, useState, Fragment, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import maplibregl, { DataDrivenPropertyValueSpecification, ExpressionSpecification, FilterSpecification, GeoJSONSource, MapLayerMouseEvent, MapMouseEvent } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { DateTime } from 'luxon';
 
-import { useControl } from "~/context/controlContext";
+import { useAppContext } from "~/context/appContext";
 
-import { Mission, Frame, Filters } from '~/shared/types';
+import { Frame } from '~/shared/types';
 import * as utils from '~/shared/utils';
 
 const TILE_URLS = [
@@ -166,7 +165,7 @@ const Map: NextPage<Props> = (props) => {
         mission,
         setFrame,
         setMapLoading,
-    } = useControl();
+    } = useAppContext();
 
     useEffect(() => {
         if (map) return;
@@ -346,8 +345,6 @@ const Map: NextPage<Props> = (props) => {
 
         const filterExpressions: FilterSpecification = ['all', designatorFilter, resolutionFilter, missionFilter, yearsFilter];
         map.setFilter('missions-fill', filterExpressions);
-
-        console.log(map.getLayer('missions-fill'));
 
     }, [selectedDesignator, selectedResolution, selectedMission, rangeAcquisitionYears]);
 

@@ -11,26 +11,18 @@ import MissionPane from '~/components/missionPane';
 import FramePane from '~/components/framePane';
 import MapPane from '~/components/mapPane';
 import MapLoadingHolder from "../components/mapLoadingHolder";
+import Modal from '~/components/modal';
+import IconButton from '@mui/material/IconButton';
+import HelpIcon from '@mui/icons-material/Help';
 
-import { useControl } from "~/context/controlContext";
 
-import styles from "../styles/Home.module.css";
-import Switch from "@mui/material/Switch";
-
-const label = { inputProps: { "aria-label": "Switch demo" } };
+import { useAppContext } from "~/context/appContext";
 
 const Home: NextPage = () => {
 
   const {
-    selectedDesignator,
-    selectedResolution,
-    selectedMission,
-    rangeAcquisitionYears,
     setRangeAcquisitionYears,
-    selectedCameraType,
     setSelectedCameraType,
-    showDownloads,
-    showFrame,
     mission,
     frame,
     missionData,
@@ -38,7 +30,12 @@ const Home: NextPage = () => {
     dataLoading,
     setDataLoading,
     mapLoading
-  } = useControl();
+  } = useAppContext();
+
+  const [open, setOpen] = useState<boolean>(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
 
   useEffect(() => {
     if (missionData) {
@@ -68,11 +65,6 @@ const Home: NextPage = () => {
 
   }, [])
 
-  useEffect(() => {
-    console.log(`mapLoading: ${mapLoading}`);
-    console.log(`dataLoading: ${dataLoading}`);
-  }, [dataLoading, mapLoading])
-
   return (
     <div>
       {<Container
@@ -99,7 +91,7 @@ const Home: NextPage = () => {
           <Map />
         </Box>
 
-        <Box sx={{
+        {(!dataLoading && !mapLoading) && <Box sx={{
           position: 'absolute',
           height: 'auto',
           width: 350,
@@ -112,13 +104,29 @@ const Home: NextPage = () => {
           borderStyle: 'solid',
           borderWidth: 1,
         }}>
-          <Typography
-            variant="h5"
-            color="primary.main"
-            gutterBottom
-          >
-            KEYHOLE //SWATHS//
-          </Typography>
+          <div style={{ display: 'flex' }}>
+            <Typography
+              variant="h5"
+              color="primary.main"
+              gutterBottom
+            >
+              KEYHOLE //SWATHS//
+            </Typography>
+            <IconButton
+              color="primary"
+              aria-label="open modal"
+              component="label"
+              onClick={handleOpen}
+              size="medium"
+              sx={{
+                ml: 6,
+                mb: '0.35em',
+                p: 0
+              }}
+            >
+              <HelpIcon />
+            </IconButton>
+          </div>
           <FilterPane />
           {mission &&
             <Box sx={{}}>
@@ -131,16 +139,15 @@ const Home: NextPage = () => {
             </Box>
           }
         </Box>
-
+        }
+        <Modal
+          open={open}
+          handleClose={handleClose}
+        />
         {/* <CtrlMap
             projection={projection}
             setProjection={setProjection}
           /> */}
-        {/*       
-        <BottomToolBar
-          projection={projection}
-          onChangeProjection={onChangeProjection}
-        /> */}
       </Container>
       }
       {(dataLoading || mapLoading) && <MapLoadingHolder className="loading-holder" />}

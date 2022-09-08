@@ -1,6 +1,5 @@
 import { NextPage } from "next";
-import { useEffect, useRef, useState, ChangeEvent, Fragment, useCallback, Dispatch, SetStateAction } from "react";
-import { DateTime } from 'luxon';
+import { useEffect, useState, ChangeEvent } from "react";
 
 import Box from '@mui/material/Box';
 import Accordion from '@mui/material/Accordion';
@@ -8,7 +7,6 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
-import Chip from '@mui/material/Chip';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
@@ -20,13 +18,11 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
-import { useControl } from "~/context/controlContext";
+import { useAppContext } from "~/context/appContext";
 
-import { Mission } from '~/shared/types';
 import * as utils from '~/shared/utils';
 
 type Row = {
@@ -34,8 +30,7 @@ type Row = {
     value: string,
 };
 
-interface Props {
-};
+interface Props { };
 
 const MissionPane: NextPage<Props> = (props) => {
 
@@ -44,8 +39,7 @@ const MissionPane: NextPage<Props> = (props) => {
         setSelectedCameraType,
         setShowDownloads,
         mission,
-        setMission,
-    } = useControl();
+    } = useAppContext();
 
     const [expanded, setExpanded] = useState<boolean>(true);
     const [rows, setRows] = useState<Row[]>([]);
@@ -68,8 +62,8 @@ const MissionPane: NextPage<Props> = (props) => {
             { label: 'DESIGNATOR', value: `${utils.getDesignatorLabel(mission.d)}` },
             { label: 'RESOLUTION', value: `${utils.getResolutionLabel(mission.r)}` },
             { label: 'NUM. FRAMES', value: `${mission.f.toLocaleString('en-US')}` },
-            { label: 'EARLIEST ACQUISITION', value: `${DateTime.fromSeconds(mission.e).toLocaleString()}` },
-            { label: 'LATEST ACQUISITION', value: `${DateTime.fromSeconds(mission.l).toLocaleString()}` },
+            { label: 'EARLIEST ACQUISITION', value: `${utils.TimestampsToDatetime(mission.e)}` },
+            { label: 'LATEST ACQUISITION', value: `${utils.TimestampsToDatetime(mission.l)}` },
         ]
         setRows(rows);
     }, [mission]);
@@ -80,9 +74,6 @@ const MissionPane: NextPage<Props> = (props) => {
                 <Box sx={{
                     flexGrow: 1,
                     mt: 1
-                    // borderStyle: 'solid',
-                    // borderColor: 'black',
-                    // p: 1
                 }}
                 >
                     <Accordion expanded={expanded} onChange={handleExpanded}>

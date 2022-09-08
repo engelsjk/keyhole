@@ -1,7 +1,7 @@
 import { createContext, useContext, ReactNode, useState, Dispatch, SetStateAction } from 'react';
 import { MissionData, Mission, Frame } from '~/shared/types';
 
-type controlContextType = {
+type appContextType = {
     selectedDesignator: string;
     setSelectedDesignator: Dispatch<SetStateAction<string>>
     selectedResolution: string;
@@ -16,7 +16,6 @@ type controlContextType = {
     setShowDownloads: Dispatch<SetStateAction<boolean>>,
     showFrame: boolean;
     setShowFrame: Dispatch<SetStateAction<boolean>>,
-    openUSGSMetadata: () => void;
     mission: Mission | undefined;
     setMission: Dispatch<SetStateAction<Mission | undefined>>,
     frame: Frame | null;
@@ -30,7 +29,7 @@ type controlContextType = {
 
 };
 
-const controlContextDefaultValues: controlContextType = {
+const appContextDefaultValues: appContextType = {
     selectedDesignator: '',
     setSelectedDesignator: () => { },
     selectedResolution: '',
@@ -45,7 +44,6 @@ const controlContextDefaultValues: controlContextType = {
     setShowDownloads: () => { },
     showFrame: false,
     setShowFrame: () => { },
-    openUSGSMetadata: () => { },
     mission: undefined,
     setMission: () => { },
     frame: null,
@@ -58,17 +56,17 @@ const controlContextDefaultValues: controlContextType = {
     setMissionData: () => { },
 };
 
-const ControlContext = createContext<controlContextType>(controlContextDefaultValues);
+const AppContext = createContext<appContextType>(appContextDefaultValues);
 
-export function useControl() {
-    return useContext(ControlContext);
+export function useAppContext() {
+    return useContext(AppContext);
 }
 
 type Props = {
     children: ReactNode;
 };
 
-export function ControlProvider({ children }: Props) {
+export function AppContextProvider({ children }: Props) {
 
     const [selectedDesignator, setSelectedDesignator] = useState<string>('');
     const [selectedResolution, setSelectedResolution] = useState<string>('');
@@ -86,10 +84,6 @@ export function ControlProvider({ children }: Props) {
     const [mapLoading, setMapLoading] = useState<boolean>(true);
 
     const [missionData, setMissionData] = useState<MissionData | null>(null);
-
-    const openUSGSMetadata = () => {
-        console.log('openUSGSMetadata')
-    };
 
     const value = {
         selectedDesignator,
@@ -116,14 +110,13 @@ export function ControlProvider({ children }: Props) {
         setMapLoading,
         missionData,
         setMissionData,
-        openUSGSMetadata,
     }
 
     return (
         <>
-            <ControlContext.Provider value={value}>
+            <AppContext.Provider value={value}>
                 {children}
-            </ControlContext.Provider>
+            </AppContext.Provider>
         </>
     );
 }

@@ -1,5 +1,5 @@
 import { NextPage } from "next";
-import { useEffect, useRef, useState, ChangeEvent, Fragment, useCallback, Dispatch, SetStateAction } from "react";
+import { useEffect, useState, ChangeEvent } from "react";
 import { DateTime } from 'luxon';
 
 import Box from '@mui/material/Box';
@@ -18,9 +18,8 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
-import { useControl } from "~/context/controlContext";
+import { useAppContext } from "~/context/appContext";
 
-import { Frame } from '~/shared/types';
 import * as utils from '~/shared/utils';
 
 type Row = {
@@ -34,7 +33,7 @@ const FramePane: NextPage<Props> = (props) => {
 
     const {
         frame,
-    } = useControl();
+    } = useAppContext();
 
     const [expanded, setExpanded] = useState<boolean>(true);
     const [rows, setRows] = useState<Row[]>([]);
@@ -70,9 +69,6 @@ const FramePane: NextPage<Props> = (props) => {
                 <Box sx={{
                     flexGrow: 1,
                     mt: 1
-                    // borderStyle: 'solid',
-                    // borderColor: 'black',
-                    // p: 1
                 }}
                 >
                     <Accordion

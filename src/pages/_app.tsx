@@ -4,16 +4,16 @@ import { ThemeProvider } from "@mui/material";
 import { theme } from "../config/theme";
 import createEmotionCache from '~/config/createEmotionCache';
 
-import { ControlProvider } from "~/context/controlContext";
+import { AppContextProvider } from "~/context/appContext";
 
 const clientSideEmotionCache = createEmotionCache();
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ThemeProvider theme={theme}>
-      <ControlProvider>
+      <AppContextProvider>
         <Component {...pageProps} />
-      </ControlProvider>
+      </AppContextProvider>
     </ThemeProvider>
   );
 }

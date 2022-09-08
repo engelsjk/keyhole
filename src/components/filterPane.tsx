@@ -15,30 +15,16 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Slider from '@mui/material/Slider';
 
-// import { makeStyles } from "@material-ui/core/styles";
+import { useAppContext } from "~/context/appContext";
 
-import { useTheme } from '@mui/system';
-
-import { useControl } from "~/context/controlContext";
-
-import { MissionData, Mission, Filters } from '~/shared/types';
+import { MissionData } from '~/shared/types';
 import * as utils from '~/shared/utils';
-
-import resolutionIcon from '~/assets/resolution.svg';
-
-type Option = {
-    designator: string
-    resolution: number
-    mission: string
-}
 
 interface Props { }
 
 const DEFAULT_RANGE_ACQUISITION_YEARS = [1960, 1984];
 
 const FilterPane: NextPage<Props> = (props) => {
-
-    const theme = useTheme();
 
     const {
         selectedDesignator,
@@ -53,9 +39,8 @@ const FilterPane: NextPage<Props> = (props) => {
         setMission,
         setFrame,
         missionData,
-    } = useControl();
+    } = useAppContext();
 
-    // const [options, setOptions] = useState<Option[] | null>([]);
     const [expanded, setExpanded] = useState<boolean>(true);
 
     const [designatorOptions, setDesignatorOptions] = useState<string[]>([]);
@@ -68,10 +53,6 @@ const FilterPane: NextPage<Props> = (props) => {
 
     const handleChangeResolution = (event: SelectChangeEvent) => {
         setSelectedResolution(event.target.value);
-    };
-
-    const handleChangeMission = (event: SelectChangeEvent) => {
-        setSelectedMission(event.target.value as string);
     };
 
     const handleYearsChange = (event: Event, newValue: number | number[]) => {
@@ -89,7 +70,6 @@ const FilterPane: NextPage<Props> = (props) => {
     }, [mission]);
 
     useEffect(() => {
-        console.log('selectedDesignator')
         if (!missionData) return;
 
         // TODO: fix bad string => number casting!
@@ -120,8 +100,6 @@ const FilterPane: NextPage<Props> = (props) => {
     }, [missionData, selectedDesignator]);
 
     useEffect(() => {
-        console.log('selectedResolution')
-
         if (!missionData) return;
 
         // TODO: fix bad string => number casting!
@@ -152,8 +130,6 @@ const FilterPane: NextPage<Props> = (props) => {
     }, [missionData, selectedResolution]);
 
     useEffect(() => {
-        console.log('rangeAcquisitionYears')
-
         if (!missionData) return;
 
         const ts = utils.YearRangeToTimestamps(rangeAcquisitionYears);
@@ -214,7 +190,7 @@ const FilterPane: NextPage<Props> = (props) => {
     return (
 
         <Box
-            sx={{}}
+            sx={{ mt: 2 }}
         >
             <Accordion expanded={expanded} onChange={handleExpanded}>
                 <AccordionSummary

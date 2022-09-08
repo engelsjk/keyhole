@@ -1,0 +1,25 @@
+.logo {
+  transform: scale(2);
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-name: pulse;
+  animation-timing-function: ease-in -out;
+  -webkit-animation-duration: 2s;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-name: pulse;
+  -webkit-animation-timing-function: ease-in -out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(2);
+  }
+
+  50% {
+    transform: scale(2.3);
+  }
+
+  100% {
+    transform: scale(2);
+  }
+}

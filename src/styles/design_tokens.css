@@ -1,0 +1,13 @@
+:root {
+    --green: #3FE79E;
+    --dark: #0F0235;
+    --off-white: #F5F5F3;
+
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+
+    --font-size-sm: 0.5rem;
+    --font-size-md: 1rem;
+    --font-size-lg: 2rem;
+}
