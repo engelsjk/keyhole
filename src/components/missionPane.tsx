@@ -117,9 +117,7 @@ const MissionPane: NextPage<Props> = (props) => {
                                                 </TableCell>
                                                 <TableCell
                                                  align="right"
-                                                 sx={{                                              
-                                                    color: 'primary.light'
-                                                }}
+                                                 sx={{color: 'primary.light'}}
                                                  >{row.value}</TableCell>
                                             </TableRow>
                                         ))}

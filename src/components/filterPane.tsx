@@ -33,7 +33,6 @@ const FilterPane: NextPage<Props> = (props) => {
         setSelectedDesignator,
         selectedResolution,
         setSelectedResolution,
-        selectedMission,
         setSelectedMission,
         rangeAcquisitionYears,
         setRangeAcquisitionYears,
@@ -50,43 +49,21 @@ const FilterPane: NextPage<Props> = (props) => {
     const [missionOptions, setMissionOptions] = useState<MissionData>([]);
 
     const handleChangeDesignator = (event: SelectChangeEvent<unknown>) => {
-        setSelectedDesignator(event.target.value as string);
-    };
 
-    const handleChangeResolution = (event: SelectChangeEvent<unknown>) => {
-        setSelectedResolution(event.target.value as string);
-    };
-
-    const handleYearsChange = (event: Event, newValue: number | number[]) => {
-        setRangeAcquisitionYears(newValue as number[])
-    };
-
-    const handleExpanded = (event: React.SyntheticEvent, newExpanded: boolean) => {
-        setExpanded(newExpanded);
-    };
-
-    useEffect(() => {
-        if (!mission) {
-            setFrame(null);
-        }
-    }, [mission]);
-
-    useEffect(() => {
         if (!missionData) return;
 
-        // TODO: fix bad string => number casting!
+        const designator = event.target.value as string;
 
-        var filteredMissionData = selectedDesignator ?
-            missionData.filter(m => { return m.d == selectedDesignator }) : missionData;
+        var filteredMissionData = designator ?
+            missionData.filter(m => { return m.d == designator }) : missionData;
 
         const resolutionOptions = [...new Set(
             filteredMissionData
                 .sort((a, b) => (a.r > b.r) ? 1 : -1)
                 .map(m => m.r as unknown as string)
         )];
-        setResolutionOptions(resolutionOptions);
 
-        filteredMissionData = !selectedDesignator && selectedResolution ?
+        filteredMissionData = !designator && selectedResolution ?
             filteredMissionData.filter(m => { return m.r == Number(selectedResolution) }) : filteredMissionData;
 
         const earliestMission = filteredMissionData.reduce((prev, current) => {
@@ -97,26 +74,29 @@ const FilterPane: NextPage<Props> = (props) => {
         })
 
         const r = utils.TimestampsToYearRange([earliestMission.e, latestMission.l])
+
+        setSelectedDesignator(designator);
+        if (!selectedResolution) setResolutionOptions(resolutionOptions);
         setRangeAcquisitionYears(r);
 
-    }, [missionData, selectedDesignator]);
+    };
 
-    useEffect(() => {
+    const handleChangeResolution = (event: SelectChangeEvent<unknown>) => {
+
         if (!missionData) return;
 
-        // TODO: fix bad string => number casting!
+        const resolution = event.target.value as string;
 
-        var filteredMissionData = selectedResolution ?
-            missionData.filter(m => { return m.r == Number(selectedResolution) }) : missionData;
+        var filteredMissionData = resolution ?
+            missionData.filter(m => { return m.r == Number(resolution) }) : missionData;
 
         const designatorOptions = [...new Set(
             filteredMissionData
                 .sort((a, b) => (a.d > b.d) ? 1 : -1)
                 .map(m => m.d)
         )];
-        setDesignatorOptions(designatorOptions);
 
-        filteredMissionData = !selectedResolution && selectedDesignator ?
+        filteredMissionData = !resolution && selectedDesignator ?
             filteredMissionData.filter(m => { return m.d == selectedDesignator }) : filteredMissionData;
 
         const earliestMission = filteredMissionData.reduce((prev, current) => {
@@ -126,15 +106,20 @@ const FilterPane: NextPage<Props> = (props) => {
             return (prev.l > current.l) ? prev : current;
         })
 
-        const r = utils.TimestampsToYearRange([earliestMission.e, latestMission.l])
+        const r = utils.TimestampsToYearRange([earliestMission.e, latestMission.l]);
+
+        if (!selectedDesignator) setDesignatorOptions(designatorOptions);
+        setSelectedResolution(resolution);
         setRangeAcquisitionYears(r);
+    };
 
-    }, [missionData, selectedResolution]);
+    const handleChangeRangeAcquisitionYears = (event: Event, newValue: number | number[]) => {
 
-    useEffect(() => {
         if (!missionData) return;
 
-        const ts = utils.YearRangeToTimestamps(rangeAcquisitionYears);
+        const acquisitionYears = newValue as number[];
+
+        const ts = utils.YearRangeToTimestamps(acquisitionYears);
 
         // TODO: fix bad string => number casting!
 
@@ -150,7 +135,6 @@ const FilterPane: NextPage<Props> = (props) => {
                 .sort((a, b) => (a.r > b.r) ? 1 : -1)
                 .map(m => m.r as unknown as string)
         )];
-        setResolutionOptions(resolutionOptions);
 
         // DESIGNATOR
 
@@ -166,9 +150,46 @@ const FilterPane: NextPage<Props> = (props) => {
                 .sort((a, b) => (a.d > b.d) ? 1 : -1)
                 .map(m => m.d)
         )];
+
+        if (!selectedDesignator) setDesignatorOptions(designatorOptions);
+        if (!selectedResolution) setResolutionOptions(resolutionOptions);
+        setRangeAcquisitionYears(acquisitionYears);
+    };
+
+    const handleChangeMission = (event: React.SyntheticEvent, value: unknown) => {
+        const newMission = value as Mission;
+        const m: string | null = newMission ? newMission.m : null;
+        setSelectedMission(m);
+        const mission = missionData?.find((mission) => {
+            return mission.m === m;
+        });
+        if (!mission) {
+            setFrame(null);
+        }
+        setMission(mission);
+    }
+
+    const handleExpanded = (event: React.SyntheticEvent, newExpanded: boolean) => {
+        setExpanded(newExpanded);
+    };
+
+    useEffect(() => {
+        if (!missionData) return;
+
+        const designatorOptions = [...new Set(
+            missionData
+                .sort((a, b) => (a.d > b.d) ? 1 : -1)
+                .map(m => m.d)
+        )];
         setDesignatorOptions(designatorOptions);
 
-    }, [missionData, rangeAcquisitionYears]);
+        const resolutionOptions = [...new Set(
+            missionData
+                .sort((a, b) => (a.r > b.r) ? 1 : -1)
+                .map(m => m.r as unknown as string)
+        )];
+        setResolutionOptions(resolutionOptions);
+    }, [missionData])
 
     useEffect(() => {
         if (!missionData) return;
@@ -187,10 +208,10 @@ const FilterPane: NextPage<Props> = (props) => {
             })
             .sort((a, b) => (a.m > b.m) ? 1 : -1);
         setMissionOptions(missionOpts);
+
     }, [missionData, selectedDesignator, selectedResolution, rangeAcquisitionYears]);
 
     return (
-
         <Box
             sx={{ mt: 2 }}
         >
@@ -298,7 +319,7 @@ const FilterPane: NextPage<Props> = (props) => {
                             < Slider
                                 getAriaLabel={() => 'ACQUISITIONS'}
                                 value={rangeAcquisitionYears}
-                                onChange={handleYearsChange}
+                                onChange={handleChangeRangeAcquisitionYears}
                                 valueLabelDisplay="off"
                                 getAriaValueText={utils.TimestampsToDatetime}
                                 disabled={mission != undefined}
@@ -321,14 +342,7 @@ const FilterPane: NextPage<Props> = (props) => {
                         groupBy={(option: unknown) => (option as Mission).d}
                         getOptionLabel={(option: unknown) => (option as Mission).m}
                         isOptionEqualToValue={(option: unknown) => (option as Mission).m == (option as Mission).m}
-                        onChange={(_event, newMission) => {
-                            const m: string | null = newMission ? (newMission as Mission).m : null;
-                            setSelectedMission(m);
-                            const mission = missionData?.find((mission) => {
-                                return mission.m === m;
-                            });
-                            setMission(mission)
-                        }}
+                        onChange={handleChangeMission}
                         renderInput={(params) => (
                             <TextField
                                 {...params}

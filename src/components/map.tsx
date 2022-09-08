@@ -145,8 +145,8 @@ const Map: NextPage<Props> = (props) => {
     const mapContainer = useRef<HTMLDivElement | null>(null);
     const [map, setMap] = useState<maplibregl.Map | null>(null);
 
-    const [hoveredMission, setHoveredMission] = useState<string | undefined>(undefined);
-    const [prevHoveredMission, setPrevHoveredMission] = useState<string | undefined>(undefined);
+    // const [hoveredMission, setHoveredMission] = useState<string | undefined>(undefined);
+    // const [prevHoveredMission, setPrevHoveredMission] = useState<string | undefined>(undefined);
 
     const [hoveredFrame, setHoveredFrame] = useState<string | undefined>(undefined);
     const [prevHoveredFrame, setPrevHoveredFrame] = useState<string | undefined>(undefined);
@@ -199,6 +199,8 @@ const Map: NextPage<Props> = (props) => {
                 'maxzoom': 8,
                 'promoteId': 'm'
             });
+
+            console.log('addLayer');
 
             maplibreMap.addLayer({
                 'id': 'missions-fill',
@@ -302,7 +304,7 @@ const Map: NextPage<Props> = (props) => {
             setMapLoading(false);
         });
 
-    }, [map]);
+    }, [map, setMapLoading]);
 
     // MISSIONS FILTERS
     useEffect(() => {
@@ -310,7 +312,7 @@ const Map: NextPage<Props> = (props) => {
             return;
         }
 
-        if (mission) {
+        if (!mission) {
             map.setLayoutProperty('missions-fill', 'visibility', 'none');
             return;
         }
@@ -330,8 +332,8 @@ const Map: NextPage<Props> = (props) => {
             resolutionFilter = ['==', ['get', 'r'], selectedResolution];
         }
 
-        if (selectedMission) {
-            missionFilter = ['==', ['get', 'm'], selectedMission];
+        if (mission) {
+            missionFilter = ['==', ['get', 'm'], mission.m];
         }
 
         if (rangeAcquisitionYears) {
@@ -345,8 +347,9 @@ const Map: NextPage<Props> = (props) => {
 
         const filterExpressions: FilterSpecification = ['all', designatorFilter, resolutionFilter, missionFilter, yearsFilter];
         map.setFilter('missions-fill', filterExpressions);
+        console.log(map.getLayer('missions-fill'));
 
-    }, [selectedDesignator, selectedResolution, selectedMission, rangeAcquisitionYears]);
+    }, [map, mission, selectedDesignator, selectedResolution, rangeAcquisitionYears]);
 
     // SWATH FILTER
     useEffect(() => {
@@ -422,7 +425,7 @@ const Map: NextPage<Props> = (props) => {
         map.setFilter(layer.lineLayer, filterExpressions);
         map.setFilter(layer.fillLayer, filterExpressions);
 
-    }, [selectedMission, selectedCameraType]);
+    }, [map, mission, setFrame, selectedCameraType]);
 
     // HOVER MISSION
     // useEffect(() => {
@@ -466,7 +469,7 @@ const Map: NextPage<Props> = (props) => {
 
         setPrevHoveredFrame(hoveredFrame);
 
-    }, [hoveredFrame, prevHoveredFrame]);
+    }, [map, swathLayer, hoveredFrame, prevHoveredFrame]);
 
     // CLICKED FRAME
     useEffect(() => {
@@ -488,7 +491,7 @@ const Map: NextPage<Props> = (props) => {
 
         setPrevClickedFrame(clickedFrame);
 
-    }, [clickedFrame, prevClickedFrame]);
+    }, [map, swathLayer, clickedFrame, prevClickedFrame]);
 
     // SHOW DOWNLOADS
     useEffect(() => {
@@ -506,7 +509,7 @@ const Map: NextPage<Props> = (props) => {
         map.setPaintProperty(swathLayer.lineLayer, 'line-color', lineExpr);
         map.setPaintProperty(swathLayer.fillLayer, 'fill-color', fillExpr);
 
-    }, [showDownloads]);
+    }, [map, mission, swathLayer, showDownloads]);
 
     return (
         <div ref={mapContainer} style={{
