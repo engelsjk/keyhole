@@ -165,6 +165,7 @@ const Map: NextPage<Props> = (props) => {
         showDownloads,
         mission,
         setFrame,
+        setMapLoading,
     } = useControl();
 
     useEffect(() => {
@@ -180,6 +181,7 @@ const Map: NextPage<Props> = (props) => {
 
         maplibreMap.on("load", () => {
 
+            setMap(maplibreMap);
             maplibreMap.resize();
 
             const layers = maplibreMap.getStyle().layers;
@@ -298,8 +300,7 @@ const Map: NextPage<Props> = (props) => {
                 }, firstSymbolId);
 
             });
-
-            setMap(maplibreMap);
+            setMapLoading(false);
         });
 
     }, [map]);
@@ -345,6 +346,8 @@ const Map: NextPage<Props> = (props) => {
 
         const filterExpressions: FilterSpecification = ['all', designatorFilter, resolutionFilter, missionFilter, yearsFilter];
         map.setFilter('missions-fill', filterExpressions);
+
+        console.log(map.getLayer('missions-fill'));
 
     }, [selectedDesignator, selectedResolution, selectedMission, rangeAcquisitionYears]);
 

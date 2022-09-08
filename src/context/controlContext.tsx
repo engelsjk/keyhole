@@ -23,6 +23,8 @@ type controlContextType = {
     setFrame: Dispatch<SetStateAction<Frame | null>>,
     dataLoading: boolean,
     setDataLoading: Dispatch<SetStateAction<boolean>>,
+    mapLoading: boolean,
+    setMapLoading: Dispatch<SetStateAction<boolean>>,
     missionData: MissionData | null;
     setMissionData: Dispatch<SetStateAction<MissionData | null>>,
 
@@ -50,6 +52,8 @@ const controlContextDefaultValues: controlContextType = {
     setFrame: () => { },
     dataLoading: true,
     setDataLoading: () => { },
+    mapLoading: true,
+    setMapLoading: () => { },
     missionData: null,
     setMissionData: () => { },
 };
@@ -78,7 +82,9 @@ export function ControlProvider({ children }: Props) {
     const [showDownloads, setShowDownloads] = useState<boolean>(true);
     const [showFrame, setShowFrame] = useState<boolean>(false);
 
-    const [dataLoading, setDataLoading] = useState<boolean>(false);
+    const [dataLoading, setDataLoading] = useState<boolean>(true);
+    const [mapLoading, setMapLoading] = useState<boolean>(true);
+
     const [missionData, setMissionData] = useState<MissionData | null>(null);
 
     const openUSGSMetadata = () => {
@@ -106,6 +112,8 @@ export function ControlProvider({ children }: Props) {
         setFrame,
         dataLoading,
         setDataLoading,
+        mapLoading,
+        setMapLoading,
         missionData,
         setMissionData,
         openUSGSMetadata,

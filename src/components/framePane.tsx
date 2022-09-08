@@ -39,11 +39,14 @@ const FramePane: NextPage<Props> = (props) => {
     const [expanded, setExpanded] = useState<boolean>(true);
     const [rows, setRows] = useState<Row[]>([]);
 
+    const [link, setLink] = useState<string>('');
+
     const handleExpanded = (event: React.SyntheticEvent, newExpanded: boolean) => {
         setExpanded(newExpanded);
     };
 
     useEffect(() => {
+
         if (!frame) return;
         const rows: Row[] = [
             { label: 'CAMERA TYPE', value: `${utils.getCameraTypeLabel(frame.c)}` },
@@ -52,6 +55,13 @@ const FramePane: NextPage<Props> = (props) => {
             { label: 'DOWNLOAD AVAILABLE', value: ` ${frame.a}` },
         ]
         setRows(rows);
+
+        const href = `https://earthexplorer.usgs.gov/scene/metadata/full/${frame.s}/${frame.e}/`;
+
+        // TODO: validate href!
+
+        setLink(href);
+
     }, [frame]);
 
     return (
@@ -64,9 +74,12 @@ const FramePane: NextPage<Props> = (props) => {
                     // borderColor: 'black',
                     // p: 1
                 }}
-                    bgcolor='primary.main'
                 >
-                    <Accordion expanded={expanded} onChange={handleExpanded}>
+                    <Accordion
+                        expanded={expanded}
+                        onChange={handleExpanded}
+                        sx={{}}
+                    >
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
@@ -92,13 +105,22 @@ const FramePane: NextPage<Props> = (props) => {
                                     </TableBody>
                                 </Table>
                             </TableContainer>
-                            <Button sx={{ mt: 2 }} variant="outlined" target="_blank" href={`https://earthexplorer.usgs.gov/scene/metadata/full/${frame.s}/${frame.e}/`}>
-                                OPEN USGS METADATA
-                            </Button>
+                            {link != '' &&
+                                <Button
+                                    sx={{
+                                        mt: 2,
+                                        bgcolor: 'primary.dark',
+                                    }}
+                                    variant="outlined"
+                                    target="_blank"
+                                    href={link}>
+                                    OPEN USGS METADATA
+                                </Button>
+                            }
                         </AccordionDetails>
                     </Accordion>
                 </Box>
-            </div>
+            </div >
         ) : (<div></div>)
     );
 }

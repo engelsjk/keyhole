@@ -65,7 +65,9 @@ const MissionPane: NextPage<Props> = (props) => {
     useEffect(() => {
         if (!mission) return;
         const rows: Row[] = [
-            { label: 'NUM. FRAMES', value: `${mission.f}` },
+            { label: 'DESIGNATOR', value: `${utils.getDesignatorLabel(mission.d)}` },
+            { label: 'RESOLUTION', value: `${utils.getResolutionLabel(mission.r)}` },
+            { label: 'NUM. FRAMES', value: `${mission.f.toLocaleString('en-US')}` },
             { label: 'EARLIEST ACQUISITION', value: `${DateTime.fromSeconds(mission.e).toLocaleString()}` },
             { label: 'LATEST ACQUISITION', value: `${DateTime.fromSeconds(mission.l).toLocaleString()}` },
         ]

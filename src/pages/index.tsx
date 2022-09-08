@@ -10,6 +10,7 @@ import FilterPane from '~/components/filterPane';
 import MissionPane from '~/components/missionPane';
 import FramePane from '~/components/framePane';
 import MapPane from '~/components/mapPane';
+import MapLoadingHolder from "../components/mapLoadingHolder";
 
 import { useControl } from "~/context/controlContext";
 
@@ -18,15 +19,7 @@ import Switch from "@mui/material/Switch";
 
 const label = { inputProps: { "aria-label": "Switch demo" } };
 
-// mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
-
 const Home: NextPage = () => {
-
-  // INTERFACE
-  // const [open, setOpen] = useState(true);
-  // const toggleDrawer = () => {
-  //   setOpen(!open);
-  // };
 
   const {
     selectedDesignator,
@@ -40,14 +33,14 @@ const Home: NextPage = () => {
     showFrame,
     mission,
     frame,
-    dataLoading,
-    setDataLoading,
     missionData,
     setMissionData,
+    dataLoading,
+    setDataLoading,
+    mapLoading
   } = useControl();
 
   useEffect(() => {
-    console.log("[]")
     if (missionData) {
       return;
     }
@@ -75,9 +68,14 @@ const Home: NextPage = () => {
 
   }, [])
 
+  useEffect(() => {
+    console.log(`mapLoading: ${mapLoading}`);
+    console.log(`dataLoading: ${dataLoading}`);
+  }, [dataLoading, mapLoading])
+
   return (
     <div>
-      <Container
+      {<Container
         sx={{
           padding: 0,
           margin: 0,
@@ -88,7 +86,9 @@ const Home: NextPage = () => {
           width: '100%',
           maxWidth: '100%',
           minWidth: '100%',
-          overflow: 'none',
+          flexDirection: "column",
+          overflow: "hidden",
+          overflowY: "scroll",
         }}
         disableGutters
       >
@@ -108,8 +108,15 @@ const Home: NextPage = () => {
           padding: 2,
           color: '#424242',
           bgcolor: 'secondary.main',
+          borderColor: 'primary.main',
+          borderStyle: 'solid',
+          borderWidth: 1,
         }}>
-          <Typography variant="h5" gutterBottom>
+          <Typography
+            variant="h5"
+            color="primary.main"
+            gutterBottom
+          >
             KEYHOLE //SWATHS//
           </Typography>
           <FilterPane />
@@ -135,6 +142,8 @@ const Home: NextPage = () => {
           onChangeProjection={onChangeProjection}
         /> */}
       </Container>
+      }
+      {(dataLoading || mapLoading) && <MapLoadingHolder className="loading-holder" />}
     </div >
   );
 }

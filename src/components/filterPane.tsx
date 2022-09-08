@@ -1,6 +1,5 @@
 import { NextPage } from "next";
 import { useEffect, useState } from "react";
-import { DateTime } from 'luxon';
 
 import Box from '@mui/material/Box';
 import Accordion from '@mui/material/Accordion';
@@ -50,13 +49,8 @@ const FilterPane: NextPage<Props> = (props) => {
         setSelectedMission,
         rangeAcquisitionYears,
         setRangeAcquisitionYears,
-        selectedCameraType,
-        setSelectedCameraType,
-        showDownloads,
-        setShowDownloads,
         mission,
         setMission,
-        frame,
         setFrame,
         missionData,
     } = useControl();
@@ -213,14 +207,9 @@ const FilterPane: NextPage<Props> = (props) => {
     }, [missionData, selectedDesignator, selectedResolution, rangeAcquisitionYears]);
 
     return (
+
         <Box
-            sx={{
-                flexGrow: 1,
-                width: 'auto',
-                // borderStyle: 'solid',
-                // borderColor: 'black',
-                // p: 1,
-            }}
+            sx={{}}
         >
             <Accordion expanded={expanded} onChange={handleExpanded}>
                 <AccordionSummary
