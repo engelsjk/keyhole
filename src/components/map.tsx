@@ -1,6 +1,13 @@
 import { NextPage } from "next";
 import { useEffect, useRef, useState } from "react";
-import maplibregl, { DataDrivenPropertyValueSpecification, ExpressionSpecification, FilterSpecification, GeoJSONSource, MapLayerMouseEvent, MapMouseEvent } from "maplibre-gl";
+import maplibregl, {
+    DataDrivenPropertyValueSpecification,
+    ExpressionSpecification,
+    FilterSpecification,
+    GeoJSONSource,
+    MapLayerMouseEvent,
+    MapMouseEvent
+} from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import { useAppContext } from "~/context/appContext";
@@ -140,6 +147,18 @@ const getLayerFromDesignator = (d: string): SwathLayer => {
     }
 }
 
+const getFirstLayerID = (m: maplibregl.Map): string => {
+    const layers = m.getStyle().layers;
+    var firstSymbolId: string = '';
+    for (const layer of layers) {
+        if (layer.type === 'symbol') {
+            firstSymbolId = layer.id;
+            break;
+        }
+    }
+    return firstSymbolId;
+}
+
 const Map: NextPage<Props> = (props) => {
 
     const mapContainer = useRef<HTMLDivElement | null>(null);
@@ -181,26 +200,19 @@ const Map: NextPage<Props> = (props) => {
         maplibreMap.on("load", () => {
 
             setMap(maplibreMap);
+            setMapLoading(false);
+
             maplibreMap.resize();
 
-            const layers = maplibreMap.getStyle().layers;
-            var firstSymbolId: string = '';
-            for (const layer of layers) {
-                if (layer.type === 'symbol') {
-                    firstSymbolId = layer.id;
-                    break;
-                }
-            }
+            const firstSymbolId = getFirstLayerID(maplibreMap);
 
             maplibreMap.addSource('missions', {
                 'type': 'vector',
                 'tiles': TILE_URLS.map(u => `${u}/missions/{z}/{x}/{y}.pbf`),
                 'minzoom': 0,
                 'maxzoom': 8,
-                'promoteId': 'm'
+                // 'promoteId': 'm'
             });
-
-            console.log('addLayer');
 
             maplibreMap.addLayer({
                 'id': 'missions-fill',
@@ -217,112 +229,38 @@ const Map: NextPage<Props> = (props) => {
                     'fill-sort-key': ['get', 'o']
                 }
             }, firstSymbolId);
-
-            // maplibreMap.addLayer({
-            //     'id': 'missions-line',
-            //     'type': 'line',
-            //     'source': 'missions',
-            //     'source-layer': 'missions',
-            //     'paint': {
-            //         'line-opacity': 1,
-            //         'line-width': MISSIONS_LINE_WIDTH_EXPR,
-            //         'line-color': 'white'
-            //     },
-            //     'layout': {
-            //         'visibility': 'visible',
-            //     }
-            // }, firstSymbolId);
-
-            // const onMouseMoveFill = (e: MapLayerMouseEvent) => {
-            //     maplibreMap.getCanvas().style.cursor = 'pointer';
-            //     if (e.features) {
-            //         const missionID = e.features[0].id as string;
-            //         setHoveredMission(missionID);
-            //     }
-            // }
-
-            // const onMouseLeaveFill = (e: MapLayerMouseEvent) => {
-            //     maplibreMap.getCanvas().style.cursor = '';
-            //     setHoveredMission(undefined);
-            // }
-
-            // maplibreMap.on('mousemove', 'missions-fill', onMouseMoveFill);
-            // maplibreMap.on('mouseleave', 'missions-fill', onMouseLeaveFill);
-
-            DESIGNATOR_NAMES.forEach((designatorName) => {
-
-                const layer = getLayerFromDesignator(designatorName);
-
-                maplibreMap.addSource(layer.source, {
-                    'type': 'vector',
-                    'tiles': TILE_URLS.map(
-                        u => `${u}/swaths/${layer.designator}/{z}/{x}/{y}.pbf`
-                    ),
-                    'minzoom': 0,
-                    'maxzoom': 8,
-                    'promoteId': 'e'
-                });
-
-                maplibreMap.addLayer({
-                    'id': layer.fillLayer,
-                    'type': 'fill',
-                    'source': layer.source,
-                    'source-layer': layer.sourceLayer,
-                    'paint': {
-                        'fill-color': SWATHS_FILL_COLOR_EXPR_1,
-                        'fill-opacity': [
-                            'case',
-                            ['boolean', ['feature-state', 'click'], false],
-                            0.5,
-                            0.25
-                        ],
-                        'fill-antialias': false
-                    },
-                    'layout': {
-                        'visibility': 'none' //'visible' //'none'
-                    },
-                    'filter': false //['==', ['get', 'm'], '9009'] // false
-                }, firstSymbolId);
-
-                maplibreMap.addLayer({
-                    'id': layer.lineLayer,
-                    'type': 'line',
-                    'source': layer.source,
-                    'source-layer': layer.sourceLayer,
-                    'paint': {
-                        'line-opacity': 1,
-                        'line-width': SWATHS_LINE_WIDTH_EXPR,
-                        'line-color': SWATHS_LINE_COLOR_EXPR_1
-                    },
-                    'layout': {
-                        'visibility': 'none' //'visible' //'none'
-                    },
-                    'filter': false //['==', ['get', 'm'], '9009'] // false
-                }, firstSymbolId);
-
-            });
-            setMapLoading(false);
         });
 
     }, [map, setMapLoading]);
 
     // MISSIONS FILTERS
     useEffect(() => {
-        if (!map) {
-            return;
-        }
+        console.log('vvvvvvvvvvvvvvvvvvvvvvvvv')
+        console.log(map);
+        console.log(mission);
+        console.log(selectedDesignator);
+        console.log(selectedResolution);
+        console.log(rangeAcquisitionYears);
+        console.log('1^^^^^^^^^^^^^^^^^^^^^^^^')
 
-        if (!mission) {
+        if (!map) return;
+
+        console.log(map.getLayer('missions-fill'));
+        console.log(map.getStyle().layers)
+
+        if (mission) {
             map.setLayoutProperty('missions-fill', 'visibility', 'none');
             return;
         }
 
+        console.log('2^^^^^^^^^^^^^^^^^^^^^^^^')
+
         map.setLayoutProperty('missions-fill', 'visibility', 'visible');
 
-        var designatorFilter: FilterSpecification = ['has', 'd'];
-        var resolutionFilter: FilterSpecification = ['has', 'r'];
-        var missionFilter: FilterSpecification = ['has', 'm'];
-        var yearsFilter: FilterSpecification = ['has', 'e'];
+        var designatorFilter: FilterSpecification = true; //['has', 'd'];
+        var resolutionFilter: FilterSpecification = true; //['has', 'r'];
+        var missionFilter: FilterSpecification = true; //['has', 'm'];
+        var yearsFilter: FilterSpecification = true; //['has', 'e'];
 
         if (selectedDesignator) {
             designatorFilter = ['==', ['get', 'd'], selectedDesignator];
@@ -330,10 +268,6 @@ const Map: NextPage<Props> = (props) => {
 
         if (selectedResolution) {
             resolutionFilter = ['==', ['get', 'r'], selectedResolution];
-        }
-
-        if (mission) {
-            missionFilter = ['==', ['get', 'm'], mission.m];
         }
 
         if (rangeAcquisitionYears) {
@@ -346,14 +280,79 @@ const Map: NextPage<Props> = (props) => {
         }
 
         const filterExpressions: FilterSpecification = ['all', designatorFilter, resolutionFilter, missionFilter, yearsFilter];
-        map.setFilter('missions-fill', filterExpressions);
-        console.log(map.getLayer('missions-fill'));
+        console.log(filterExpressions);
+
+        map.setFilter('missions-fill', filterExpressions, { validate: false });
+
+        console.log('3^^^^^^^^^^^^^^^^^^^^^^^^')
 
     }, [map, mission, selectedDesignator, selectedResolution, rangeAcquisitionYears]);
 
-    // SWATH FILTER
     useEffect(() => {
+
         if (!map) return;
+        if (!mission) return;
+
+        const layer = getLayerFromDesignator(mission.d);
+
+        if (swathLayer && layer.designator == swathLayer.designator) return;
+
+        if (swathLayer) {
+            if (map.getLayer(swathLayer.fillLayer)) map.removeLayer(swathLayer.fillLayer);
+            if (map.getLayer(swathLayer.lineLayer)) map.removeLayer(swathLayer.lineLayer);
+            if (map.getSource(swathLayer.source)) map.removeSource(swathLayer.source);
+        }
+
+        console.log('ok)')
+
+        map.addSource(layer.source, {
+            'type': 'vector',
+            'tiles': TILE_URLS.map(
+                u => `${u}/swaths/${layer.designator}/{z}/{x}/{y}.pbf`
+            ),
+            'minzoom': 0,
+            'maxzoom': 8,
+            'promoteId': 'e'
+        });
+
+        const firstSymbolId = getFirstLayerID(map);
+
+        map.addLayer({
+            'id': layer.fillLayer,
+            'type': 'fill',
+            'source': layer.source,
+            'source-layer': layer.sourceLayer,
+            'paint': {
+                'fill-color': SWATHS_FILL_COLOR_EXPR_1,
+                'fill-opacity': [
+                    'case',
+                    ['boolean', ['feature-state', 'click'], false],
+                    0.5,
+                    0.25
+                ],
+                'fill-antialias': false
+            },
+            'layout': {
+                'visibility': 'visible' //'visible' //'none'
+            },
+            'filter': ['==', ['get', 'm'], mission.m] // false
+        }, firstSymbolId);
+
+        map.addLayer({
+            'id': layer.lineLayer,
+            'type': 'line',
+            'source': layer.source,
+            'source-layer': layer.sourceLayer,
+            'paint': {
+                'line-opacity': 1,
+                'line-width': SWATHS_LINE_WIDTH_EXPR,
+                'line-color': SWATHS_LINE_COLOR_EXPR_1
+            },
+            'layout': {
+                'visibility': 'visible' //'visible' //'none'
+            },
+            'filter': ['==', ['get', 'm'], mission.m] // false
+        }, firstSymbolId);
 
         const onMouseMoveFill = (e: MapLayerMouseEvent) => {
             map.getCanvas().style.cursor = 'pointer';
@@ -374,6 +373,7 @@ const Map: NextPage<Props> = (props) => {
                 const frameID = e.features[0].id as string;
                 setClickedFrame(frameID);
                 setFrame(e.features[0].properties as Frame);
+                // close FilterPane?
             }
         }
 
@@ -386,28 +386,32 @@ const Map: NextPage<Props> = (props) => {
 
         map.on('click', onClick);
 
-        DESIGNATOR_NAMES.forEach((designatorName) => {
-            const layer = getLayerFromDesignator(designatorName);
-            map.setLayoutProperty(layer.lineLayer, 'visibility', 'none');
-            map.setLayoutProperty(layer.fillLayer, 'visibility', 'none');
-            map.off('mousemove', layer.fillLayer, onMouseMoveFill);
-            map.off('mouseleave', layer.fillLayer, onMouseLeaveFill);
-            map.off('click', layer.fillLayer, onClickFill);
-        });
-
-        if (!mission) {
-            setSwathLayer(null);
-            return;
-        };
-
-        const layer = getLayerFromDesignator(mission.d);
-        setSwathLayer(layer);
-
-        map.setLayoutProperty(layer.lineLayer, 'visibility', 'visible');
-        map.setLayoutProperty(layer.fillLayer, 'visibility', 'visible');
         map.on('mousemove', layer.fillLayer, onMouseMoveFill);
         map.on('mouseleave', layer.fillLayer, onMouseLeaveFill);
         map.on('click', layer.fillLayer, onClickFill);
+
+        setSwathLayer(layer);
+
+    }, [map, mission, swathLayer, setSwathLayer, setClickedFrame, setHoveredFrame, setFrame]);
+
+    // SWATH FILTER
+    useEffect(() => {
+        if (!map) return;
+
+        if (!mission && swathLayer) {
+            if (map.getLayer(swathLayer.lineLayer) && map.getLayer(swathLayer.fillLayer)) {
+                map.setLayoutProperty(swathLayer.lineLayer, 'visibility', 'none');
+                map.setLayoutProperty(swathLayer.fillLayer, 'visibility', 'none');
+            }
+            return;
+        }
+
+        if (!swathLayer) return;
+
+        if (map.getLayer(swathLayer.lineLayer) && map.getLayer(swathLayer.fillLayer)) {
+            map.setLayoutProperty(swathLayer.lineLayer, 'visibility', 'visible');
+            map.setLayoutProperty(swathLayer.fillLayer, 'visibility', 'visible');
+        }
 
         var missionFilter: FilterSpecification = ['has', 'm'];
         var cameraTypeFilter: FilterSpecification = ['has', 'c'];
@@ -422,10 +426,12 @@ const Map: NextPage<Props> = (props) => {
 
         const filterExpressions: FilterSpecification = ['all', missionFilter, cameraTypeFilter];
 
-        map.setFilter(layer.lineLayer, filterExpressions);
-        map.setFilter(layer.fillLayer, filterExpressions);
+        if (map.getLayer(swathLayer.lineLayer) && map.getLayer(swathLayer.fillLayer)) {
+            map.setFilter(swathLayer.lineLayer, filterExpressions);
+            map.setFilter(swathLayer.fillLayer, filterExpressions);
+        }
 
-    }, [map, mission, setFrame, selectedCameraType]);
+    }, [map, mission, swathLayer, selectedCameraType]);
 
     // HOVER MISSION
     // useEffect(() => {
@@ -506,8 +512,10 @@ const Map: NextPage<Props> = (props) => {
             fillExpr = SWATHS_FILL_COLOR_EXPR_1;
         }
 
-        map.setPaintProperty(swathLayer.lineLayer, 'line-color', lineExpr);
-        map.setPaintProperty(swathLayer.fillLayer, 'fill-color', fillExpr);
+        if (map.getLayer(swathLayer.lineLayer) && map.getLayer(swathLayer.fillLayer)) {
+            map.setPaintProperty(swathLayer.lineLayer, 'line-color', lineExpr);
+            map.setPaintProperty(swathLayer.fillLayer, 'fill-color', fillExpr);
+        }
 
     }, [map, mission, swathLayer, showDownloads]);
 
@@ -523,3 +531,57 @@ const Map: NextPage<Props> = (props) => {
 }
 
 export default Map;
+
+// const onMouseMoveFill = (e: MapLayerMouseEvent) => {
+//     map.getCanvas().style.cursor = 'pointer';
+//     if (e.features) {
+//         const frameID = e.features[0].id as string;
+//         setHoveredFrame(frameID);
+//     }
+// }
+
+// const onMouseLeaveFill = (e: MapLayerMouseEvent) => {
+//     map.getCanvas().style.cursor = '';
+//     setHoveredFrame(undefined);
+// }
+
+// const onClickFill = (e: MapLayerMouseEvent) => {
+//     e.preventDefault();
+//     if (e.features) {
+//         const frameID = e.features[0].id as string;
+//         setClickedFrame(frameID);
+//         setFrame(e.features[0].properties as Frame);
+//     }
+// }
+
+// const onClick = (e: MapLayerMouseEvent) => {
+//     if (e.defaultPrevented === false) {
+//         setClickedFrame(undefined);
+//         setFrame(null);
+//     }
+// }
+
+// map.on('click', onClick);
+
+// DESIGNATOR_NAMES.forEach((designatorName) => {
+//     const layer = getLayerFromDesignator(designatorName);
+//     map.setLayoutProperty(layer.lineLayer, 'visibility', 'none');
+//     map.setLayoutProperty(layer.fillLayer, 'visibility', 'none');
+//     map.off('mousemove', layer.fillLayer, onMouseMoveFill);
+//     map.off('mouseleave', layer.fillLayer, onMouseLeaveFill);
+//     map.off('click', layer.fillLayer, onClickFill);
+// });
+
+// if (!mission) {
+//     setSwathLayer(null);
+//     return;
+// };
+
+// const layer = getLayerFromDesignator(mission.d);
+// setSwathLayer(layer);
+
+// map.setLayoutProperty(layer.lineLayer, 'visibility', 'visible');
+// map.setLayoutProperty(layer.fillLayer, 'visibility', 'visible');
+// map.on('mousemove', layer.fillLayer, onMouseMoveFill);
+// map.on('mouseleave', layer.fillLayer, onMouseLeaveFill);
+// map.on('click', layer.fillLayer, onClickFill);

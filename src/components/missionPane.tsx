@@ -1,24 +1,12 @@
 import { NextPage } from "next";
 import { useEffect, useState, ChangeEvent } from "react";
 
-import Box from '@mui/material/Box';
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
+import { Box, Switch, Typography } from '@mui/material';
+import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Typography from '@mui/material/Typography';
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
+import { FormGroup, FormControlLabel, InputLabel, FormControl, MenuItem } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableRow } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
 import Select from '~/components/styled/Select';
@@ -92,10 +80,10 @@ const MissionPane: NextPage<Props> = (props) => {
                         <AccordionDetails
                             sx={{ color: 'primary.light', backgroundColor: 'primary.dark' }}
                         >
-                            <TableContainer 
+                            <TableContainer
                                 component={Paper}
                             >
-                                <Table 
+                                <Table
                                     size="small"
                                     sx={{ color: 'primary.light', backgroundColor: 'primary.dark' }}
 
@@ -104,21 +92,21 @@ const MissionPane: NextPage<Props> = (props) => {
                                         {rows.map((row) => (
                                             <TableRow
                                                 key={row.label}
-                                                sx={{ 
+                                                sx={{
                                                     '&:last-child td, &:last-child th': { border: 0 },
-                                                 }}
+                                                }}
                                             >
-                                                <TableCell 
-                                                component="th" 
-                                                scope="row"
-                                                sx={{ color: 'primary.light' }}
+                                                <TableCell
+                                                    component="th"
+                                                    scope="row"
+                                                    sx={{ color: 'primary.light' }}
                                                 >
                                                     {row.label}
                                                 </TableCell>
                                                 <TableCell
-                                                 align="right"
-                                                 sx={{color: 'primary.light'}}
-                                                 >{row.value}</TableCell>
+                                                    align="right"
+                                                    sx={{ color: 'primary.light' }}
+                                                >{row.value}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
@@ -128,7 +116,7 @@ const MissionPane: NextPage<Props> = (props) => {
                             >
                                 <FormControl variant="standard" sx={{ mt: 2, minWidth: 200 }}>
                                     <InputLabel
-                                    sx={{ color: 'primary.light' }}
+                                        sx={{ color: 'primary.light' }}
                                     >CAMERA TYPE</InputLabel>
                                     <Select
                                         value={selectedCameraType ? selectedCameraType : "ALL"}

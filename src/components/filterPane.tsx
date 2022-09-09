@@ -1,18 +1,11 @@
 import { NextPage } from "next";
 import { useEffect, useState } from "react";
 
-import Box from '@mui/material/Box';
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
+import { Box, Typography, TextField, Slider } from '@mui/material';
+import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
+import { InputLabel, FormControl, MenuItem } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import Slider from '@mui/material/Slider';
 
 import Autocomplete from '~/components/styled/Autocomplete';
 import Select from '~/components/styled/Select';
@@ -36,6 +29,7 @@ const FilterPane: NextPage<Props> = (props) => {
         setSelectedMission,
         rangeAcquisitionYears,
         setRangeAcquisitionYears,
+        setSelectedCameraType,
         mission,
         setMission,
         setFrame,
@@ -165,6 +159,7 @@ const FilterPane: NextPage<Props> = (props) => {
         });
         if (!mission) {
             setFrame(null);
+            setSelectedCameraType("ALL");
         }
         setMission(mission);
     }

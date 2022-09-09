@@ -1,20 +1,16 @@
 import type { NextPage } from "next";
 import { useEffect, useRef, useState, Fragment, useCallback } from "react";
 
-import Container from '@mui/material/Container';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import { Container, Box, Typography, AppBar, Toolbar, IconButton } from '@mui/material';
+import HelpIcon from '@mui/icons-material/Help';
 
 import Map from '~/components/map';
 import FilterPane from '~/components/filterPane';
 import MissionPane from '~/components/missionPane';
 import FramePane from '~/components/framePane';
-import MapPane from '~/components/mapPane';
 import MapLoadingHolder from "../components/mapLoadingHolder";
 import Modal from '~/components/modal';
-import IconButton from '@mui/material/IconButton';
-import HelpIcon from '@mui/icons-material/Help';
-
+import MapPane from '~/components/mapPane';
 
 import { useAppContext } from "~/context/appContext";
 
@@ -35,7 +31,6 @@ const Home: NextPage = () => {
   const [open, setOpen] = useState<boolean>(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
 
   useEffect(() => {
     if (missionData) {
@@ -78,9 +73,6 @@ const Home: NextPage = () => {
           width: '100%',
           maxWidth: '100%',
           minWidth: '100%',
-          flexDirection: "column",
-          overflow: "hidden",
-          overflowY: "scroll",
         }}
         disableGutters
       >
@@ -102,31 +94,50 @@ const Home: NextPage = () => {
           bgcolor: 'secondary.main',
           borderColor: 'primary.main',
           borderStyle: 'solid',
-          borderWidth: 1,
+          borderRadius: 2,
+          borderWidth: 2,
+          boxShadow: 'rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px',
+          flexGrow: 1,
+          maxHeight: '99%',
+          // overflow: "hidden",
+          // overflowY: "scroll",
         }}>
-          <div style={{ display: 'flex' }}>
-            <Typography
-              variant="h5"
-              color="primary.main"
-              gutterBottom
-            >
-              KEYHOLE //SWATHS//
-            </Typography>
-            <IconButton
-              color="primary"
-              aria-label="open modal"
-              component="label"
-              onClick={handleOpen}
-              size="medium"
+          <Box sx={{
+            flexGrow: 1,
+            color: "primary.dark",
+          }}>
+            <AppBar
+              position="static"
               sx={{
-                ml: 6,
-                mb: '0.35em',
-                p: 0
+                bgcolor: "primary.dark"
               }}
             >
-              <HelpIcon />
-            </IconButton>
-          </div>
+              <Toolbar>
+                <Typography
+                  variant="h6"
+                  color="primary.main"
+                  component="div"
+                  sx={{ flexGrow: 1 }}
+                // gutterBottom
+                >
+                  KEYHOLE //SWATHS//
+                </Typography>
+                <IconButton
+                  color="primary"
+                  onClick={handleOpen}
+                  size="medium"
+                  sx={{
+                    // ml: 6,
+                    // r: 0,
+                    // mb: '0.35em',
+                    // p: 0
+                  }}
+                >
+                  <HelpIcon />
+                </IconButton>
+              </Toolbar>
+            </AppBar>
+          </Box>
           <FilterPane />
           {mission &&
             <Box sx={{}}>

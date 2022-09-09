@@ -2,20 +2,10 @@ import { NextPage } from "next";
 import { useEffect, useState, ChangeEvent } from "react";
 import { DateTime } from 'luxon';
 
-import Box from '@mui/material/Box';
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
+import { Box, Typography, Button } from '@mui/material';
+import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Typography from '@mui/material/Typography';
-import Chip from '@mui/material/Chip';
-import Button from '@mui/material/Button';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
+import { Table, TableBody, TableCell, TableContainer, TableRow } from '@mui/material';
 import Paper from '@mui/material/Paper';
 
 import { useAppContext } from "~/context/appContext";
@@ -91,10 +81,10 @@ const FramePane: NextPage<Props> = (props) => {
                         >
                             <TableContainer component={Paper}>
                                 <Table
-                                 size="small"
-                                 sx={{ color: 'primary.light', backgroundColor: 'primary.dark' }}
+                                    size="small"
+                                    sx={{ color: 'primary.light', backgroundColor: 'primary.dark' }}
 
-                                 >
+                                >
                                     <TableBody>
                                         {rows.map((row) => (
                                             <TableRow
@@ -102,15 +92,15 @@ const FramePane: NextPage<Props> = (props) => {
                                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                             >
                                                 <TableCell
-                                                 component="th" 
-                                                 scope="row"
-                                                 sx={{color: 'primary.light'}}
-                                                 >
+                                                    component="th"
+                                                    scope="row"
+                                                    sx={{ color: 'primary.light' }}
+                                                >
                                                     {row.label}
                                                 </TableCell>
-                                                <TableCell 
-                                                align="right"
-                                                sx={{color: 'primary.light'}}
+                                                <TableCell
+                                                    align="right"
+                                                    sx={{ color: 'primary.light' }}
                                                 >{row.value}</TableCell>
                                             </TableRow>
                                         ))}

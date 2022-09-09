@@ -1,7 +1,5 @@
 import { NextPage } from "next";
-import Container from '@mui/material/Container';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import { Container, Typography } from '@mui/material';
 import Logo from '~/components/svgs/logo.svg';
 import styles from '~/styles/MapLoader.module.css'
 
