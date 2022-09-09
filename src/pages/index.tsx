@@ -1,8 +1,10 @@
 import type { NextPage } from "next";
-import { useEffect, useRef, useState, Fragment, useCallback } from "react";
+import { useEffect, useState } from "react";
 
-import { Container, Box, Typography, AppBar, Toolbar, IconButton } from '@mui/material';
+import { Container, Box, Drawer, Typography, AppBar, Toolbar, IconButton, Stack } from '@mui/material';
 import HelpIcon from '@mui/icons-material/Help';
+import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
+import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 
 import Map from '~/components/map';
 import FilterPane from '~/components/filterPane';
@@ -28,9 +30,13 @@ const Home: NextPage = () => {
     mapLoading
   } = useAppContext();
 
-  const [open, setOpen] = useState<boolean>(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const handleOpenModal = () => setModalOpen(true);
+  const handleCloseModal = () => setModalOpen(false);
+
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
+  const handleOpenSidebar = () => setSidebarOpen(true);
+  const handleCloseSidebar = () => setSidebarOpen(false);
 
   useEffect(() => {
     if (missionData) {
@@ -62,6 +68,7 @@ const Home: NextPage = () => {
 
   return (
     <div>
+
       {<Container
         sx={{
           padding: 0,
@@ -76,84 +83,134 @@ const Home: NextPage = () => {
         }}
         disableGutters
       >
+
         <Box sx={{
+          flexGrow: 1,
+          color: "primary.dark",
+        }}>
+          <AppBar
+            position="absolute"
+            sx={{
+              bgcolor: "primary.dark"
+            }}
+          >
+            <Toolbar>
+              <Typography
+                variant="h6"
+                color="primary.main"
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  flexGrow: 1
+                }}
+              >
+                KEYHOLE //SWATHS//
+                <IconButton
+                  color="primary"
+                  onClick={handleOpenModal}
+                  size="medium"
+                >
+                  <HelpIcon />
+                </IconButton>
+              </Typography>
+
+              {!sidebarOpen &&
+                <Typography
+                  variant="h6"
+                  color="primary.main"
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  TOOLKIT
+                  <IconButton
+                    color="primary"
+                    onClick={handleOpenSidebar}
+                    size="medium"
+                  >
+                    <ChevronLeftRoundedIcon />
+                  </IconButton>
+                </Typography>
+              }
+            </Toolbar>
+          </AppBar>
+        </Box>
+
+        <Box sx={{
+          // flexGrow: 1,
           height: '100%',
-          width: '100%',
+          width: '100%'
         }}>
           <Map />
         </Box>
 
-        {(!dataLoading && !mapLoading) && <Box sx={{
-          position: 'absolute',
-          height: 'auto',
-          width: 350,
-          top: 5,
-          right: 5,
-          padding: 2,
-          color: '#424242',
-          bgcolor: 'secondary.main',
-          borderColor: 'primary.main',
-          borderStyle: 'solid',
-          borderRadius: 2,
-          borderWidth: 2,
-          boxShadow: 'rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px',
-          flexGrow: 1,
-          maxHeight: '99%',
-          // overflow: "hidden",
-          // overflowY: "scroll",
-        }}>
-          <Box sx={{
-            flexGrow: 1,
-            color: "primary.dark",
-          }}>
-            <AppBar
-              position="static"
-              sx={{
-                bgcolor: "primary.dark"
-              }}
+        {(!dataLoading && !mapLoading) &&
+          <Drawer
+            anchor='right'
+            variant="persistent"
+            open={sidebarOpen}
+            sx={{
+              '& .MuiDrawer-paper': {
+                border: 'none',
+                backgroundColor: 'secondary.main',
+              },
+            }}
+          >
+            <Box sx={{
+              width: 350,
+              mr: 2,
+              ml: 1,
+              bgcolor: 'secondary.main',
+              overflowX: 'hidden',
+              flexGrow: 1,
+              // height: '100%',
+              // maxHeight: '100%',
+              // overflow: "hidden",
+              // overflowY: "scroll",
+            }}
+            // role="presentation"
             >
-              <Toolbar>
-                <Typography
-                  variant="h6"
-                  color="primary.main"
-                  component="div"
-                  sx={{ flexGrow: 1 }}
-                // gutterBottom
-                >
-                  KEYHOLE //SWATHS//
-                </Typography>
+              <Typography
+                variant="h6"
+                color="primary.main"
+                sx={{
+                  mt: 1.5,
+                  ml: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  position: 'static',
+                }}
+              >
+                TOOLKIT
                 <IconButton
                   color="primary"
-                  onClick={handleOpen}
+                  onClick={handleCloseSidebar}
                   size="medium"
-                  sx={{
-                    // ml: 6,
-                    // r: 0,
-                    // mb: '0.35em',
-                    // p: 0
-                  }}
                 >
-                  <HelpIcon />
+                  <ChevronRightRoundedIcon />
                 </IconButton>
-              </Toolbar>
-            </AppBar>
-          </Box>
-          <FilterPane />
-          {mission &&
-            <Box sx={{}}>
-              <MissionPane />
+              </Typography>
+              <FilterPane />
+              {mission &&
+                <Box sx={{}}>
+                  <MissionPane />
+                </Box>
+              }
+              {frame &&
+                <Box sx={{}}>
+                  <FramePane />
+                </Box>
+              }
             </Box>
-          }
-          {frame &&
-            <Box sx={{}}>
-              <FramePane />
-            </Box>
-          }
-        </Box>
+          </Drawer>
         }
         <Modal
-          open={open}
-          handleClose={handleClose}
+          open={modalOpen}
+          handleClose={handleCloseModal}
         />
         {/* <CtrlMap
             projection={projection}

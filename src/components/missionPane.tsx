@@ -78,14 +78,23 @@ const MissionPane: NextPage<Props> = (props) => {
                             </Typography>
                         </AccordionSummary>
                         <AccordionDetails
-                            sx={{ color: 'primary.light', backgroundColor: 'primary.dark' }}
+                            sx={{
+                                color: 'primary.light',
+                                backgroundColor: 'primary.dark'
+                            }}
                         >
                             <TableContainer
                                 component={Paper}
+                                sx={{
+                                    backgroundColor: 'transparent',
+                                }}
                             >
                                 <Table
                                     size="small"
-                                    sx={{ color: 'primary.light', backgroundColor: 'primary.dark' }}
+                                    sx={{
+                                        color: 'primary.light',
+                                        backgroundColor: 'primary.dark',
+                                    }}
 
                                 >
                                     <TableBody>

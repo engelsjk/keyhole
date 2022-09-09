@@ -208,7 +208,9 @@ const FilterPane: NextPage<Props> = (props) => {
 
     return (
         <Box
-            sx={{ mt: 2 }}
+            sx={{
+
+            }}
         >
             <Accordion expanded={expanded} onChange={handleExpanded}>
                 <AccordionSummary

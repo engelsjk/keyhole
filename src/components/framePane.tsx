@@ -57,8 +57,8 @@ const FramePane: NextPage<Props> = (props) => {
         frame ? (
             <div>
                 <Box sx={{
-                    flexGrow: 1,
-                    mt: 1
+                    // flexGrow: 1,
+                    mt: 1,
                 }}
                 >
                     <Accordion
@@ -67,8 +67,13 @@ const FramePane: NextPage<Props> = (props) => {
                         sx={{}}
                     >
                         <AccordionSummary
-                            expandIcon={<ExpandMoreIcon sx={{ color: 'primary.main' }} />}
-                            sx={{ m: 0, backgroundColor: 'primary.dark' }}
+                            expandIcon={<ExpandMoreIcon sx={{
+                                color: 'primary.main'
+                            }} />}
+                            sx={{
+                                m: 0,
+                                backgroundColor: 'primary.dark'
+                            }}
                         >
                             <Typography
                                 color="primary.main"
@@ -77,30 +82,47 @@ const FramePane: NextPage<Props> = (props) => {
                             </Typography>
                         </AccordionSummary>
                         <AccordionDetails
-                            sx={{ color: 'primary.light', backgroundColor: 'primary.dark' }}
+                            sx={{
+                                color: 'primary.light',
+                                backgroundColor: 'primary.dark'
+                            }}
                         >
-                            <TableContainer component={Paper}>
+                            <TableContainer
+                                component={Paper}
+                                sx={{
+                                    backgroundColor: 'transparent',
+                                }}
+                            >
                                 <Table
                                     size="small"
-                                    sx={{ color: 'primary.light', backgroundColor: 'primary.dark' }}
+                                    sx={{
+                                        color: 'primary.light',
+                                        backgroundColor: 'primary.dark',
+                                    }}
 
                                 >
                                     <TableBody>
                                         {rows.map((row) => (
                                             <TableRow
                                                 key={row.label}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                sx={{
+                                                    '&:last-child td, &:last-child th': { border: 0 }
+                                                }}
                                             >
                                                 <TableCell
                                                     component="th"
                                                     scope="row"
-                                                    sx={{ color: 'primary.light' }}
+                                                    sx={{
+                                                        color: 'primary.light'
+                                                    }}
                                                 >
                                                     {row.label}
                                                 </TableCell>
                                                 <TableCell
                                                     align="right"
-                                                    sx={{ color: 'primary.light' }}
+                                                    sx={{
+                                                        color: 'primary.light'
+                                                    }}
                                                 >{row.value}</TableCell>
                                             </TableRow>
                                         ))}
@@ -116,7 +138,7 @@ const FramePane: NextPage<Props> = (props) => {
                                     variant="outlined"
                                     target="_blank"
                                     href={link}>
-                                    OPEN USGS METADATA
+                                    GO TO USGS METADATA
                                 </Button>
                             }
                         </AccordionDetails>
