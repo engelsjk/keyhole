@@ -1,14 +1,5 @@
 import { NextPage } from "next";
 import { useEffect, useRef, useState } from "react";
-// import maplibregl, {
-//     DataDrivenPropertyValueSpecification,
-//     ExpressionSpecification,
-//     FilterSpecification,
-//     GeoJSONSource,
-//     MapLayerMouseEvent,
-//     MapMouseEvent
-// } from "maplibre-gl";
-// import "maplibre-gl/dist/maplibre-gl.css";
 import maplibregl, {
     DataDrivenPropertyValueSpecification,
     ExpressionSpecification,
