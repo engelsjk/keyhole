@@ -26,16 +26,6 @@ const MapLoadingHolder: NextPage<Props> = (props) => {
                     justifyContent: 'center',
                     alignItems: 'center',
                     flexDirection: 'column',
-                    // background:' -webkit-linear-gradient(45deg,
-                    //     rgba(152, 207, 195, 0.7),
-                    //     rgb(86, 181, 184))',
-                    // background: '-moz-linear-gradient(45deg,
-                    //     rgba(152, 207, 195, 0.7),
-                    //     rgb(86, 181, 184))',
-                    // background: 'linear-gradient(45deg,
-                    //     rgba(152, 207, 195, 0.7),
-                    //     rgb(86, 181, 184),
-                    //     0.9)', */
                 }}
             >
                 <Logo

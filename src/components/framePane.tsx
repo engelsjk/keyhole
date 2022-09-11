@@ -64,7 +64,9 @@ const FramePane: NextPage<Props> = (props) => {
                     <Accordion
                         expanded={expanded}
                         onChange={handleExpanded}
-                        sx={{}}
+                        sx={{
+                            bgcolor: 'primary.dark',
+                        }}
                     >
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon sx={{

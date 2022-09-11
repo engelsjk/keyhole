@@ -98,14 +98,14 @@ const Home: NextPage = () => {
               }}
             >
               KEYHOLE //SWATHS//
-              <IconButton
-                color="primary"
-                onClick={handleOpenModal}
-                size="medium"
-              >
-                <HelpIcon />
-              </IconButton>
             </Typography>
+            <IconButton
+              color="primary"
+              onClick={handleOpenModal}
+              size="medium"
+            >
+              <HelpIcon />
+            </IconButton>
           </Toolbar>
         </AppBar>
 

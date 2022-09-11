@@ -216,7 +216,13 @@ const FilterPane: NextPage<Props> = (props) => {
             sx={{
             }}
         >
-            <Accordion expanded={expanded} onChange={handleExpanded}>
+            <Accordion
+                expanded={expanded}
+                onChange={handleExpanded}
+                sx={{
+                    bgcolor: 'primary.dark',
+                }}
+            >
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon sx={{ color: 'primary.main' }} />}
                     sx={{ m: 0, backgroundColor: 'primary.dark' }}
@@ -230,7 +236,10 @@ const FilterPane: NextPage<Props> = (props) => {
                     </Typography>
                 </AccordionSummary>
                 <AccordionDetails
-                    sx={{ color: 'primary.light', backgroundColor: 'primary.dark' }}
+                    sx={{
+                        color: 'primary.light',
+                        bgcolor: 'primary.dark',
+                    }}
                 >
                     <FormControl
                         fullWidth
@@ -252,9 +261,17 @@ const FilterPane: NextPage<Props> = (props) => {
                             label="DESIGNATOR"
                             onChange={handleChangeDesignator}
                             disabled={mission != undefined}
+                            MenuProps={{
+                                sx: {
+                                    "& .MuiMenu-paper": {
+                                        color: 'primary.light',
+                                        bgcolor: 'primary.dark',
+                                    }
+                                }
+                            }}
                         >
                             <MenuItem value="">
-                                <em>None</em>
+                                <em>---</em>
                             </MenuItem>
                             {
                                 designatorOptions.map(d => {
@@ -287,9 +304,17 @@ const FilterPane: NextPage<Props> = (props) => {
                             label="RESOLUTION"
                             onChange={handleChangeResolution}
                             disabled={mission != undefined}
+                            MenuProps={{
+                                sx: {
+                                    "& .MuiMenu-paper": {
+                                        color: 'primary.light',
+                                        bgcolor: 'primary.dark',
+                                    }
+                                }
+                            }}
                         >
                             <MenuItem value="">
-                                <em>None</em>
+                                <em>---</em>
                             </MenuItem>
                             {
                                 resolutionOptions.map(r => {
@@ -336,7 +361,17 @@ const FilterPane: NextPage<Props> = (props) => {
                             mt: 1,
                             mb: 1.5,
                             maxWidth: 200,
-
+                            '& + .MuiAutocomplete-popper .MuiAutocomplete-paper': {
+                                bgcolor: 'primary.dark',
+                            },
+                            '& + .MuiAutocomplete-popper .MuiAutocomplete-groupLabel': {
+                                color: 'primary.main',
+                                bgcolor: 'primary.dark',
+                            },
+                            '& + .MuiAutocomplete-popper .MuiAutocomplete-option': {
+                                color: 'primary.light',
+                                bgcolor: 'primary.dark',
+                            }
                         }}
                         disablePortal
                         options={missionOptions.sort((a, b) => a.d.localeCompare(b.d))}

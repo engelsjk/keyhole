@@ -60,7 +60,13 @@ const MapPane: NextPage<Props> = (props) => {
                 mt: 1
             }}
         >
-            <Accordion expanded={expanded} onChange={handleExpanded}>
+            <Accordion
+                expanded={expanded}
+                onChange={handleExpanded}
+                sx={{
+                    bgcolor: 'primary.dark',
+                }}
+            >
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon sx={{ color: 'primary.main' }} />}
                     sx={{ m: 0, backgroundColor: 'primary.dark' }}

@@ -11,10 +11,18 @@ const Select = styled(SelectBase)(({ theme }) => ({
     },
     "& .MuiInputBase-input": {
         color: theme.palette.primary.light,
+        bgcolor: theme.palette.primary.dark,
     },
     "& .MuiSvgIcon-root": {
         color: theme.palette.primary.light,
-    }
+    },
+    '& .MuiMenu-paper': {
+        color: theme.palette.primary.light,
+        bgcolor: theme.palette.primary.dark,
+    },
+    "& .MuiMenuItem-root": {
+
+    },
 }));
 
 export default Select;
