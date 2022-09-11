@@ -35,10 +35,6 @@ const Home: NextPage = () => {
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
 
-  const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
-  const handleOpenSidebar = () => setSidebarOpen(true);
-  const handleCloseSidebar = () => setSidebarOpen(false);
-
   useEffect(() => {
     if (missionData) {
       return;
@@ -74,143 +70,135 @@ const Home: NextPage = () => {
         sx={{
           padding: 0,
           margin: 0,
-          position: 'absolute',
           top: 0,
           bottom: 0,
-          height: '100%',
-          width: '100%',
+          height: '100vh',
+          width: '100vw',
           maxWidth: '100%',
           minWidth: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          overflowX: 'hidden'
         }}
         disableGutters
       >
+        <AppBar
+          position="relative"
+          sx={{
+            bgcolor: "primary.dark",
+            height: '64px',
+          }}
+        >
+          <Toolbar>
+            <Typography
+              variant="h6"
+              color="primary.main"
+              sx={{
+
+              }}
+            >
+              KEYHOLE //SWATHS//
+              <IconButton
+                color="primary"
+                onClick={handleOpenModal}
+                size="medium"
+              >
+                <HelpIcon />
+              </IconButton>
+            </Typography>
+
+            <Typography
+              variant="h6"
+              color="primary.main"
+              sx={{
+
+              }}
+            >
+              TOOLKIT
+            </Typography>
+          </Toolbar>
+        </AppBar>
 
         <Box sx={{
-          flexGrow: 1,
-          color: "primary.dark",
+          flex: '1 1 auto',
+          display: 'flex',
+          position: 'relative',
         }}>
-          <AppBar
-            position="absolute"
-            sx={{
-              bgcolor: "primary.dark"
-            }}
-          >
-            <Toolbar>
-              <Typography
-                variant="h6"
-                color="primary.main"
+
+          <Box sx={{
+            flexDirection: 'column',
+            flex: '1 1 auto',
+            display: 'flex',
+            position: 'relative',
+          }}>
+            <Map />
+          </Box>
+
+          <Box sx={{
+            width: '350px',
+            position: 'relative',
+          }}>
+
+            {(!dataLoading && !mapLoading) &&
+              <Drawer
+                anchor='right'
+                variant="persistent"
+                open={true}
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  flexGrow: 1
+                  '& .MuiDrawer-paper': {
+                    border: 'none',
+                    backgroundColor: 'secondary.main',
+                    boxSizing: 'border-box',
+                    position: 'relative',
+                  },
+                  bgcolor: 'secondary.main',
+                  position: "absolute",
+                  height: '100%',
+                  width: '100%',
                 }}
               >
-                KEYHOLE //SWATHS//
-                <IconButton
-                  color="primary"
-                  onClick={handleOpenModal}
-                  size="medium"
-                >
-                  <HelpIcon />
-                </IconButton>
-              </Typography>
-
-              {!sidebarOpen &&
-                <Typography
-                  variant="h6"
-                  color="primary.main"
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                  }}
-                >
-                  TOOLKIT
-                  <IconButton
-                    color="primary"
-                    onClick={handleOpenSidebar}
-                    size="medium"
+                <Box sx={{
+                  height: '100vh',
+                  width: '100%',
+                  bgcolor: 'primary.dark',
+                  overflowY: 'hidden',
+                }}>
+                  <Typography
+                    variant="h6"
+                    color="primary.main"
+                    sx={{
+                      ml: 2,
+                      mb: 1,
+                      mt: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
                   >
-                    <ChevronLeftRoundedIcon />
-                  </IconButton>
-                </Typography>
-              }
-            </Toolbar>
-          </AppBar>
+                    TOOLKIT
+                  </Typography>
+
+                  <Box sx={{
+                    pl: 1,
+                    pr: 1,
+                    mt: 1,
+                    height: '100%',
+                    overflowY: 'scroll',
+                  }}>
+                    <FilterPane />
+                    {mission && <MissionPane />}
+                    {frame && <FramePane />}
+                    <MapPane />
+                  </Box>
+                </Box>
+              </Drawer>
+            }
+          </Box>
         </Box>
 
-        <Box sx={{
-          height: '100%',
-          width: 'auto',
-        }}>
-          <Map />
-        </Box>
-
-        {(!dataLoading && !mapLoading) &&
-          <Drawer
-            anchor='right'
-            variant="persistent"
-            open={sidebarOpen}
-            sx={{
-              '& .MuiDrawer-paper': {
-                border: 'none',
-                backgroundColor: 'secondary.main',
-              },
-            }}
-          >
-            <Box sx={{
-              width: 375,
-              ml: 1,
-              bgcolor: 'secondary.main',
-              overflow: 'hidden',
-              height: '100%',
-              display: 'flex',
-              flexFlow: 'column',
-            }}>
-              <Typography
-                variant="h6"
-                color="primary.main"
-                sx={{
-                  ml: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  position: 'static',
-                  minHeight: '64px',
-                }}
-              >
-                TOOLKIT
-                <IconButton
-                  color="primary"
-                  onClick={handleCloseSidebar}
-                  size="medium"
-                >
-                  <ChevronRightRoundedIcon />
-                </IconButton>
-              </Typography>
-
-              <Box sx={{
-                flexGrow: 1,
-                flex: 1,
-                overflowY: 'scroll',
-              }}>
-                <FilterPane />
-                {mission && <MissionPane />}
-                {frame && <FramePane />}
-                <MapPane />
-              </Box>
-            </Box>
-          </Drawer>
-        }
         <Modal
           open={modalOpen}
           handleClose={handleCloseModal}
         />
-        {/* <CtrlMap
-            projection={projection}
-            setProjection={setProjection}
-          /> */}
       </Container>
       {(dataLoading || mapLoading) && <MapLoadingHolder className="loading-holder" />}
     </div >
