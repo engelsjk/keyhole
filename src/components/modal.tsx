@@ -37,8 +37,6 @@ const Modal: NextPage<Props> = (props) => {
             <MuiModal
                 open={props.open}
                 onClose={props.handleClose}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
                 sx={{
                     "& .MuiBackdrop-root": {
                         bgcolor: 'rgba(0,0,0,0.75)',
@@ -53,10 +51,10 @@ const Modal: NextPage<Props> = (props) => {
                         transform: 'translate(-50%, -50%)',
                         width: '85%',
                         bgcolor: 'primary.dark',
-                        borderColor: 'primary.main',
+                        borderColor: 'primary.light',
                         borderStyle: 'solid',
-                        borderWidth: 4,
-                        borderRadius: 3,
+                        borderWidth: 1,
+                        // borderRadius: 3,
                         boxShadow: 'rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px',
                         p: 4,
                         maxHeight: '90%',
@@ -90,7 +88,7 @@ const Modal: NextPage<Props> = (props) => {
                         classified.
                     </Typography>
                     <Typography
-                        paragraph
+                        component="div"
                         sx={{
                             "& a:link,a:visited": {
                                 color: 'inherit',
@@ -111,13 +109,15 @@ const Modal: NextPage<Props> = (props) => {
                     <Typography paragraph sx={{ fontSize: '1rem', lineHeight: 1.5 }}>
                         Imagery and metadata are hosted by the USGS at the following datasets:
                     </Typography>
-                    <Typography sx={{
-                        "& a:link,a:visited": {
-                            color: 'inherit',
-                            textDecoration: 'none',
-                            borderBottom: `1px solid ${theme.palette.primary.main}`,
-                        }
-                    }}>
+                    <Typography
+                        component="div"
+                        sx={{
+                            "& a:link,a:visited": {
+                                color: 'inherit',
+                                textDecoration: 'none',
+                                borderBottom: `1px solid ${theme.palette.primary.main}`,
+                            }
+                        }}>
                         <ul>
                             <li><a
                                 href="https://www.usgs.gov/centers/eros/science/usgs-eros-archive-declassified-data-declassified-satellite-imagery-1">Declassified

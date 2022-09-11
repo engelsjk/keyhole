@@ -106,16 +106,6 @@ const Home: NextPage = () => {
                 <HelpIcon />
               </IconButton>
             </Typography>
-
-            <Typography
-              variant="h6"
-              color="primary.main"
-              sx={{
-
-              }}
-            >
-              TOOLKIT
-            </Typography>
           </Toolbar>
         </AppBar>
 
