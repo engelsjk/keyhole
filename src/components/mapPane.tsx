@@ -1,59 +1,149 @@
 import { NextPage } from "next";
-import { Dispatch, SetStateAction } from "react";
+import { useEffect, useState, ChangeEvent } from "react";
 
-import { Box, Typography, TextField, Autocomplete, Chip } from '@mui/material';
+import { Box, Typography, Button, Switch } from '@mui/material';
+import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { InputLabel, FormControl, FormGroup, FormControlLabel, MenuItem } from '@mui/material';
+import { SelectChangeEvent } from '@mui/material/Select';
 
-const PROJECTIONS_LIST = [
-    { value: 'globe', label: 'GLOBE' },
-    { value: 'equalEarth', label: 'EQUAL EARTH' },
-    { value: 'albers', label: 'ALBERS' },
-    { value: 'mercator', label: 'MERCATOR' },
-    { value: 'lambertConformalConic', label: 'LAMBERT CONFORMAL CONIC' },
-    { value: 'winkelTripel', label: 'WINKEL TRIPEL' },
-    { value: 'naturalEarth', label: 'NATURAL EARTH' },
-    { value: 'equirectangular', label: 'EQUIRECTANGULAR' },
+import Select from '~/components/styled/Select';
+
+import { useAppContext } from "~/context/appContext";
+
+import { MissionData, Mission, Projection } from '~/shared/types';
+import * as utils from '~/shared/utils';
+
+const PROJECTION_OPTIONS: Projection[] = [
+    { id: 'globe', name: 'GLOBE' },
+    { id: 'equalEarth', name: 'EQUAL EARTH' },
+    { id: 'albers', name: 'ALBERS' },
+    { id: 'mercator', name: 'MERCATOR' },
+    { id: 'lambertConformalConic', name: 'LAMBERT CONFORMAL CONIC' },
+    { id: 'winkelTripel', name: 'WINKEL TRIPEL' },
+    { id: 'naturalEarth', name: 'NATURAL EARTH' },
+    { id: 'equirectangular', name: 'EQUIRECTANGULAR' },
 ];
 
-interface Props {
-    projection: string | undefined;
-    setProjection: Dispatch<SetStateAction<string | undefined>>;
-}
+interface Props { }
 
 const MapPane: NextPage<Props> = (props) => {
 
+    const {
+        projection,
+        setProjection
+    } = useAppContext();
+
+    const [expanded, setExpanded] = useState<boolean>(false);
+    const [spinGlobe, setSpinGlobe] = useState<boolean>(false);
+
+    const toggleSpinGlobe = () => {
+        setSpinGlobe(v => !v);
+    }
+    const handleExpanded = (event: React.SyntheticEvent, newExpanded: boolean) => {
+        setExpanded(newExpanded);
+    };
+
+    const handleChangeProjection = (event: SelectChangeEvent<unknown>) => {
+        const proj = event.target.value as string;
+        setProjection(proj);
+    }
+
+    const handleShowLabels = (event: ChangeEvent<HTMLInputElement>) => {
+        const showLabels = event.target.checked;
+        console.log(`labels: ${showLabels}`);
+    };
+
     return (
-        <Box sx={{
-            flexGrow: 1,
-            borderStyle: 'solid',
-            borderColor: 'black',
-            p: 1
-        }}>
-            <Typography
-                color="inherit"
-                noWrap
-                sx={{ flexGrow: 1 }}
-            >
-                Map
-            </Typography>
-
-            <Autocomplete
-                size="small"
-                sx={{ mr: 1, mb: 1.5, minWidth: 150 }}
-                disablePortal
-                id="filter-mission"
-                options={PROJECTIONS_LIST}
-                getOptionLabel={(option) => option.label}
-                onChange={(_event, newProjection) => {
-                    props.setProjection(newProjection?.value);
-                }}
-                renderInput={(params) => <TextField {...params} label="Projection" />}
-            />
-
-            {props.projection == 'globe' &&
-                <Chip label="SPIN GLOBE" />
-            }
-            <Chip label="LABELS" />
-        </Box>
+        <Box
+            sx={{
+                mt: 1
+            }}
+        >
+            <Accordion expanded={expanded} onChange={handleExpanded}>
+                <AccordionSummary
+                    expandIcon={<ExpandMoreIcon sx={{ color: 'primary.main' }} />}
+                    sx={{ m: 0, backgroundColor: 'primary.dark' }}
+                >
+                    <Typography
+                        color="primary.main"
+                        noWrap
+                        sx={{ flexGrow: 1, mb: 0 }}
+                    >
+                        MAP
+                    </Typography>
+                </AccordionSummary>
+                <AccordionDetails
+                    sx={{ color: 'primary.light', backgroundColor: 'primary.dark' }}
+                >
+                    {/* <Autocomplete
+                        size="small"
+                        sx={{
+                            mt: 1,
+                            mb: 1.5,
+                            maxWidth: 200,
+                        }}
+                        disablePortal
+                        options={PROJECTIONS_LIST}
+                        getOptionLabel={(option: unknown) => (option as Projection).name}
+                        onChange={handleChangeProjection}
+                        renderInput={(params) => <TextField {...params} label="PROJECTION" />}
+                    /> */}
+                    <FormControl
+                        fullWidth
+                        size="small"
+                        sx={{
+                            // mr: 1,
+                            // mt: 1.5,
+                            mb: 1.5,
+                            maxWidth: 300,
+                        }}
+                    >
+                        <InputLabel
+                            sx={{ color: 'primary.light' }}
+                        >
+                            PROJECTION
+                        </InputLabel>
+                        <Select
+                            value={projection}
+                            label="PROJECTION"
+                            onChange={handleChangeProjection}
+                        >
+                            {
+                                PROJECTION_OPTIONS.map(p => {
+                                    return (
+                                        <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>
+                                    )
+                                })
+                            }
+                        </Select>
+                        <FormGroup sx={{ mt: 1 }}>
+                            <FormControlLabel control={
+                                <Switch
+                                    defaultChecked
+                                    onChange={handleShowLabels}
+                                />
+                            } label="SHOW LABELS" />
+                        </FormGroup>
+                        {projection == "globe" &&
+                            <Button
+                                variant="contained"
+                                sx={{
+                                    mt: 1,
+                                    color: 'primary.dark',
+                                    "&:hover": {
+                                        color: 'primary.main',
+                                    },
+                                }}
+                                onClick={toggleSpinGlobe}
+                            >
+                                {!spinGlobe ? "SPIN GLOBE" : "STOP GLOBE"}
+                            </Button>
+                        }
+                    </FormControl>
+                </AccordionDetails>
+            </Accordion>
+        </Box >
     );
 }
 

@@ -28,3 +28,8 @@ export type Filters = {
     mission: string | null;
     years: number[] | null;
 }
+
+export type Projection = {
+    name: string
+    id: string
+}

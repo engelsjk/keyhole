@@ -38,6 +38,7 @@ const FramePane: NextPage<Props> = (props) => {
 
         if (!frame) return;
         const rows: Row[] = [
+            { label: 'FRAME', value: `${frame.e}` },
             { label: 'CAMERA TYPE', value: `${utils.getCameraTypeLabel(frame.c)}` },
             { label: 'SEQUENCE/FRAME', value: `${frame.p}/ ${frame.f}` },
             { label: 'ACQUISITION DATE', value: `${DateTime.fromSeconds(frame.d).toLocaleString()}` },
@@ -57,7 +58,6 @@ const FramePane: NextPage<Props> = (props) => {
         frame ? (
             <div>
                 <Box sx={{
-                    // flexGrow: 1,
                     mt: 1,
                 }}
                 >
@@ -78,7 +78,7 @@ const FramePane: NextPage<Props> = (props) => {
                             <Typography
                                 color="primary.main"
                             >
-                                {`FRAME ${frame.e}`}
+                                FRAME
                             </Typography>
                         </AccordionSummary>
                         <AccordionDetails
@@ -133,9 +133,12 @@ const FramePane: NextPage<Props> = (props) => {
                                 <Button
                                     sx={{
                                         mt: 2,
-                                        bgcolor: 'primary.dark',
+                                        color: 'primary.dark',
+                                        "&:hover": {
+                                            color: 'primary.main',
+                                        },
                                     }}
-                                    variant="outlined"
+                                    variant="contained"
                                     target="_blank"
                                     href={link}>
                                     GO TO USGS METADATA

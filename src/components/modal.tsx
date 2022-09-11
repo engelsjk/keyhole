@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Box, Typography, Stack, Switch, FormGroup, FormControlLabel } from '@mui/material';
 import MuiModal from '@mui/material/Modal';
 import CircleTwoToneIcon from '@mui/icons-material/CircleTwoTone';
+import { useTheme } from '@mui/material/styles';
 
 const resolutionlLabels = [
     { c: '#cb2d2e', r_m: '0.6-1.2 m', r_i: '2-4 ft', s: 'KH-7 GAMBIT, KH-9 HEXAGON' },
@@ -23,6 +24,8 @@ interface Props {
 
 const Modal: NextPage<Props> = (props) => {
 
+    const theme = useTheme();
+
     const [units, setUnits] = useState<boolean>(true);
 
     const handleUnits = () => {
@@ -36,6 +39,11 @@ const Modal: NextPage<Props> = (props) => {
                 onClose={props.handleClose}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
+                sx={{
+                    "& .MuiBackdrop-root": {
+                        bgcolor: 'rgba(0,0,0,0.75)',
+                    },
+                }}
             >
                 <Box
                     sx={{
@@ -47,8 +55,8 @@ const Modal: NextPage<Props> = (props) => {
                         bgcolor: 'primary.dark',
                         borderColor: 'primary.main',
                         borderStyle: 'solid',
-                        borderWidth: 2,
-                        borderRadius: 2,
+                        borderWidth: 4,
+                        borderRadius: 3,
                         boxShadow: 'rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px',
                         p: 4,
                         maxHeight: '90%',
@@ -58,12 +66,20 @@ const Modal: NextPage<Props> = (props) => {
                     <Typography
                         variant="h3"
                         sx={{
+                            fontWeight: 'bold',
                             color: 'primary.main',
                         }}
                     >
                         KEYHOLE //SWATHS//
                     </Typography>
-                    <Typography sx={{ mt: 2, fontSize: '1rem', lineHeight: 1.5, fontStyle: 'italic' }}>
+                    <Typography
+                        sx={{
+                            mt: 2,
+                            fontSize: '1rem',
+                            lineHeight: 1.5,
+                            fontStyle: 'italic',
+                            fontWeight: 'bold',
+                        }}>
                         An experimental visualization of ground swaths from declassified spy satellite imagery.
                     </Typography>
                     <Typography variant="h4" sx={{ mt: 3 }} >Imagery</Typography>
@@ -73,30 +89,47 @@ const Modal: NextPage<Props> = (props) => {
                         satellite programs, was declassified starting in 1995. It does not include any KH-8 GAMBIT-3 imagery, which remains
                         classified.
                     </Typography>
-                    {/* <blockquote> <a
-                                href="https://www.govinfo.gov/content/pkg/WCPD-1995-02-27/pdf/WCPD-1995-02-27-Pg304.pdf"><strong>Executive
-                                    Order 12951</strong></a> (<i>February 22, 1995</i>): "Imagery acquired by the space-based
-                                national intelligence reconnaissance systems known as the Corona, Argon and Lanyard missions shall,
-                                within 18 months of the date of this order, be declassified and transferred to the National Archives and
-                                Records Administration with a copy sent to the United States Geological Survey of the Department of the
-                                Interior consistent with procedures approved by the Director of Central Intelligence and the Archivist
-                                of the United States. Upon transfer, such imagery shall be deemed declassified and shall be made
-                                available to the public."</blockquote> */}
+                    <Typography
+                        paragraph
+                        sx={{
+                            "& a:link,a:visited": {
+                                color: 'inherit',
+                                textDecoration: 'none',
+                                borderBottom: `1px solid ${theme.palette.primary.main}`,
+                            }
+                        }}>
+                        <blockquote> <a
+                            href="https://www.govinfo.gov/content/pkg/WCPD-1995-02-27/pdf/WCPD-1995-02-27-Pg304.pdf"><strong>Executive
+                                Order 12951</strong></a> (<i>February 22, 1995</i>): "Imagery acquired by the space-based
+                            national intelligence reconnaissance systems known as the Corona, Argon and Lanyard missions shall,
+                            within 18 months of the date of this order, be declassified and transferred to the National Archives and
+                            Records Administration with a copy sent to the United States Geological Survey of the Department of the
+                            Interior consistent with procedures approved by the Director of Central Intelligence and the Archivist
+                            of the United States. Upon transfer, such imagery shall be deemed declassified and shall be made
+                            available to the public."</blockquote>
+                    </Typography>
                     <Typography paragraph sx={{ fontSize: '1rem', lineHeight: 1.5 }}>
                         Imagery and metadata are hosted by the USGS at the following datasets:
                     </Typography>
-                    <ul>
-                        <li><a
-                            href="https://www.usgs.gov/centers/eros/science/usgs-eros-archive-declassified-data-declassified-satellite-imagery-1">Declassified
-                            Data / Declass 1 (1996)</a></li>
-                        <li><a
-                            href="https://www.usgs.gov/centers/eros/science/usgs-eros-archive-declassified-data-declassified-satellite-imagery-2">Declassified
-                            Data / Declass 2 (2002)</a></li>
-                        <li><a
-                            href="https://www.usgs.gov/centers/eros/science/usgs-eros-archive-declassified-data-declassified-satellite-imagery-3">Declassified
-                            Data / Declass 3 (2011)</a></li>
-                    </ul>
-
+                    <Typography sx={{
+                        "& a:link,a:visited": {
+                            color: 'inherit',
+                            textDecoration: 'none',
+                            borderBottom: `1px solid ${theme.palette.primary.main}`,
+                        }
+                    }}>
+                        <ul>
+                            <li><a
+                                href="https://www.usgs.gov/centers/eros/science/usgs-eros-archive-declassified-data-declassified-satellite-imagery-1">Declassified
+                                Data / Declass 1 (1996)</a></li>
+                            <li><a
+                                href="https://www.usgs.gov/centers/eros/science/usgs-eros-archive-declassified-data-declassified-satellite-imagery-2">Declassified
+                                Data / Declass 2 (2002)</a></li>
+                            <li><a
+                                href="https://www.usgs.gov/centers/eros/science/usgs-eros-archive-declassified-data-declassified-satellite-imagery-3">Declassified
+                                Data / Declass 3 (2011)</a></li>
+                        </ul>
+                    </Typography>
                     <Typography variant="h4" sx={{ mt: 3 }} >Ground Swaths</Typography>
                     <Typography paragraph sx={{ mt: 1, fontSize: '1rem', lineHeight: 1.5 }}>
                         Swath geometries are generated from the corner coordinates of an image and should be considered a rough estimate of actual imagery coverage. Swaths are styled according to estimates of the {"imagery's"} ground resolution.
@@ -160,7 +193,18 @@ const Modal: NextPage<Props> = (props) => {
                         USGS (as of June 2022).
                     </Typography>
                     <Typography variant="h4" sx={{ mt: 3 }} >Browse</Typography>
-                    <Typography paragraph sx={{ mt: 1, fontSize: '1rem', lineHeight: 1.5 }}>
+                    <Typography
+                        paragraph
+                        sx={{
+                            mt: 1,
+                            fontSize: '1rem',
+                            lineHeight: 1.5,
+                            "& a:link,a:visited": {
+                                color: 'inherit',
+                                textDecoration: 'none',
+                                borderBottom: `1px solid ${theme.palette.primary.main}`,
+                            }
+                        }}>
                         To browse, order or download actual imagery from these declassified datasets, check out the
                         USGS EarthExplorer tool <a href="https://earthexplorer.usgs.gov/">here</a>.
                     </Typography>

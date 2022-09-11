@@ -26,7 +26,10 @@ type appContextType = {
     setMapLoading: Dispatch<SetStateAction<boolean>>,
     missionData: MissionData | null;
     setMissionData: Dispatch<SetStateAction<MissionData | null>>,
-
+    projection: string;
+    setProjection: Dispatch<SetStateAction<string>>,
+    showLabels: boolean;
+    setShowLabels: Dispatch<SetStateAction<boolean>>,
 };
 
 const appContextDefaultValues: appContextType = {
@@ -54,6 +57,10 @@ const appContextDefaultValues: appContextType = {
     setMapLoading: () => { },
     missionData: null,
     setMissionData: () => { },
+    projection: 'globe',
+    setProjection: () => { },
+    showLabels: true,
+    setShowLabels: () => { },
 };
 
 const AppContext = createContext<appContextType>(appContextDefaultValues);
@@ -85,6 +92,9 @@ export function AppContextProvider({ children }: Props) {
 
     const [missionData, setMissionData] = useState<MissionData | null>(null);
 
+    const [projection, setProjection] = useState<string>('globe');
+    const [showLabels, setShowLabels] = useState<boolean>(true);
+
     const value = {
         selectedDesignator,
         setSelectedDesignator,
@@ -110,6 +120,10 @@ export function AppContextProvider({ children }: Props) {
         setMapLoading,
         missionData,
         setMissionData,
+        projection,
+        setProjection,
+        showLabels,
+        setShowLabels,
     }
 
     return (

@@ -20,7 +20,9 @@ type Row = {
     value: string,
 };
 
-interface Props { };
+interface Props {
+
+};
 
 const MissionPane: NextPage<Props> = (props) => {
 
@@ -49,6 +51,7 @@ const MissionPane: NextPage<Props> = (props) => {
     useEffect(() => {
         if (!mission) return;
         const rows: Row[] = [
+            { label: 'MISSION', value: `${mission.m}` },
             { label: 'DESIGNATOR', value: `${utils.getDesignatorLabel(mission.d)}` },
             { label: 'RESOLUTION', value: `${utils.getResolutionLabel(mission.r)}` },
             { label: 'NUM. FRAMES', value: `${mission.f.toLocaleString('en-US')}` },
@@ -62,7 +65,6 @@ const MissionPane: NextPage<Props> = (props) => {
         mission ? (
             <div>
                 <Box sx={{
-                    flexGrow: 1,
                     mt: 1
                 }}
                 >
@@ -74,7 +76,7 @@ const MissionPane: NextPage<Props> = (props) => {
                             <Typography
                                 color="primary.main"
                             >
-                                {`MISSION ${mission.m}`}
+                                MISSION
                             </Typography>
                         </AccordionSummary>
                         <AccordionDetails

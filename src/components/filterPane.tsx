@@ -15,9 +15,9 @@ import { useAppContext } from "~/context/appContext";
 import { MissionData, Mission } from '~/shared/types';
 import * as utils from '~/shared/utils';
 
-interface Props { }
-
 const DEFAULT_RANGE_ACQUISITION_YEARS = [1960, 1984];
+
+interface Props { }
 
 const FilterPane: NextPage<Props> = (props) => {
 
@@ -32,6 +32,7 @@ const FilterPane: NextPage<Props> = (props) => {
         setSelectedCameraType,
         mission,
         setMission,
+        frame,
         setFrame,
         missionData,
     } = useAppContext();
@@ -41,6 +42,10 @@ const FilterPane: NextPage<Props> = (props) => {
     const [designatorOptions, setDesignatorOptions] = useState<string[]>([]);
     const [resolutionOptions, setResolutionOptions] = useState<string[]>([]);
     const [missionOptions, setMissionOptions] = useState<MissionData>([]);
+
+    const handleExpanded = (event: React.SyntheticEvent, newExpanded: boolean) => {
+        setExpanded(newExpanded);
+    };
 
     const handleChangeDesignator = (event: SelectChangeEvent<unknown>) => {
 
@@ -164,9 +169,9 @@ const FilterPane: NextPage<Props> = (props) => {
         setMission(mission);
     }
 
-    const handleExpanded = (event: React.SyntheticEvent, newExpanded: boolean) => {
-        setExpanded(newExpanded);
-    };
+    useEffect(() => {
+        setExpanded(frame ? false : true);
+    }, [frame]);
 
     useEffect(() => {
         if (!missionData) return;
@@ -209,7 +214,6 @@ const FilterPane: NextPage<Props> = (props) => {
     return (
         <Box
             sx={{
-
             }}
         >
             <Accordion expanded={expanded} onChange={handleExpanded}>

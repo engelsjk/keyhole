@@ -1,5 +1,14 @@
 import { NextPage } from "next";
 import { useEffect, useRef, useState } from "react";
+// import maplibregl, {
+//     DataDrivenPropertyValueSpecification,
+//     ExpressionSpecification,
+//     FilterSpecification,
+//     GeoJSONSource,
+//     MapLayerMouseEvent,
+//     MapMouseEvent
+// } from "maplibre-gl";
+// import "maplibre-gl/dist/maplibre-gl.css";
 import maplibregl, {
     DataDrivenPropertyValueSpecification,
     ExpressionSpecification,
@@ -184,6 +193,8 @@ const Map: NextPage<Props> = (props) => {
         mission,
         setFrame,
         setMapLoading,
+        projection,
+        showLabels,
     } = useAppContext();
 
     useEffect(() => {
@@ -235,25 +246,12 @@ const Map: NextPage<Props> = (props) => {
 
     // MISSIONS FILTERS
     useEffect(() => {
-        console.log('vvvvvvvvvvvvvvvvvvvvvvvvv')
-        console.log(map);
-        console.log(mission);
-        console.log(selectedDesignator);
-        console.log(selectedResolution);
-        console.log(rangeAcquisitionYears);
-        console.log('1^^^^^^^^^^^^^^^^^^^^^^^^')
-
         if (!map) return;
-
-        console.log(map.getLayer('missions-fill'));
-        console.log(map.getStyle().layers)
 
         if (mission) {
             map.setLayoutProperty('missions-fill', 'visibility', 'none');
             return;
         }
-
-        console.log('2^^^^^^^^^^^^^^^^^^^^^^^^')
 
         map.setLayoutProperty('missions-fill', 'visibility', 'visible');
 
@@ -280,11 +278,8 @@ const Map: NextPage<Props> = (props) => {
         }
 
         const filterExpressions: FilterSpecification = ['all', designatorFilter, resolutionFilter, missionFilter, yearsFilter];
-        console.log(filterExpressions);
 
         map.setFilter('missions-fill', filterExpressions, { validate: false });
-
-        console.log('3^^^^^^^^^^^^^^^^^^^^^^^^')
 
     }, [map, mission, selectedDesignator, selectedResolution, rangeAcquisitionYears]);
 
@@ -302,8 +297,6 @@ const Map: NextPage<Props> = (props) => {
             if (map.getLayer(swathLayer.lineLayer)) map.removeLayer(swathLayer.lineLayer);
             if (map.getSource(swathLayer.source)) map.removeSource(swathLayer.source);
         }
-
-        console.log('ok)')
 
         map.addSource(layer.source, {
             'type': 'vector',
@@ -518,6 +511,22 @@ const Map: NextPage<Props> = (props) => {
         }
 
     }, [map, mission, swathLayer, showDownloads]);
+
+    useEffect(() => {
+        if (!map) return;
+        // map.setProjection(projection);
+    }, [map, projection]);
+
+    useEffect(() => {
+        if (!map) return;
+
+        const layers = map.getStyle().layers;
+        for (const layer of layers) {
+            if (layer.type === 'symbol') {
+                map.setLayoutProperty(layer.id, 'visibility', showLabels ? 'visible' : 'none');
+            }
+        }
+    }, [map, showLabels]);
 
     return (
         <div ref={mapContainer} style={{

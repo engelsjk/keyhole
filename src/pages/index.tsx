@@ -1,11 +1,12 @@
 import type { NextPage } from "next";
 import { useEffect, useState } from "react";
 
-import { Container, Box, Drawer, Typography, AppBar, Toolbar, IconButton, Stack } from '@mui/material';
+import { Container, Box, Drawer, Typography, AppBar, Toolbar, IconButton } from '@mui/material';
 import HelpIcon from '@mui/icons-material/Help';
 import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 
+import Head from '~/components/head';
 import Map from '~/components/map';
 import FilterPane from '~/components/filterPane';
 import MissionPane from '~/components/missionPane';
@@ -68,8 +69,8 @@ const Home: NextPage = () => {
 
   return (
     <div>
-
-      {<Container
+      <Head></Head>
+      <Container
         sx={{
           padding: 0,
           margin: 0,
@@ -140,7 +141,6 @@ const Home: NextPage = () => {
         </Box>
 
         <Box sx={{
-          // flexGrow: 1,
           height: '100%',
           width: '100%'
         }}>
@@ -160,29 +160,24 @@ const Home: NextPage = () => {
             }}
           >
             <Box sx={{
-              width: 350,
-              mr: 2,
+              width: 375,
               ml: 1,
               bgcolor: 'secondary.main',
-              overflowX: 'hidden',
-              flexGrow: 1,
-              // height: '100%',
-              // maxHeight: '100%',
-              // overflow: "hidden",
-              // overflowY: "scroll",
-            }}
-            // role="presentation"
-            >
+              overflow: 'hidden',
+              height: '100%',
+              display: 'flex',
+              flexFlow: 'column',
+            }}>
               <Typography
                 variant="h6"
                 color="primary.main"
                 sx={{
-                  mt: 1.5,
                   ml: 1,
                   display: 'flex',
                   alignItems: 'center',
                   flexWrap: 'wrap',
                   position: 'static',
+                  minHeight: '64px',
                 }}
               >
                 TOOLKIT
@@ -194,17 +189,17 @@ const Home: NextPage = () => {
                   <ChevronRightRoundedIcon />
                 </IconButton>
               </Typography>
-              <FilterPane />
-              {mission &&
-                <Box sx={{}}>
-                  <MissionPane />
-                </Box>
-              }
-              {frame &&
-                <Box sx={{}}>
-                  <FramePane />
-                </Box>
-              }
+
+              <Box sx={{
+                flexGrow: 1,
+                flex: 1,
+                overflowY: 'scroll',
+              }}>
+                <FilterPane />
+                {mission && <MissionPane />}
+                {frame && <FramePane />}
+                <MapPane />
+              </Box>
             </Box>
           </Drawer>
         }
@@ -217,7 +212,6 @@ const Home: NextPage = () => {
             setProjection={setProjection}
           /> */}
       </Container>
-      }
       {(dataLoading || mapLoading) && <MapLoadingHolder className="loading-holder" />}
     </div >
   );
