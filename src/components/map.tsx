@@ -1,14 +1,15 @@
 import { NextPage } from "next";
 import { useEffect, useRef, useState } from "react";
-import maplibregl, {
-    DataDrivenPropertyValueSpecification,
+import mapboxgl, {
+    Expression,
+    // DataDrivenPropertyValueSpecification,
     ExpressionSpecification,
-    FilterSpecification,
+    // FilterSpecification,
     GeoJSONSource,
     MapLayerMouseEvent,
     MapMouseEvent
-} from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
+} from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 import { useAppContext } from "~/context/appContext";
 
@@ -33,7 +34,7 @@ const DESIGNATOR_NAMES = [
     'KH-9'
 ];
 
-const COLOR_BY_RESOLUTION_EXPR: DataDrivenPropertyValueSpecification<string> =
+const COLOR_BY_RESOLUTION_EXPR: Expression =
     [
         'match', ['get', 'r'],
         1, "#cb2d2e",
@@ -47,14 +48,14 @@ const COLOR_BY_RESOLUTION_EXPR: DataDrivenPropertyValueSpecification<string> =
         "grey",
     ];
 
-const MISSIONS_LINE_WIDTH_EXPR: DataDrivenPropertyValueSpecification<string> = [
+const MISSIONS_LINE_WIDTH_EXPR: Expression = [
     'case',
     ['boolean', ['feature-state', 'hover'], false],
     5,
     0
 ];
 
-const SWATHS_FILL_COLOR_EXPR_1: DataDrivenPropertyValueSpecification<string> = [
+const SWATHS_FILL_COLOR_EXPR_1: Expression = [
     'case',
     ['boolean', ['feature-state', 'click'], false],
     "#F9F9F9",
@@ -66,14 +67,14 @@ const SWATHS_FILL_COLOR_EXPR_1: DataDrivenPropertyValueSpecification<string> = [
     ]
 ];
 
-const SWATHS_FILL_COLOR_EXPR_2: DataDrivenPropertyValueSpecification<string> = [
+const SWATHS_FILL_COLOR_EXPR_2: Expression = [
     'case',
     ['boolean', ['feature-state', 'click'], false],
     "#F9F9F9",
     COLOR_BY_RESOLUTION_EXPR
 ]
 
-const SWATHS_LINE_COLOR_EXPR_1: DataDrivenPropertyValueSpecification<string> = [
+const SWATHS_LINE_COLOR_EXPR_1: Expression = [
     'case',
     ['any',
         ['boolean', ['feature-state', 'hover'], false],
@@ -83,7 +84,7 @@ const SWATHS_LINE_COLOR_EXPR_1: DataDrivenPropertyValueSpecification<string> = [
     SWATHS_FILL_COLOR_EXPR_1
 ];
 
-const SWATHS_LINE_COLOR_EXPR_2: DataDrivenPropertyValueSpecification<string> = [
+const SWATHS_LINE_COLOR_EXPR_2: Expression = [
     'case',
     ['any',
         ['boolean', ['feature-state', 'hover'], false],
@@ -93,7 +94,7 @@ const SWATHS_LINE_COLOR_EXPR_2: DataDrivenPropertyValueSpecification<string> = [
     SWATHS_FILL_COLOR_EXPR_2
 ];
 
-const SWATHS_LINE_WIDTH_EXPR: DataDrivenPropertyValueSpecification<any> = [
+const SWATHS_LINE_WIDTH_EXPR: Expression = [
     'interpolate',
     ['exponential', 0.5],
     ['zoom'],
@@ -123,6 +124,15 @@ const SWATHS_LINE_WIDTH_EXPR: DataDrivenPropertyValueSpecification<any> = [
     ],
 ]
 
+const FOG_PARAMS = {
+    "color": 'rgba(0, 0, 0, 0)',
+    "horizon-blend": 0.01,
+    "range": [0.5, 1.0],
+    "high-color": 'rgba(238,238,238,0.25)',
+    "space-color": 'rgba(25,25,25,0.4)',
+    "star-intensity": 0.25
+};
+
 interface SwathLayer {
     designator: string,
     source: string,
@@ -147,7 +157,7 @@ const getLayerFromDesignator = (d: string): SwathLayer => {
     }
 }
 
-const getFirstLayerID = (m: maplibregl.Map): string => {
+const getFirstLayerID = (m: mapboxgl.Map): string => {
     const layers = m.getStyle().layers;
     var firstSymbolId: string = '';
     for (const layer of layers) {
@@ -162,7 +172,7 @@ const getFirstLayerID = (m: maplibregl.Map): string => {
 const Map: NextPage<Props> = (props) => {
 
     const mapContainer = useRef<HTMLDivElement | null>(null);
-    const [map, setMap] = useState<maplibregl.Map | null>(null);
+    const [map, setMap] = useState<mapboxgl.Map | null>(null);
 
     // const [hoveredMission, setHoveredMission] = useState<string | undefined>(undefined);
     // const [prevHoveredMission, setPrevHoveredMission] = useState<string | undefined>(undefined);
@@ -173,6 +183,9 @@ const Map: NextPage<Props> = (props) => {
     const [prevClickedFrame, setPrevClickedFrame] = useState<string | undefined>(undefined);
 
     const [swathLayer, setSwathLayer] = useState<SwathLayer | null>(null);
+
+    const [userInteracting, setUserInteracting] = useState<boolean>(false);
+    const [moveEnd, setMoveEnd] = useState<boolean>(false);
 
     const {
         selectedDesignator,
@@ -191,24 +204,28 @@ const Map: NextPage<Props> = (props) => {
     useEffect(() => {
         if (map) return;
 
-        let maplibreMap = new maplibregl.Map({
+        let mapboxMap = new mapboxgl.Map({
             container: mapContainer.current!,
-            // style: "mapbox://styles/mapbox/light-v9",
-            style: 'https://demotiles.maplibre.org/style.json',
-            center: [8, 45],
-            zoom: 2,
+            style: 'mapbox://styles/engelsjk/cl65jk7jr000i15pq8u9qgjab',
+            accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
+            zoom: 2.5,
+            center: [46.54, 17.76],
+            minZoom: 0,
+            maxZoom: 8,
         });
 
-        maplibreMap.on("load", () => {
+        mapboxMap.on("load", () => {
 
-            setMap(maplibreMap);
+            setMap(mapboxMap);
             setMapLoading(false);
 
-            maplibreMap.resize();
+            mapboxMap.resize();
 
-            const firstSymbolId = getFirstLayerID(maplibreMap);
+            mapboxMap.setFog(FOG_PARAMS);
 
-            maplibreMap.addSource('missions', {
+            const firstSymbolId = getFirstLayerID(mapboxMap);
+
+            mapboxMap.addSource('missions', {
                 'type': 'vector',
                 'tiles': TILE_URLS.map(u => `${u}/missions/{z}/{x}/{y}.pbf`),
                 'minzoom': 0,
@@ -216,7 +233,7 @@ const Map: NextPage<Props> = (props) => {
                 // 'promoteId': 'm'
             });
 
-            maplibreMap.addLayer({
+            mapboxMap.addLayer({
                 'id': 'missions-fill',
                 'type': 'fill',
                 'source': 'missions',
@@ -246,10 +263,10 @@ const Map: NextPage<Props> = (props) => {
 
         map.setLayoutProperty('missions-fill', 'visibility', 'visible');
 
-        var designatorFilter: FilterSpecification = true; //['has', 'd'];
-        var resolutionFilter: FilterSpecification = true; //['has', 'r'];
-        var missionFilter: FilterSpecification = true; //['has', 'm'];
-        var yearsFilter: FilterSpecification = true; //['has', 'e'];
+        var designatorFilter: Expression = ['has', 'd']; // true
+        var resolutionFilter: Expression = ['has', 'r']; // true
+        var missionFilter: Expression = ['has', 'm']; // true
+        var yearsFilter: Expression = ['has', 'e']; // true
 
         if (selectedDesignator) {
             designatorFilter = ['==', ['get', 'd'], selectedDesignator];
@@ -268,7 +285,7 @@ const Map: NextPage<Props> = (props) => {
             ];
         }
 
-        const filterExpressions: FilterSpecification = ['all', designatorFilter, resolutionFilter, missionFilter, yearsFilter];
+        const filterExpressions: Expression = ['all', designatorFilter, resolutionFilter, missionFilter, yearsFilter];
 
         map.setFilter('missions-fill', filterExpressions, { validate: false });
 
@@ -357,7 +374,6 @@ const Map: NextPage<Props> = (props) => {
                 const frameID = e.features[0].id as string;
                 setClickedFrame(frameID);
                 setFrame(e.features[0].properties as Frame);
-                // close FilterPane?
             }
         }
 
@@ -397,8 +413,8 @@ const Map: NextPage<Props> = (props) => {
             map.setLayoutProperty(swathLayer.fillLayer, 'visibility', 'visible');
         }
 
-        var missionFilter: FilterSpecification = ['has', 'm'];
-        var cameraTypeFilter: FilterSpecification = ['has', 'c'];
+        var missionFilter: Expression = ['has', 'm'];
+        var cameraTypeFilter: Expression = ['has', 'c'];
 
         if (mission) {
             missionFilter = ['==', ['get', 'm'], mission.m];
@@ -408,7 +424,7 @@ const Map: NextPage<Props> = (props) => {
             cameraTypeFilter = ['==', ['get', 'c'], selectedCameraType];
         }
 
-        const filterExpressions: FilterSpecification = ['all', missionFilter, cameraTypeFilter];
+        const filterExpressions: Expression = ['all', missionFilter, cameraTypeFilter];
 
         if (map.getLayer(swathLayer.lineLayer) && map.getLayer(swathLayer.fillLayer)) {
             map.setFilter(swathLayer.lineLayer, filterExpressions);
@@ -505,12 +521,11 @@ const Map: NextPage<Props> = (props) => {
 
     useEffect(() => {
         if (!map) return;
-        // map.setProjection(projection);
+        map.setProjection(projection);
     }, [map, projection]);
 
     useEffect(() => {
         if (!map) return;
-
         const layers = map.getStyle().layers;
         for (const layer of layers) {
             if (layer.type === 'symbol') {

@@ -76,7 +76,8 @@ const Home: NextPage = () => {
           minWidth: '100%',
           display: 'flex',
           flexDirection: 'column',
-          overflowX: 'hidden'
+          overflowX: 'hidden',
+          visibility: (mapLoading || dataLoading) ? 'hidden' : 'visible',
         }}
         disableGutters
       >
@@ -123,7 +124,7 @@ const Home: NextPage = () => {
           </Box>
 
           <Box sx={{
-            width: '400px',
+            width: '450px',
             position: 'relative',
           }}>
 
@@ -189,6 +190,7 @@ const Home: NextPage = () => {
         />
       </Container>
       {(dataLoading || mapLoading) && <MapLoadingHolder className="loading-holder" />}
+
     </div >
   );
 }

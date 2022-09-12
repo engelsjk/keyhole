@@ -30,6 +30,8 @@ type appContextType = {
     setProjection: Dispatch<SetStateAction<string>>,
     showLabels: boolean;
     setShowLabels: Dispatch<SetStateAction<boolean>>,
+    spinGlobe: boolean;
+    setSpinGlobe: Dispatch<SetStateAction<boolean>>,
 };
 
 const appContextDefaultValues: appContextType = {
@@ -59,8 +61,10 @@ const appContextDefaultValues: appContextType = {
     setMissionData: () => { },
     projection: 'globe',
     setProjection: () => { },
-    showLabels: true,
+    showLabels: false,
     setShowLabels: () => { },
+    spinGlobe: false,
+    setSpinGlobe: () => { },
 };
 
 const AppContext = createContext<appContextType>(appContextDefaultValues);
@@ -93,7 +97,8 @@ export function AppContextProvider({ children }: Props) {
     const [missionData, setMissionData] = useState<MissionData | null>(null);
 
     const [projection, setProjection] = useState<string>('globe');
-    const [showLabels, setShowLabels] = useState<boolean>(true);
+    const [showLabels, setShowLabels] = useState<boolean>(false);
+    const [spinGlobe, setSpinGlobe] = useState<boolean>(false);
 
     const value = {
         selectedDesignator,
@@ -124,6 +129,8 @@ export function AppContextProvider({ children }: Props) {
         setProjection,
         showLabels,
         setShowLabels,
+        spinGlobe,
+        setSpinGlobe,
     }
 
     return (

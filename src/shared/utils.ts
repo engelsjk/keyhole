@@ -55,8 +55,8 @@ export const YearRangeToTimestamps = (r: number[] | null) => {
     if (!r) {
         return [];
     }
-    const e = DateTime.fromFormat(`${r[0].toString()}-01-01`, 'yyyy-MM-dd').toSeconds();
-    const l = DateTime.fromFormat(`${r[1].toString()}-12-31`, 'yyyy-MM-dd').toSeconds();
+    const e = DateTime.fromFormat(`${r[0].toString()}-01-01`, 'yyyy-MM-dd', { zone: 'utc' }).toSeconds();
+    const l = DateTime.fromFormat(`${r[1].toString()}-12-31`, 'yyyy-MM-dd', { zone: 'utc' }).toSeconds();
     return ([e, l])
 }
 
@@ -64,7 +64,7 @@ export const DayRangeToTimestamps = (s: number, r: number[] | null) => {
     if (!r) {
         return [];
     }
-    const dt = DateTime.fromSeconds(s);
+    const dt = DateTime.fromSeconds(s, { zone: 'utc' });
     const e = dt.plus({ days: r[0] }).toSeconds();
     const l = dt.plus({ days: r[1] }).toSeconds();
     return ([e, l])
@@ -74,18 +74,18 @@ export const TimestampsToYearRange = (ts: number[] | null) => {
     if (!ts) {
         return [];
     }
-    const e = DateTime.fromSeconds(ts[0]).get('year');
-    const l = DateTime.fromSeconds(ts[1]).get('year');
+    const e = DateTime.fromSeconds(ts[0], { zone: 'utc' }).get('year');
+    const l = DateTime.fromSeconds(ts[1], { zone: 'utc' }).get('year');
     return ([e, l])
 }
 
 export const TimestampsToDatetime = (ts: number): string => {
-    const dt = DateTime.fromSeconds(ts)
-    return `${dt.toLocaleString()}`;
+    const dt = DateTime.fromSeconds(ts, { zone: 'utc' })
+    return `${dt.toFormat('yyyy-MM-dd')}`;
 }
 
 export const TimestampsDaysDiff = (ts: number[]) => {
-    const e = DateTime.fromSeconds(ts[0]);
-    const l = DateTime.fromSeconds(ts[1]);
+    const e = DateTime.fromSeconds(ts[0], { zone: 'utc' });
+    const l = DateTime.fromSeconds(ts[1], { zone: 'utc' });
     return e.diff(l, ['days']).get('days');
 }

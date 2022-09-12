@@ -1,5 +1,5 @@
 import { NextPage } from "next";
-import { useEffect, useState, ChangeEvent } from "react";
+import { useState, ChangeEvent } from "react";
 
 import { Box, Typography, Button, Switch } from '@mui/material';
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
@@ -11,8 +11,7 @@ import Select from '~/components/styled/Select';
 
 import { useAppContext } from "~/context/appContext";
 
-import { MissionData, Mission, Projection } from '~/shared/types';
-import * as utils from '~/shared/utils';
+import { Projection } from '~/shared/types';
 
 const PROJECTION_OPTIONS: Projection[] = [
     { id: 'globe', name: 'GLOBE' },
@@ -31,15 +30,15 @@ const MapPane: NextPage<Props> = (props) => {
 
     const {
         projection,
-        setProjection
+        setProjection,
+        showLabels,
+        setShowLabels,
+        // spinGlobe,
+        // setSpinGlobe,
     } = useAppContext();
 
     const [expanded, setExpanded] = useState<boolean>(false);
-    const [spinGlobe, setSpinGlobe] = useState<boolean>(false);
 
-    const toggleSpinGlobe = () => {
-        setSpinGlobe(v => !v);
-    }
     const handleExpanded = (event: React.SyntheticEvent, newExpanded: boolean) => {
         setExpanded(newExpanded);
     };
@@ -51,8 +50,13 @@ const MapPane: NextPage<Props> = (props) => {
 
     const handleShowLabels = (event: ChangeEvent<HTMLInputElement>) => {
         const showLabels = event.target.checked;
-        console.log(`labels: ${showLabels}`);
+        setShowLabels(showLabels);
     };
+
+    // const toggleSpinGlobe = () => {
+    //     console.log('toggle')
+    //     setSpinGlobe(v => !v);
+    // }
 
     return (
         <Box
@@ -111,12 +115,12 @@ const MapPane: NextPage<Props> = (props) => {
                         <FormGroup sx={{ mt: 1 }}>
                             <FormControlLabel control={
                                 <Switch
-                                    defaultChecked
+                                    value={showLabels}
                                     onChange={handleShowLabels}
                                 />
                             } label="SHOW LABELS" />
                         </FormGroup>
-                        {projection == "globe" &&
+                        {/* {projection == "globe" &&
                             <Button
                                 variant="contained"
                                 sx={{
@@ -130,7 +134,7 @@ const MapPane: NextPage<Props> = (props) => {
                             >
                                 {!spinGlobe ? "SPIN GLOBE" : "STOP GLOBE"}
                             </Button>
-                        }
+                        } */}
                     </FormControl>
                 </AccordionDetails>
             </Accordion>

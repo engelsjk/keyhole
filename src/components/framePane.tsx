@@ -41,7 +41,7 @@ const FramePane: NextPage<Props> = (props) => {
             { label: 'FRAME', value: `${frame.e}` },
             { label: 'CAMERA TYPE', value: `${utils.getCameraTypeLabel(frame.c)}` },
             { label: 'SEQUENCE/FRAME', value: `${frame.p}/ ${frame.f}` },
-            { label: 'ACQUISITION DATE', value: `${DateTime.fromSeconds(frame.d).toLocaleString()}` },
+            { label: 'ACQUISITION DATE', value: `${utils.TimestampsToDatetime(frame.d)}` },
             { label: 'DOWNLOAD AVAILABLE', value: ` ${frame.a}` },
         ]
         setRows(rows);
