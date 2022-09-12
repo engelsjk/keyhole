@@ -16,7 +16,7 @@ const Select = styled(SelectBase)(({ theme }) => ({
     "& .MuiSvgIcon-root": {
         color: theme.palette.primary.main,
     },
-    "& .Mui-disabled .MuiSvgIcon-root": {
+    '& .MuiSvgIcon-root.Mui-disabled': {
         color: theme.palette.primary.light,
     },
     '& .MuiMenu-paper': {
