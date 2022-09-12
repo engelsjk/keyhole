@@ -103,6 +103,14 @@ const MapPane: NextPage<Props> = (props) => {
                             value={projection}
                             label="PROJECTION"
                             onChange={handleChangeProjection}
+                            MenuProps={{
+                                sx: {
+                                    "& .MuiMenu-paper": {
+                                        color: 'primary.light',
+                                        bgcolor: 'primary.dark',
+                                    }
+                                }
+                            }}
                         >
                             {
                                 PROJECTION_OPTIONS.map(p => {

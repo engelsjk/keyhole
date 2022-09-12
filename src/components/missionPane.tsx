@@ -139,6 +139,14 @@ const MissionPane: NextPage<Props> = (props) => {
                                         value={selectedCameraType ? selectedCameraType : "ALL"}
                                         onChange={handleCameraTypesChange}
                                         label="CAMERA TYPES"
+                                        MenuProps={{
+                                            sx: {
+                                                "& .MuiMenu-paper": {
+                                                    color: 'primary.light',
+                                                    bgcolor: 'primary.dark',
+                                                }
+                                            }
+                                        }}
                                     >
                                         <MenuItem value="ALL">
                                             <em>ALL</em>
