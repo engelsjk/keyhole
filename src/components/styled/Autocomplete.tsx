@@ -16,8 +16,9 @@ const Autocomplete = styled(AutocompleteBase)(({ theme }) => ({
         color: theme.palette.primary.light,
     },
     "& .MuiSvgIcon-root": {
-        color: theme.palette.primary.light,
-    }
+        color: theme.palette.primary.main,
+    },
+
 }));
 
 export default Autocomplete;

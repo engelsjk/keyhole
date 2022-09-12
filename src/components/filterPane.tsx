@@ -6,6 +6,7 @@ import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { InputLabel, FormControl, MenuItem } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
+import Divider from '@mui/material/Divider';
 
 import Autocomplete from '~/components/styled/Autocomplete';
 import Select from '~/components/styled/Select';
@@ -357,6 +358,16 @@ const FilterPane: NextPage<Props> = (props) => {
                         }
                     </Box>
 
+                    <Divider
+                        sx={{
+                            mt: 2,
+                            mb: 2,
+                            width: '50%',
+                            borderWidth: 1,
+                            bgcolor: 'primary.main',
+                        }}
+                    />
+
                     <Autocomplete
                         size="small"
                         sx={{
@@ -365,6 +376,7 @@ const FilterPane: NextPage<Props> = (props) => {
                             maxWidth: 200,
                             '& + .MuiAutocomplete-popper .MuiAutocomplete-paper': {
                                 bgcolor: 'primary.dark',
+                                boxShadow: '0px 5px 5px -3px rgba(0,0,0,0.2),0px 8px 10px 1px rgba(0,0,0,0.14),0px 3px 14px 2px rgba(0,0,0,0.12)',
                             },
                             '& + .MuiAutocomplete-popper .MuiAutocomplete-groupLabel': {
                                 color: 'primary.main',
