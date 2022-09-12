@@ -62,6 +62,7 @@ const MapPane: NextPage<Props> = (props) => {
         <Box
             sx={{
                 mt: 1,
+                mb: 1,
             }}
         >
             <Accordion

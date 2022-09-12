@@ -112,6 +112,10 @@ const Home: NextPage = () => {
           flex: '1 1 auto',
           display: 'flex',
           position: 'relative',
+          flexDirection: {
+            xs: 'column',
+            sm: 'row',
+          },
         }}>
 
           <Box sx={{
@@ -124,7 +128,15 @@ const Home: NextPage = () => {
           </Box>
 
           <Box sx={{
-            width: '450px',
+            width: {
+              xs: '100%',
+              sm: '300px',
+              md: '450px',
+            },
+            height: {
+              xs: '50%',
+              sm: '100%',
+            },
             position: 'relative',
           }}>
 
@@ -161,6 +173,7 @@ const Home: NextPage = () => {
                     sx={{
                       ml: 2,
                       mb: 1,
+                      mt: 1,
                     }}
                   >
                     TOOLKIT

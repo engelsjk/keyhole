@@ -239,6 +239,8 @@ const FilterPane: NextPage<Props> = (props) => {
                     sx={{
                         color: 'primary.light',
                         bgcolor: 'primary.dark',
+                        display: 'flex',
+                        flexDirection: 'column'
                     }}
                 >
                     <FormControl
