@@ -239,7 +239,7 @@ const Map: NextPage<Props> = (props) => {
                 'source': 'missions',
                 'source-layer': 'missions',
                 'paint': {
-                    'fill-opacity': 0.7,
+                    'fill-opacity': 0.4,
                     'fill-color': COLOR_BY_RESOLUTION_EXPR,
                     'fill-antialias': false
                 },
