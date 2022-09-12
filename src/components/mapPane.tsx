@@ -57,7 +57,7 @@ const MapPane: NextPage<Props> = (props) => {
     return (
         <Box
             sx={{
-                mt: 1
+                mt: 1,
             }}
         >
             <Accordion
@@ -82,25 +82,10 @@ const MapPane: NextPage<Props> = (props) => {
                 <AccordionDetails
                     sx={{ color: 'primary.light', backgroundColor: 'primary.dark' }}
                 >
-                    {/* <Autocomplete
-                        size="small"
-                        sx={{
-                            mt: 1,
-                            mb: 1.5,
-                            maxWidth: 200,
-                        }}
-                        disablePortal
-                        options={PROJECTIONS_LIST}
-                        getOptionLabel={(option: unknown) => (option as Projection).name}
-                        onChange={handleChangeProjection}
-                        renderInput={(params) => <TextField {...params} label="PROJECTION" />}
-                    /> */}
                     <FormControl
                         fullWidth
                         size="small"
                         sx={{
-                            // mr: 1,
-                            // mt: 1.5,
                             mb: 1.5,
                             maxWidth: 300,
                         }}

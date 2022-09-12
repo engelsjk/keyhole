@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 
 import { Container, Box, Drawer, Typography, AppBar, Toolbar, IconButton } from '@mui/material';
 import HelpIcon from '@mui/icons-material/Help';
-import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
-import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 
 import Head from '~/components/head';
 import Map from '~/components/map';
@@ -86,16 +84,16 @@ const Home: NextPage = () => {
           position="relative"
           sx={{
             bgcolor: "primary.dark",
-            height: '64px',
+            '& .MuiToolbar-root': {
+              minHeight: 50,
+              pl: 2,
+            },
           }}
         >
           <Toolbar>
             <Typography
               variant="h6"
               color="primary.main"
-              sx={{
-
-              }}
             >
               KEYHOLE //SWATHS//
             </Typography>
@@ -125,7 +123,7 @@ const Home: NextPage = () => {
           </Box>
 
           <Box sx={{
-            width: '350px',
+            width: '400px',
             position: 'relative',
           }}>
 
@@ -148,8 +146,11 @@ const Home: NextPage = () => {
                 }}
               >
                 <Box sx={{
-                  height: '100vh',
+                  // height: '100vh',
                   width: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  flex: '1 1 auto',
                   bgcolor: 'primary.dark',
                   overflowY: 'hidden',
                 }}>
@@ -159,9 +160,6 @@ const Home: NextPage = () => {
                     sx={{
                       ml: 2,
                       mb: 1,
-                      mt: 1,
-                      display: 'flex',
-                      alignItems: 'center',
                     }}
                   >
                     TOOLKIT
@@ -171,7 +169,7 @@ const Home: NextPage = () => {
                     pl: 1,
                     pr: 1,
                     mt: 1,
-                    height: '100%',
+                    flex: '1 1 auto',
                     overflowY: 'scroll',
                   }}>
                     <FilterPane />

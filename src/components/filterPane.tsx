@@ -372,13 +372,6 @@ const FilterPane: NextPage<Props> = (props) => {
                                 color: 'primary.light',
                                 bgcolor: 'primary.dark',
                             },
-                            // '& +  .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected="true"]': {
-                            //     color: 'primary.light',
-                            //     bgcolor: 'primary.dark',
-                            // },
-                            // '& + .Mui-focused': {
-
-                            // }
                         }}
                         disablePortal
                         options={missionOptions.sort((a, b) => a.d.localeCompare(b.d))}

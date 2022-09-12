@@ -37,7 +37,6 @@ const MapLoadingHolder: NextPage<Props> = (props) => {
                     variant="h4"
                     sx={{
                         mt: 6,
-                        // textShadow: '0px 0px 10px rgba(152, 207, 195, 0.7)',
                     }}
                 >
                     LOADING...

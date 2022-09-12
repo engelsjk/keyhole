@@ -51,19 +51,6 @@ export const getCameraTypeLabel = (value: string | undefined) => {
     return labels[value];
 };
 
-// const CAMERA_TYPES = {
-//     "A": "AFT PANORAMIC",
-//     "F": "FORWARD PANORAMIC",
-//     "C": "MAPPING",
-//     "V": "VERTICAL",
-//     "M": "MAPPING",
-//     "S": "SURVEILLANCE"
-// };
-
-// function hasKey<O>(obj: O, key: PropertyKey): key is keyof O {
-//     return key in obj
-// }
-
 export const YearRangeToTimestamps = (r: number[] | null) => {
     if (!r) {
         return [];
@@ -102,10 +89,3 @@ export const TimestampsDaysDiff = (ts: number[]) => {
     const l = DateTime.fromSeconds(ts[1]);
     return e.diff(l, ['days']).get('days');
 }
-
-// export const arrayEquals = (a: any, b: any) => {
-//     return Array.isArray(a) &&
-//         Array.isArray(b) &&
-//         a.length === b.length &&
-//         a.every((val, index) => val === b[index]);
-// }
