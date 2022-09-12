@@ -14,10 +14,10 @@ function Head() {
             <meta name="twitter:creator" content="@engelsjk" />
 
             {/* opengraph meta tags */}
-            <meta property="og:url" content="https://engelsjk.com/maps/keyhole/" />
+            <meta property="og:url" content="https://keyhole.engelsjk.com/" />
             <meta property="og:title" content="KEYHOLE" />
-            <meta property="og:description" content="ground swath coverage of declassified spy satellite imagery" />
-            <meta property="og:image" content="https://engelsjk.com/maps/keyhole/shared.png" />
+            <meta property="og:description" content="An experimental visualization of ground swaths from declassified spy satellite imagery." />
+            <meta property="og:image" content="https://keyhole.engelsjk.com/splash.png" />
         </NextHead>
     )
 }

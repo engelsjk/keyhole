@@ -371,13 +371,20 @@ const FilterPane: NextPage<Props> = (props) => {
                             '& + .MuiAutocomplete-popper .MuiAutocomplete-option': {
                                 color: 'primary.light',
                                 bgcolor: 'primary.dark',
-                            }
+                            },
+                            // '& +  .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected="true"]': {
+                            //     color: 'primary.light',
+                            //     bgcolor: 'primary.dark',
+                            // },
+                            // '& + .Mui-focused': {
+
+                            // }
                         }}
                         disablePortal
                         options={missionOptions.sort((a, b) => a.d.localeCompare(b.d))}
                         groupBy={(option: unknown) => (option as Mission).d}
                         getOptionLabel={(option: unknown) => (option as Mission).m}
-                        isOptionEqualToValue={(option: unknown) => (option as Mission).m == (option as Mission).m}
+                        // isOptionEqualToValue={(option: unknown) => (option as Mission).m == (option as Mission).m}
                         onChange={handleChangeMission}
                         renderInput={(params) => (
                             <TextField

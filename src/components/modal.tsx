@@ -98,13 +98,13 @@ const Modal: NextPage<Props> = (props) => {
                         }}>
                         <blockquote> <a
                             href="https://www.govinfo.gov/content/pkg/WCPD-1995-02-27/pdf/WCPD-1995-02-27-Pg304.pdf"><strong>Executive
-                                Order 12951</strong></a> (<i>February 22, 1995</i>): "Imagery acquired by the space-based
+                                Order 12951</strong></a> (<i>February 22, 1995</i>): &quot;Imagery acquired by the space-based
                             national intelligence reconnaissance systems known as the Corona, Argon and Lanyard missions shall,
                             within 18 months of the date of this order, be declassified and transferred to the National Archives and
                             Records Administration with a copy sent to the United States Geological Survey of the Department of the
                             Interior consistent with procedures approved by the Director of Central Intelligence and the Archivist
                             of the United States. Upon transfer, such imagery shall be deemed declassified and shall be made
-                            available to the public."</blockquote>
+                            available to the public.&quot;</blockquote>
                     </Typography>
                     <Typography paragraph sx={{ fontSize: '1rem', lineHeight: 1.5 }}>
                         Imagery and metadata are hosted by the USGS at the following datasets:
