@@ -6,8 +6,8 @@ type appContextType = {
     setSelectedDesignator: Dispatch<SetStateAction<string>>
     selectedResolution: string;
     setSelectedResolution: Dispatch<SetStateAction<string>>
-    selectedMission: string | null;
-    setSelectedMission: Dispatch<SetStateAction<string | null>>
+    selectedMission: string;
+    setSelectedMission: Dispatch<SetStateAction<string>>
     acquisitionRange: number[];
     setAcquisitionRange: Dispatch<SetStateAction<number[]>>
     acquisitionTimeRange: TimeRange;
@@ -41,7 +41,7 @@ const appContextDefaultValues: appContextType = {
     setSelectedDesignator: () => { },
     selectedResolution: '',
     setSelectedResolution: () => { },
-    selectedMission: null,
+    selectedMission: '',
     setSelectedMission: () => { },
     acquisitionRange: [0, 0],
     setAcquisitionRange: () => { },
@@ -85,7 +85,7 @@ export function AppContextProvider({ children }: Props) {
 
     const [selectedDesignator, setSelectedDesignator] = useState<string>('');
     const [selectedResolution, setSelectedResolution] = useState<string>('');
-    const [selectedMission, setSelectedMission] = useState<string | null>(null);
+    const [selectedMission, setSelectedMission] = useState<string>('');
     const [mission, setMission] = useState<Mission | undefined>(undefined);
     const [frame, setFrame] = useState<Frame | null>(null);
 

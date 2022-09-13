@@ -1,5 +1,6 @@
 import { NextPage } from "next";
 import { useEffect, useState } from "react";
+import { isMobile } from 'react-device-detect';
 
 import { Box, Typography, TextField, Slider } from '@mui/material';
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
@@ -25,6 +26,7 @@ const FilterPane: NextPage<Props> = (props) => {
         setSelectedDesignator,
         selectedResolution,
         setSelectedResolution,
+        selectedMission,
         setSelectedMission,
         acquisitionRange,
         setAcquisitionRange,
@@ -39,6 +41,7 @@ const FilterPane: NextPage<Props> = (props) => {
     } = useAppContext();
 
     const [expanded, setExpanded] = useState<boolean>(true);
+    const [_isMobile, setMobile] = useState<boolean>(false);
 
     const [designatorCanBeFiltered, setDesignatorCanBeFiltered] = useState<boolean>(true);
     const [resolutionCanBeFiltered, setResolutionCanBeFiltered] = useState<boolean>(true);
@@ -188,9 +191,23 @@ const FilterPane: NextPage<Props> = (props) => {
         }
     };
 
+    const handleChangeMissionMobile = (event: SelectChangeEvent<unknown>) => {
+        const m = event.target.value as string;
+        setSelectedMission(m);
+        const mission: Mission | undefined = missionData?.find((mission) => {
+            return mission.m === m;
+        });
+        if (!mission) {
+            setFrame(null);
+            setSelectedCameraType("ALL");
+        }
+        setMission(mission);
+    }
+
+
     const handleChangeMission = (event: React.SyntheticEvent, value: unknown) => {
         const newMission = value as Mission;
-        const m: string | null = newMission ? newMission.m : null;
+        const m: string = newMission ? newMission.m : '';
         setSelectedMission(m);
         const mission = missionData?.find((mission) => {
             return mission.m === m;
@@ -255,6 +272,10 @@ const FilterPane: NextPage<Props> = (props) => {
     useEffect(() => {
         setExpanded(frame ? false : true);
     }, [frame]);
+
+    useEffect(() => {
+        setMobile(isMobile);
+    }, [setMobile]);
 
     return (
         <Box
@@ -411,37 +432,83 @@ const FilterPane: NextPage<Props> = (props) => {
                         }}
                     />
 
-                    <Autocomplete
-                        size="small"
-                        sx={{
-                            mt: 1,
-                            mb: 1.5,
-                            maxWidth: 200,
-                            '& + .MuiAutocomplete-popper .MuiAutocomplete-paper': {
-                                bgcolor: 'primary.dark',
-                                boxShadow: '0px 5px 5px -3px rgba(0,0,0,0.2),0px 8px 10px 1px rgba(0,0,0,0.14),0px 3px 14px 2px rgba(0,0,0,0.12)',
-                            },
-                            '& + .MuiAutocomplete-popper .MuiAutocomplete-groupLabel': {
-                                color: 'primary.main',
-                                bgcolor: 'primary.dark',
-                            },
-                            '& + .MuiAutocomplete-popper .MuiAutocomplete-option': {
-                                color: 'primary.light',
-                                bgcolor: 'primary.dark',
-                            },
-                        }}
-                        disablePortal
-                        options={missionOptions.sort((a, b) => a.d.localeCompare(b.d))}
-                        groupBy={(option: unknown) => (option as Mission).d}
-                        getOptionLabel={(option: unknown) => (option as Mission).m}
-                        onChange={handleChangeMission}
-                        renderInput={(params) => (
-                            <TextField
-                                {...params}
-                                label="MISSION"
-                            />
-                        )}
-                    />
+                    {!_isMobile ? (
+                        <Autocomplete
+                            size="small"
+                            sx={{
+                                mt: 1,
+                                mb: 1.5,
+                                maxWidth: 200,
+                                '& + .MuiAutocomplete-popper .MuiAutocomplete-paper': {
+                                    bgcolor: 'primary.dark',
+                                    boxShadow: '0px 5px 5px -3px rgba(0,0,0,0.2),0px 8px 10px 1px rgba(0,0,0,0.14),0px 3px 14px 2px rgba(0,0,0,0.12)',
+                                },
+                                '& + .MuiAutocomplete-popper .MuiAutocomplete-groupLabel': {
+                                    color: 'primary.main',
+                                    bgcolor: 'primary.dark',
+                                },
+                                '& + .MuiAutocomplete-popper .MuiAutocomplete-option': {
+                                    color: 'primary.light',
+                                    bgcolor: 'primary.dark',
+                                },
+                            }}
+                            disablePortal
+                            options={missionOptions.sort((a, b) => a.d.localeCompare(b.d))}
+                            groupBy={(option: unknown) => (option as Mission).d}
+                            getOptionLabel={(option: unknown) => (option as Mission).m}
+                            onChange={handleChangeMission}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="MISSION"
+                                />
+                            )}
+                        />) : (
+
+                        <FormControl
+                            fullWidth
+                            size="small"
+                            sx={{
+                                mr: 1,
+                                mt: 1.5,
+                                mb: 1.5,
+                                maxWidth: 200
+                            }}
+                        >
+                            <InputLabel
+                                sx={{ color: 'primary.light' }}
+                            >
+                                MISSION
+                            </InputLabel>
+                            <Select
+                                value={selectedMission}
+                                label="RESOLUTION"
+                                onChange={handleChangeMissionMobile}
+                                MenuProps={{
+                                    sx: {
+                                        "& .MuiMenu-paper": {
+                                            color: 'primary.light',
+                                            bgcolor: 'primary.dark',
+                                        },
+
+                                    }
+                                }}
+                            >
+                                <MenuItem value="">
+                                    <em>---</em>
+                                </MenuItem>
+                                {
+                                    missionOptions
+                                        .sort((a, b) => a.d.localeCompare(b.d))
+                                        .map(m => {
+                                            return (
+                                                <MenuItem key={m.m} value={m.m}>{m.m}</MenuItem>
+                                            )
+                                        })
+                                }
+                            </Select>
+                        </FormControl>
+                    )}
                 </AccordionDetails>
             </Accordion>
         </Box >
