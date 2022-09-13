@@ -49,7 +49,7 @@ const FilterPane: NextPage<Props> = (props) => {
     const [resolutionOptions, setResolutionOptions] = useState<string[]>([]);
     const [missionOptions, setMissionOptions] = useState<MissionData>([]);
 
-    const matches = useMediaQuery('(min-height:1000px)');
+    const matches = useMediaQuery('(min-height:950px)');
 
     const handleExpanded = (event: React.SyntheticEvent, newExpanded: boolean) => {
         setExpanded(newExpanded);
@@ -429,7 +429,7 @@ const FilterPane: NextPage<Props> = (props) => {
                         }}
                     />
 
-                    {!matches ? (
+                    {matches ? (
                         <Autocomplete
                             size="small"
                             sx={{
@@ -461,7 +461,6 @@ const FilterPane: NextPage<Props> = (props) => {
                                 />
                             )}
                         />) : (
-
                         <FormControl
                             fullWidth
                             size="small"
@@ -487,7 +486,6 @@ const FilterPane: NextPage<Props> = (props) => {
                                             color: 'primary.light',
                                             bgcolor: 'primary.dark',
                                         },
-
                                     }
                                 }}
                             >
