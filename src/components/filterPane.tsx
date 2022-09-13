@@ -1,6 +1,6 @@
 import { NextPage } from "next";
 import { useEffect, useState } from "react";
-import { isMobile } from 'react-device-detect';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { Box, Typography, TextField, Slider } from '@mui/material';
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
@@ -41,7 +41,6 @@ const FilterPane: NextPage<Props> = (props) => {
     } = useAppContext();
 
     const [expanded, setExpanded] = useState<boolean>(true);
-    const [_isMobile, setMobile] = useState<boolean>(false);
 
     const [designatorCanBeFiltered, setDesignatorCanBeFiltered] = useState<boolean>(true);
     const [resolutionCanBeFiltered, setResolutionCanBeFiltered] = useState<boolean>(true);
@@ -49,6 +48,8 @@ const FilterPane: NextPage<Props> = (props) => {
     const [designatorOptions, setDesignatorOptions] = useState<string[]>([]);
     const [resolutionOptions, setResolutionOptions] = useState<string[]>([]);
     const [missionOptions, setMissionOptions] = useState<MissionData>([]);
+
+    const matches = useMediaQuery('(min-height:1000px)');
 
     const handleExpanded = (event: React.SyntheticEvent, newExpanded: boolean) => {
         setExpanded(newExpanded);
@@ -273,10 +274,6 @@ const FilterPane: NextPage<Props> = (props) => {
         setExpanded(frame ? false : true);
     }, [frame]);
 
-    useEffect(() => {
-        setMobile(isMobile);
-    }, [setMobile]);
-
     return (
         <Box
             sx={{
@@ -432,7 +429,7 @@ const FilterPane: NextPage<Props> = (props) => {
                         }}
                     />
 
-                    {!_isMobile ? (
+                    {!matches ? (
                         <Autocomplete
                             size="small"
                             sx={{
