@@ -412,7 +412,6 @@ const FilterPane: NextPage<Props> = (props) => {
                         options={missionOptions.sort((a, b) => a.d.localeCompare(b.d))}
                         groupBy={(option: unknown) => (option as Mission).d}
                         getOptionLabel={(option: unknown) => (option as Mission).m}
-                        // isOptionEqualToValue={(option: unknown) => (option as Mission).m == (option as Mission).m}
                         onChange={handleChangeMission}
                         renderInput={(params) => (
                             <TextField
