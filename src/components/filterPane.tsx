@@ -40,6 +40,9 @@ const FilterPane: NextPage<Props> = (props) => {
 
     const [expanded, setExpanded] = useState<boolean>(true);
 
+    const [designatorCanBeFiltered, setDesignatorCanBeFiltered] = useState<boolean>(true);
+    const [resolutionCanBeFiltered, setResolutionCanBeFiltered] = useState<boolean>(true);
+
     const [designatorOptions, setDesignatorOptions] = useState<string[]>([]);
     const [resolutionOptions, setResolutionOptions] = useState<string[]>([]);
     const [missionOptions, setMissionOptions] = useState<MissionData>([]);
@@ -53,32 +56,41 @@ const FilterPane: NextPage<Props> = (props) => {
         if (!missionData) return;
 
         const designator = event.target.value as string;
+        setSelectedDesignator(designator);
+        designator && resolutionCanBeFiltered ? setDesignatorCanBeFiltered(false) : setDesignatorCanBeFiltered(true);
+
+        var r = selectedResolution;
 
         var filteredMissionData = designator ?
             missionData.filter(m => { return m.d == designator }) : missionData;
 
-        const resolutionOptions = [...new Set(
-            filteredMissionData
-                .sort((a, b) => (a.r > b.r) ? 1 : -1)
-                .map(m => m.r as unknown as string)
-        )];
+        if (resolutionCanBeFiltered) {
+            const resolutionOptions = [...new Set(
+                filteredMissionData
+                    .sort((a, b) => (a.r > b.r) ? 1 : -1)
+                    .map(m => m.r as unknown as string)
+            )];
+            setResolutionOptions(resolutionOptions);
+            r = "";
+            setSelectedResolution(r);
+        }
 
-        filteredMissionData = !designator && selectedResolution ?
+        filteredMissionData = r ?
             filteredMissionData.filter(m => { return m.r == Number(selectedResolution) }) : filteredMissionData;
 
-        const earliestMission = filteredMissionData.reduce((prev, current) => {
-            return (prev.e < current.e) ? prev : current;
-        })
-        const latestMission = filteredMissionData.reduce((prev, current) => {
-            return (prev.l > current.l) ? prev : current;
-        })
+        if (filteredMissionData.length > 0) {
 
-        const r = utils.TimestampsToYearRange([earliestMission.e, latestMission.l])
+            const earliestMission = filteredMissionData.reduce((prev, current) => {
+                return (prev.e < current.e) ? prev : current;
+            })
+            const latestMission = filteredMissionData.reduce((prev, current) => {
+                return (prev.l > current.l) ? prev : current;
+            })
 
-        setSelectedDesignator(designator);
-        if (!selectedResolution) setResolutionOptions(resolutionOptions);
-        setRangeAcquisitionYears(r);
+            const r = utils.TimestampsToYearRange([earliestMission.e, latestMission.l]);
 
+            setRangeAcquisitionYears(r);
+        }
     };
 
     const handleChangeResolution = (event: SelectChangeEvent<unknown>) => {
@@ -86,31 +98,40 @@ const FilterPane: NextPage<Props> = (props) => {
         if (!missionData) return;
 
         const resolution = event.target.value as string;
+        setSelectedResolution(resolution);
+        resolution && designatorCanBeFiltered ? setResolutionCanBeFiltered(false) : setResolutionCanBeFiltered(true);
+
+        var d = selectedDesignator;
 
         var filteredMissionData = resolution ?
             missionData.filter(m => { return m.r == Number(resolution) }) : missionData;
 
-        const designatorOptions = [...new Set(
-            filteredMissionData
-                .sort((a, b) => (a.d > b.d) ? 1 : -1)
-                .map(m => m.d)
-        )];
+        if (designatorCanBeFiltered) {
+            const designatorOptions = [...new Set(
+                filteredMissionData
+                    .sort((a, b) => (a.d > b.d) ? 1 : -1)
+                    .map(m => m.d)
+            )];
+            setDesignatorOptions(designatorOptions);
+            d = ""
+            setSelectedDesignator(d);
+        }
 
-        filteredMissionData = !resolution && selectedDesignator ?
+        filteredMissionData = d ?
             filteredMissionData.filter(m => { return m.d == selectedDesignator }) : filteredMissionData;
 
-        const earliestMission = filteredMissionData.reduce((prev, current) => {
-            return (prev.e < current.e) ? prev : current;
-        })
-        const latestMission = filteredMissionData.reduce((prev, current) => {
-            return (prev.l > current.l) ? prev : current;
-        })
+        if (filteredMissionData.length > 0) {
+            const earliestMission = filteredMissionData.reduce((prev, current) => {
+                return (prev.e < current.e) ? prev : current;
+            })
+            const latestMission = filteredMissionData.reduce((prev, current) => {
+                return (prev.l > current.l) ? prev : current;
+            })
 
-        const r = utils.TimestampsToYearRange([earliestMission.e, latestMission.l]);
+            const r = utils.TimestampsToYearRange([earliestMission.e, latestMission.l]);
 
-        if (!selectedDesignator) setDesignatorOptions(designatorOptions);
-        setSelectedResolution(resolution);
-        setRangeAcquisitionYears(r);
+            setRangeAcquisitionYears(r);
+        }
     };
 
     const handleChangeRangeAcquisitionYears = (event: Event, newValue: number | number[]) => {
