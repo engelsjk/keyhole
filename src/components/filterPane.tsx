@@ -385,7 +385,7 @@ const FilterPane: NextPage<Props> = (props) => {
                             mb: 2,
                             width: '50%',
                             borderWidth: 1,
-                            bgcolor: 'primary.main',
+                            bgcolor: 'primary.dark',
                         }}
                     />
 
