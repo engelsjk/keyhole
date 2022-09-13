@@ -191,7 +191,8 @@ const Map: NextPage<Props> = (props) => {
         selectedDesignator,
         selectedResolution,
         selectedMission,
-        rangeAcquisitionYears,
+        acquisitionRange,
+        acquisitionTimeRange,
         selectedCameraType,
         showDownloads,
         mission,
@@ -266,7 +267,7 @@ const Map: NextPage<Props> = (props) => {
         var designatorFilter: Expression = ['has', 'd']; // true
         var resolutionFilter: Expression = ['has', 'r']; // true
         var missionFilter: Expression = ['has', 'm']; // true
-        var yearsFilter: Expression = ['has', 'e']; // true
+        var timeFilter: Expression = ['has', 'e']; // true
 
         if (selectedDesignator) {
             designatorFilter = ['==', ['get', 'd'], selectedDesignator];
@@ -276,20 +277,22 @@ const Map: NextPage<Props> = (props) => {
             resolutionFilter = ['==', ['get', 'r'], selectedResolution];
         }
 
-        if (rangeAcquisitionYears) {
-            const ts = utils.YearRangeToTimestamps(rangeAcquisitionYears);
-            yearsFilter = [
+        if (acquisitionTimeRange.interval) {
+            const ts = utils.RangeToTimestamps(acquisitionRange, acquisitionTimeRange);
+            console.log(`tr2ts: ${utils.TimestampsToDatetime(ts[0])}...${utils.TimestampsToDatetime(ts[1])}`)
+            timeFilter = [
                 'all',
                 ['>=', ['get', 'e'], ts[0]],
                 ['<=', ['get', 'l'], ts[1]]
             ];
         }
 
-        const filterExpressions: Expression = ['all', designatorFilter, resolutionFilter, missionFilter, yearsFilter];
+        const filterExpressions: Expression = ['all', designatorFilter, resolutionFilter, missionFilter, timeFilter];
 
         map.setFilter('missions-fill', filterExpressions, { validate: false });
+        console.log(map.getLayer('missions-fill'));
 
-    }, [map, mission, selectedDesignator, selectedResolution, rangeAcquisitionYears]);
+    }, [map, mission, selectedDesignator, selectedResolution, acquisitionRange]);
 
     useEffect(() => {
 

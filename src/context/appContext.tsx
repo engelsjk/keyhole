@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode, useState, Dispatch, SetStateAction } from 'react';
-import { MissionData, Mission, Frame } from '~/shared/types';
+import { MissionData, Mission, Frame, TimeRange } from '~/shared/types';
 
 type appContextType = {
     selectedDesignator: string;
@@ -8,8 +8,10 @@ type appContextType = {
     setSelectedResolution: Dispatch<SetStateAction<string>>
     selectedMission: string | null;
     setSelectedMission: Dispatch<SetStateAction<string | null>>
-    rangeAcquisitionYears: number[] | null;
-    setRangeAcquisitionYears: Dispatch<SetStateAction<number[] | null>>
+    acquisitionRange: number[];
+    setAcquisitionRange: Dispatch<SetStateAction<number[]>>
+    acquisitionTimeRange: TimeRange;
+    setAcquisitionTimeRange: Dispatch<SetStateAction<TimeRange>>
     selectedCameraType: string | null;
     setSelectedCameraType: Dispatch<SetStateAction<string | null>>
     showDownloads: boolean;
@@ -41,8 +43,10 @@ const appContextDefaultValues: appContextType = {
     setSelectedResolution: () => { },
     selectedMission: null,
     setSelectedMission: () => { },
-    rangeAcquisitionYears: null,
-    setRangeAcquisitionYears: () => { },
+    acquisitionRange: [0, 0],
+    setAcquisitionRange: () => { },
+    acquisitionTimeRange: { range: [0, 0] } as TimeRange,
+    setAcquisitionTimeRange: () => { },
     selectedCameraType: null,
     setSelectedCameraType: () => { },
     showDownloads: true,
@@ -85,7 +89,8 @@ export function AppContextProvider({ children }: Props) {
     const [mission, setMission] = useState<Mission | undefined>(undefined);
     const [frame, setFrame] = useState<Frame | null>(null);
 
-    const [rangeAcquisitionYears, setRangeAcquisitionYears] = useState<number[] | null>(null);
+    const [acquisitionRange, setAcquisitionRange] = useState<number[]>([0, 0]);
+    const [acquisitionTimeRange, setAcquisitionTimeRange] = useState<TimeRange>({ range: [0, 0] } as TimeRange);
 
     const [selectedCameraType, setSelectedCameraType] = useState<string | null>(null);
     const [showDownloads, setShowDownloads] = useState<boolean>(true);
@@ -107,8 +112,10 @@ export function AppContextProvider({ children }: Props) {
         setSelectedResolution,
         selectedMission,
         setSelectedMission,
-        rangeAcquisitionYears,
-        setRangeAcquisitionYears,
+        acquisitionRange,
+        setAcquisitionRange,
+        acquisitionTimeRange,
+        setAcquisitionTimeRange,
         selectedCameraType,
         setSelectedCameraType,
         showDownloads,

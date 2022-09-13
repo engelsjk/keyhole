@@ -1,3 +1,5 @@
+import { DateTime, Interval } from 'luxon';
+
 export type Mission = {
     m: string   // mission
     d: string   // designator
@@ -26,10 +28,18 @@ export type Filters = {
     designator: string | null;
     resolution: number | null;
     mission: string | null;
-    years: number[] | null;
+    time: number[] | null;
 }
 
 export type Projection = {
     name: string
     id: string
+}
+
+export type TimeRange = {
+    // earliest: DateTime,
+    // latest: DateTime,
+    interval: Interval,
+    range: number[],
+    units: string
 }

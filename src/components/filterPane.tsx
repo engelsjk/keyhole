@@ -13,10 +13,8 @@ import Select from '~/components/styled/Select';
 
 import { useAppContext } from "~/context/appContext";
 
-import { MissionData, Mission } from '~/shared/types';
+import { MissionData, Mission, TimeRange } from '~/shared/types';
 import * as utils from '~/shared/utils';
-
-const DEFAULT_RANGE_ACQUISITION_YEARS = [1960, 1984];
 
 interface Props { }
 
@@ -28,8 +26,10 @@ const FilterPane: NextPage<Props> = (props) => {
         selectedResolution,
         setSelectedResolution,
         setSelectedMission,
-        rangeAcquisitionYears,
-        setRangeAcquisitionYears,
+        acquisitionRange,
+        setAcquisitionRange,
+        acquisitionTimeRange,
+        setAcquisitionTimeRange,
         setSelectedCameraType,
         mission,
         setMission,
@@ -87,9 +87,11 @@ const FilterPane: NextPage<Props> = (props) => {
                 return (prev.l > current.l) ? prev : current;
             })
 
-            const r = utils.TimestampsToYearRange([earliestMission.e, latestMission.l]);
+            const units = !designator && !selectedResolution ? 'years' : 'months';
+            const timeRange = utils.TimestampsToTimerange([earliestMission.e, latestMission.l], units);
 
-            setRangeAcquisitionYears(r);
+            setAcquisitionRange(timeRange.range);
+            setAcquisitionTimeRange(timeRange);
         }
     };
 
@@ -128,53 +130,62 @@ const FilterPane: NextPage<Props> = (props) => {
                 return (prev.l > current.l) ? prev : current;
             })
 
-            const r = utils.TimestampsToYearRange([earliestMission.e, latestMission.l]);
+            const units = !selectedDesignator && !resolution ? 'years' : 'months';
+            const timeRange = utils.TimestampsToTimerange([earliestMission.e, latestMission.l], units);
 
-            setRangeAcquisitionYears(r);
+            setAcquisitionRange(timeRange.range);
+            setAcquisitionTimeRange(timeRange);
         }
     };
 
-    const handleChangeRangeAcquisitionYears = (event: Event, newValue: number | number[]) => {
+    const handleChangeAcquisitionRange = (event: Event, newValue: number | number[]) => {
 
         if (!missionData) return;
 
-        const acquisitionYears = newValue as number[];
+        const newRange = newValue as number[];
+        setAcquisitionRange(newRange);
 
-        const ts = utils.YearRangeToTimestamps(acquisitionYears);
+        const ts = utils.RangeToTimestamps(newRange, acquisitionTimeRange);
 
-        // TODO: fix bad string => number casting!
-
-        var filteredMissionDataForResolution = selectedDesignator ?
-            missionData.filter(m => { return m.d == selectedDesignator }) : missionData;
-
-        filteredMissionDataForResolution = !selectedDesignator && !selectedResolution ?
-            filteredMissionDataForResolution
-                .filter(m => { return m.e >= ts[0] && m.l <= ts[1] }) : filteredMissionDataForResolution;
-
-        const resolutionOptions = [...new Set(
-            filteredMissionDataForResolution
-                .sort((a, b) => (a.r > b.r) ? 1 : -1)
-                .map(m => m.r as unknown as string)
-        )];
+        // // TODO: fix bad string => number casting!
 
         // DESIGNATOR
 
-        var filteredMissionDataForDesignator = selectedResolution ?
-            missionData.filter(m => { return m.r == Number(selectedResolution) }) : missionData;
+        if (designatorCanBeFiltered) {
 
-        filteredMissionDataForDesignator = !selectedDesignator && !selectedResolution ?
-            filteredMissionDataForDesignator
-                .filter(m => { return m.e >= ts[0] && m.l <= ts[1] }) : filteredMissionDataForDesignator;
+            var filteredMissionDataForDesignator = selectedResolution ?
+                missionData.filter(m => { return m.r == Number(selectedResolution) }) : missionData;
 
-        const designatorOptions = [...new Set(
-            filteredMissionDataForDesignator
-                .sort((a, b) => (a.d > b.d) ? 1 : -1)
-                .map(m => m.d)
-        )];
+            filteredMissionDataForDesignator = !selectedDesignator && !selectedResolution ?
+                filteredMissionDataForDesignator
+                    .filter(m => { return m.e >= ts[0] && m.l <= ts[1] }) : filteredMissionDataForDesignator;
 
-        if (!selectedDesignator) setDesignatorOptions(designatorOptions);
-        if (!selectedResolution) setResolutionOptions(resolutionOptions);
-        setRangeAcquisitionYears(acquisitionYears);
+            const designatorOptions = [...new Set(
+                filteredMissionDataForDesignator
+                    .sort((a, b) => (a.d > b.d) ? 1 : -1)
+                    .map(m => m.d)
+            )];
+            if (!selectedDesignator) setDesignatorOptions(designatorOptions);
+        }
+
+        // RESOLUTION
+
+        if (resolutionCanBeFiltered) {
+
+            var filteredMissionDataForResolution = selectedDesignator ?
+                missionData.filter(m => { return m.d == selectedDesignator }) : missionData;
+
+            filteredMissionDataForResolution = !selectedDesignator && !selectedResolution ?
+                filteredMissionDataForResolution
+                    .filter(m => { return m.e >= ts[0] && m.l <= ts[1] }) : filteredMissionDataForResolution;
+
+            const resolutionOptions = [...new Set(
+                filteredMissionDataForResolution
+                    .sort((a, b) => (a.r > b.r) ? 1 : -1)
+                    .map(m => m.r as unknown as string)
+            )];
+            if (!selectedResolution) setResolutionOptions(resolutionOptions);
+        }
     };
 
     const handleChangeMission = (event: React.SyntheticEvent, value: unknown) => {
@@ -192,10 +203,6 @@ const FilterPane: NextPage<Props> = (props) => {
     }
 
     useEffect(() => {
-        setExpanded(frame ? false : true);
-    }, [frame]);
-
-    useEffect(() => {
         if (!missionData) return;
 
         const designatorOptions = [...new Set(
@@ -211,27 +218,43 @@ const FilterPane: NextPage<Props> = (props) => {
                 .map(m => m.r as unknown as string)
         )];
         setResolutionOptions(resolutionOptions);
+
+        const earliestMission = missionData.reduce((prev, current) => {
+            return (prev.e < current.e) ? prev : current;
+        })
+        const latestMission = missionData.reduce((prev, current) => {
+            return (prev.l > current.l) ? prev : current;
+        })
+
+        const timeRange = utils.TimestampsToTimerange([earliestMission.e, latestMission.l], 'years');
+        setAcquisitionRange(timeRange.range);
+        setAcquisitionTimeRange(timeRange);
+
     }, [missionData])
 
     useEffect(() => {
         if (!missionData) return;
 
-        const ts = utils.YearRangeToTimestamps(rangeAcquisitionYears);
+        const ts = utils.RangeToTimestamps(acquisitionRange, acquisitionTimeRange);
 
-        // TODO: fix bad string => number casting!
+        // // TODO: fix bad string => number casting!
 
         const missionOpts = missionData
             .filter(m => {
                 return (
                     (selectedDesignator ? m.d == selectedDesignator : true) &&
                     (selectedResolution ? m.r == selectedResolution as unknown as number : true) &&
-                    (rangeAcquisitionYears ? m.e >= ts[0] && m.l <= ts[1] : true)
+                    (acquisitionRange ? m.e >= ts[0] && m.l <= ts[1] : true)
                 )
             })
             .sort((a, b) => (a.m > b.m) ? 1 : -1);
         setMissionOptions(missionOpts);
 
-    }, [missionData, selectedDesignator, selectedResolution, rangeAcquisitionYears]);
+    }, [missionData, selectedDesignator, selectedResolution, acquisitionRange]);
+
+    useEffect(() => {
+        setExpanded(frame ? false : true);
+    }, [frame]);
 
     return (
         <Box
@@ -355,7 +378,7 @@ const FilterPane: NextPage<Props> = (props) => {
                         ACQUISITIONS
                     </Typography>
                     <Typography gutterBottom>
-                        {rangeAcquisitionYears && `FROM ${rangeAcquisitionYears[0]} TO ${rangeAcquisitionYears[1]}`}
+                        {utils.TimesToString(acquisitionRange, acquisitionTimeRange)}
                     </Typography>
                     <Box
                         sx={{
@@ -365,18 +388,17 @@ const FilterPane: NextPage<Props> = (props) => {
                             maxWidth: 200
                         }}
                     >
-                        {rangeAcquisitionYears &&
-                            < Slider
-                                getAriaLabel={() => 'ACQUISITIONS'}
-                                value={rangeAcquisitionYears}
-                                onChange={handleChangeRangeAcquisitionYears}
-                                valueLabelDisplay="off"
-                                getAriaValueText={utils.TimestampsToDatetime}
-                                disabled={mission != undefined}
-                                min={DEFAULT_RANGE_ACQUISITION_YEARS[0]}
-                                max={DEFAULT_RANGE_ACQUISITION_YEARS[1]}
-                            />
-                        }
+                        < Slider
+                            getAriaLabel={() => 'ACQUISITIONS'}
+                            value={acquisitionRange}
+                            onChange={handleChangeAcquisitionRange}
+                            valueLabelDisplay="off"
+                            getAriaValueText={utils.TimestampsToDatetime}
+                            disabled={mission != undefined}
+                            min={acquisitionTimeRange.range[0]}
+                            max={acquisitionTimeRange.range[1]}
+                        />
+
                     </Box>
 
                     <Divider

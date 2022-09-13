@@ -18,8 +18,6 @@ import { useAppContext } from "~/context/appContext";
 const Home: NextPage = () => {
 
   const {
-    setRangeAcquisitionYears,
-    setSelectedCameraType,
     mission,
     frame,
     missionData,
@@ -55,9 +53,6 @@ const Home: NextPage = () => {
 
     fetchData()
       .catch(console.error);
-
-    setRangeAcquisitionYears([1960, 1984]);
-    setSelectedCameraType("ALL");
 
   }, [])
 
