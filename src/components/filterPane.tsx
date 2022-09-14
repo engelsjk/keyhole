@@ -49,7 +49,7 @@ const FilterPane: NextPage<Props> = (props) => {
     const [resolutionOptions, setResolutionOptions] = useState<string[]>([]);
     const [missionOptions, setMissionOptions] = useState<MissionData>([]);
 
-    const matches = useMediaQuery('(min-height:950px)');
+    const matches = useMediaQuery('(min-height:800px) and (min-width:650px)');
 
     const handleExpanded = (event: React.SyntheticEvent, newExpanded: boolean) => {
         setExpanded(newExpanded);
