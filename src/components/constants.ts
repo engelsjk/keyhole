@@ -38,7 +38,6 @@ export const CAMERA_TYPE_LABELS = [
     { id: "S", label: "SURVEILLANCE" },
 ];
 
-
 export const PROJECTION_OPTIONS: Projection[] = [
     { id: 'globe', name: 'GLOBE' },
     { id: 'equalEarth', name: 'EQUAL EARTH' },

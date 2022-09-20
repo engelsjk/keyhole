@@ -276,7 +276,6 @@ const Map: NextPage<Props> = (props) => {
 
         if (acquisitionTimeRange.interval) {
             const ts = utils.RangeToTimestamps(acquisitionRange, acquisitionTimeRange);
-            console.log(`tr2ts: ${utils.TimestampsToDatetime(ts[0])}...${utils.TimestampsToDatetime(ts[1])}`)
             timeFilter = [
                 'all',
                 ['>=', ['get', 'e'], ts[0]],
@@ -287,7 +286,6 @@ const Map: NextPage<Props> = (props) => {
         const filterExpressions: Expression = ['all', designatorFilter, resolutionFilter, missionFilter, timeFilter];
 
         map.setFilter('missions-fill', filterExpressions, { validate: false });
-        console.log(map.getLayer('missions-fill'));
 
     }, [map, mission, selectedDesignator, selectedResolution, acquisitionRange]);
 
