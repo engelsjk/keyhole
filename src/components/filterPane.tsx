@@ -388,7 +388,6 @@ const FilterPane: NextPage<Props> = (props) => {
                                     const id = Number(r);
                                     const resolution = utils.getResolutionLabel(id);
                                     const color = utils.getResolutionColor(id);
-                                    console.log(color);
                                     return (
                                         <MenuItem key={r} value={r} sx={{}}>
                                             <Stack

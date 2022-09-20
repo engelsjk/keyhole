@@ -18,19 +18,6 @@ import * as utils from '~/shared/utils';
 
 import { MAP_TILE_URLS } from '~/components/constants';
 
-// const DESIGNATOR_NAMES = [
-//     'KH-1',
-//     'KH-2',
-//     'KH-3',
-//     'KH-4',
-//     'KH-4A',
-//     'KH-4B',
-//     'KH-5',
-//     'KH-6',
-//     'KH-7',
-//     'KH-9'
-// ];
-
 const COLOR_BY_RESOLUTION_EXPR: Expression =
     [
         'match', ['get', 'r'],
