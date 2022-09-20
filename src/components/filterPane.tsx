@@ -93,7 +93,7 @@ const FilterPane: NextPage<Props> = (props) => {
                 return (prev.l > current.l) ? prev : current;
             })
 
-            const units = !designator && !selectedResolution ? 'years' : 'months';
+            const units = !designator && !r ? 'years' : 'months';
             const timeRange = utils.TimestampsToTimerange([earliestMission.e, latestMission.l], units);
 
             setAcquisitionRange(timeRange.range);
@@ -136,7 +136,7 @@ const FilterPane: NextPage<Props> = (props) => {
                 return (prev.l > current.l) ? prev : current;
             })
 
-            const units = !selectedDesignator && !resolution ? 'years' : 'months';
+            const units = !d && !resolution ? 'years' : 'months';
             const timeRange = utils.TimestampsToTimerange([earliestMission.e, latestMission.l], units);
 
             setAcquisitionRange(timeRange.range);
