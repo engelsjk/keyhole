@@ -11,18 +11,8 @@ import Select from '~/components/styled/Select';
 
 import { useAppContext } from "~/context/appContext";
 
-import { Projection } from '~/shared/types';
+import { PROJECTION_OPTIONS } from '~/components/constants';
 
-const PROJECTION_OPTIONS: Projection[] = [
-    { id: 'globe', name: 'GLOBE' },
-    { id: 'equalEarth', name: 'EQUAL EARTH' },
-    { id: 'albers', name: 'ALBERS' },
-    { id: 'mercator', name: 'MERCATOR' },
-    { id: 'lambertConformalConic', name: 'LAMBERT CONFORMAL CONIC' },
-    { id: 'winkelTripel', name: 'WINKEL TRIPEL' },
-    { id: 'naturalEarth', name: 'NATURAL EARTH' },
-    { id: 'equirectangular', name: 'EQUIRECTANGULAR' },
-];
 
 interface Props { }
 

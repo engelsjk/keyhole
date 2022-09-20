@@ -1,55 +1,50 @@
 import { DateTime, Interval } from 'luxon';
 import { TimeRange } from '~/shared/types';
 
+import { DESIGNATOR_LABELS, RESOLUTION_LABELS, CAMERA_TYPE_LABELS } from '~/components/constants';
+
 export const getDesignatorLabel = (value: string | undefined) => {
     if (!value) {
         return "None";
     }
-    const labels: { [key: string]: string } = {
-        'KH-1': 'KH-1 CORONA',
-        'KH-2': 'KH-2 CORONA',
-        'KH-3': 'KH-3 CORONA',
-        'KH-4': 'KH-4 CORONA',
-        'KH-4A': 'KH-4A CORONA',
-        'KH-4B': 'KH-4B CORONA',
-        'KH-5': 'KH-5 ARGON',
-        'KH-6': 'KH-6 LANYARD',
-        'KH-7': 'KH-7 GAMBIT',
-        'KH-9': 'KH-9 HEXAGON',
+    const designator = DESIGNATOR_LABELS.find(designator => designator.id == value);
+    if (!designator) {
+        return "None";
     }
-    return labels[value];
+    return designator.label;
 }
 
 export const getResolutionLabel = (value: number | undefined) => {
     if (!value) {
         return "None";
     }
-    const labels: { [key: number]: string } = {
-        1: '0.6 to 1.2 m',
-        2: '1.8 m',
-        3: '2.7 m',
-        4: '6.1 to 9.1 m',
-        5: '7.6 m',
-        6: '9.1 m',
-        7: '12.2 m',
-        8: '140.2 m'
+    const resolution = RESOLUTION_LABELS.find(resolution => resolution.id == value);
+    if (!resolution) {
+        return "None";
     }
-    return labels[value];
+    return resolution.label_metric;
+};
+
+export const getResolutionColor = (value: number | undefined) => {
+    if (!value) {
+        return "#ffffff";
+    }
+    const resolution = RESOLUTION_LABELS.find(resolution => resolution.id == value);
+    if (!resolution) {
+        return "#ffffff";
+    }
+    return resolution.color;
 };
 
 export const getCameraTypeLabel = (value: string | undefined) => {
     if (!value) {
         return "None";
     }
-    const labels: { [key: string]: string } = {
-        "A": "AFT PANORAMIC",
-        "F": "FORWARD PANORAMIC",
-        "C": "MAPPING",
-        "V": "VERTICAL",
-        "M": "MAPPING",
-        "S": "SURVEILLANCE"
+    const camera_type = CAMERA_TYPE_LABELS.find(camera_type => camera_type.id == value);
+    if (!camera_type) {
+        return "None";
     }
-    return labels[value];
+    return camera_type.label;
 };
 
 export const TimestampsToDatetime = (ts: number): string => {

@@ -6,16 +6,7 @@ import MuiModal from '@mui/material/Modal';
 import CircleTwoToneIcon from '@mui/icons-material/CircleTwoTone';
 import { useTheme } from '@mui/material/styles';
 
-const resolutionlLabels = [
-    { c: '#cb2d2e', r_m: '0.6-1.2 m', r_i: '2-4 ft', s: 'KH-7 GAMBIT, KH-9 HEXAGON' },
-    { c: '#e47fa9', r_m: '1.8 m', r_i: '6 ft', s: 'KH-4B CORONA, KH-6 LANYARD' },
-    { c: '#88d27d', r_m: '2.7 m', r_i: ' 9 ft', s: 'KH-4A CORONA' },
-    { c: '#3295cc', r_m: '6.1-9.1 m', r_i: '20-30 ft', s: 'KH-9 HEXAGON (Mapping)' },
-    { c: '#e2ba7d', r_m: '7.6 m', r_i: '25 ft', s: 'KH-3 CORONA, KH-4 CORONA' },
-    { c: '#da8451', r_m: '9.1 m', r_i: '30 ft', s: 'KH-2 CORONA' },
-    { c: '#8e503b', r_m: '12.2 m', r_i: '40 ft', s: 'KH-1 CORONA' },
-    { c: '#463c3a', r_m: '140.2 m', r_i: '460 ft', s: 'KH-5 ARGON' },
-]
+import { RESOLUTION_LABELS } from '~/components/constants';
 
 interface Props {
     open: boolean;
@@ -137,7 +128,7 @@ const Modal: NextPage<Props> = (props) => {
                     <div>
                         <Stack direction="column">
                             {
-                                resolutionlLabels.map((l, i) => {
+                                RESOLUTION_LABELS.map((l, i) => {
                                     return (<Stack
                                         direction="row"
                                         sx={{
@@ -150,7 +141,7 @@ const Modal: NextPage<Props> = (props) => {
                                         <CircleTwoToneIcon
                                             sx={{
                                                 alignItems: 'center',
-                                                color: l.c,
+                                                color: l.color,
                                                 _outline: 'primary.main'
                                             }}
                                         ></CircleTwoToneIcon>
@@ -161,15 +152,14 @@ const Modal: NextPage<Props> = (props) => {
                                             alignItems: 'center',
                                             ml: 0,
                                         }} key={`t1_${i}`}>
-                                            {units ? l.r_m : l.r_i}
+                                            {units ? l.label_metric : l.label_imperial}
                                         </Typography>
                                         <Typography sx={{
                                             fontSize: '1rem',
-                                            // display: 'flex',
                                             alignItems: 'center',
                                             overflowX: 'auto',
                                         }} key={`t2_${i}`}>
-                                            {l.s}
+                                            {l.systems}
                                         </Typography>
                                     </Stack>)
                                 })

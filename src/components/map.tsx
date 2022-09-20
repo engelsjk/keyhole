@@ -16,23 +16,20 @@ import { useAppContext } from "~/context/appContext";
 import { Frame } from '~/shared/types';
 import * as utils from '~/shared/utils';
 
-const TILE_URLS = [
-    'https://djellr4yg949p.cloudfront.net/keyhole',
-    'https://d8it8dv6zj2fq.cloudfront.net/keyhole'
-];
+import { MAP_TILE_URLS } from '~/components/constants';
 
-const DESIGNATOR_NAMES = [
-    'KH-1',
-    'KH-2',
-    'KH-3',
-    'KH-4',
-    'KH-4A',
-    'KH-4B',
-    'KH-5',
-    'KH-6',
-    'KH-7',
-    'KH-9'
-];
+// const DESIGNATOR_NAMES = [
+//     'KH-1',
+//     'KH-2',
+//     'KH-3',
+//     'KH-4',
+//     'KH-4A',
+//     'KH-4B',
+//     'KH-5',
+//     'KH-6',
+//     'KH-7',
+//     'KH-9'
+// ];
 
 const COLOR_BY_RESOLUTION_EXPR: Expression =
     [
@@ -228,7 +225,7 @@ const Map: NextPage<Props> = (props) => {
 
             mapboxMap.addSource('missions', {
                 'type': 'vector',
-                'tiles': TILE_URLS.map(u => `${u}/missions/{z}/{x}/{y}.pbf`),
+                'tiles': MAP_TILE_URLS.map(u => `${u}/missions/{z}/{x}/{y}.pbf`),
                 'minzoom': 0,
                 'maxzoom': 8,
                 // 'promoteId': 'm'
@@ -311,7 +308,7 @@ const Map: NextPage<Props> = (props) => {
 
         map.addSource(layer.source, {
             'type': 'vector',
-            'tiles': TILE_URLS.map(
+            'tiles': MAP_TILE_URLS.map(
                 u => `${u}/swaths/${layer.designator}/{z}/{x}/{y}.pbf`
             ),
             'minzoom': 0,

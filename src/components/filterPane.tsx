@@ -2,12 +2,13 @@ import { NextPage } from "next";
 import { useEffect, useState } from "react";
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-import { Box, Typography, TextField, Slider } from '@mui/material';
+import { Box, Typography, TextField, Slider, Stack } from '@mui/material';
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { InputLabel, FormControl, MenuItem } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
+import CircleTwoToneIcon from '@mui/icons-material/CircleTwoTone';
 
 import Autocomplete from '~/components/styled/Autocomplete';
 import Select from '~/components/styled/Select';
@@ -16,6 +17,7 @@ import { useAppContext } from "~/context/appContext";
 
 import { MissionData, Mission, TimeRange } from '~/shared/types';
 import * as utils from '~/shared/utils';
+import { RESOLUTION_LABELS } from '~/components/constants';
 
 interface Props { }
 
@@ -356,7 +358,7 @@ const FilterPane: NextPage<Props> = (props) => {
                             mr: 1,
                             mt: 1.5,
                             mb: 1.5,
-                            maxWidth: 200
+                            maxWidth: 225
                         }}
                     >
                         <InputLabel
@@ -383,9 +385,29 @@ const FilterPane: NextPage<Props> = (props) => {
                             </MenuItem>
                             {
                                 resolutionOptions.map(r => {
-                                    const resolution = utils.getResolutionLabel(Number(r));
+                                    const id = Number(r);
+                                    const resolution = utils.getResolutionLabel(id);
+                                    const color = utils.getResolutionColor(id);
+                                    console.log(color);
                                     return (
-                                        <MenuItem key={r} value={r}>{resolution}</MenuItem>
+                                        <MenuItem key={r} value={r} sx={{}}>
+                                            <Stack
+                                                direction="row"
+                                                spacing={1}
+                                                key={`s_${r}`}
+                                            >
+                                                <CircleTwoToneIcon
+                                                    sx={{
+                                                        alignItems: 'center',
+                                                        color: `${color}!important`,
+                                                        _outline: 'primary.main',
+                                                    }}
+                                                ></CircleTwoToneIcon>
+                                                <Typography sx={{
+                                                    alignItems: 'center',
+                                                }}>{resolution}</Typography>
+                                            </Stack>
+                                        </MenuItem>
                                     )
                                 })
                             }
