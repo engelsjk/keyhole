@@ -358,7 +358,7 @@ const FilterPane: NextPage<Props> = (props) => {
                             mr: 1,
                             mt: 1.5,
                             mb: 1.5,
-                            maxWidth: 225
+                            maxWidth: 200
                         }}
                     >
                         <InputLabel
