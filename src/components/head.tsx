@@ -12,6 +12,7 @@ function Head() {
             <meta name="twitter:card" content="summary_large_image" />
             <meta name="twitter:site" content="@engelsjk" />
             <meta name="twitter:creator" content="@engelsjk" />
+            <meta property="twitter:image" content="https://keyhole.engelsjk.com/splash.png" />
 
             {/* opengraph meta tags */}
             <meta property="og:url" content="https://keyhole.engelsjk.com/" />
