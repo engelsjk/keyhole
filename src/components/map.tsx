@@ -109,11 +109,11 @@ const SWATHS_LINE_WIDTH_EXPR: Expression = [
 ]
 
 const FOG_PARAMS = {
-    "color": 'rgba(0, 0, 0, 0)',
+    "color": 'rgba(0, 0, 0, 0.5)',
     "horizon-blend": 0.01,
     "range": [0.5, 1.0],
-    "high-color": 'rgba(238,238,238,0.25)',
-    "space-color": 'rgba(25,25,25,0.4)',
+    "high-color": 'rgba(238,238,238,0.3)',
+    "space-color": 'rgba(25,25,25,1.0)',
     "star-intensity": 0.25
 };
 
@@ -507,6 +507,19 @@ const Map: NextPage<Props> = (props) => {
     useEffect(() => {
         if (!map) return;
         map.setProjection(projection);
+
+        map.on('zoom', () => {
+            if (projection != "globe") {
+                return;
+            }
+            if (map.getZoom() > 5) {
+                map.setFog(null);
+            } else {
+                if (!map.getFog()) {
+                    map.setFog(FOG_PARAMS);
+                }
+            }
+        });
     }, [map, projection]);
 
     useEffect(() => {

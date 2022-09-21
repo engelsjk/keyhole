@@ -29,6 +29,7 @@ const Modal: NextPage<Props> = (props) => {
                 open={props.open}
                 onClose={props.handleClose}
                 sx={{
+                    color: 'primary.light',
                     "& .MuiBackdrop-root": {
                         bgcolor: 'rgba(0,0,0,0.75)',
                     },

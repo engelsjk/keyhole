@@ -598,7 +598,7 @@ declare namespace mapboxgl {
         touchPitch: TouchPitchHandler;
 
         getFog(): Fog | null;
-        setFog(fog: Fog): this;
+        setFog(fog: Fog | null): this;
 
         setProjection(name: string): this;
     }
