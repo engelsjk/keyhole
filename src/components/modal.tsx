@@ -74,9 +74,9 @@ const Modal: NextPage<Props> = (props) => {
                     </Typography>
                     <Typography variant="h4" sx={{ mt: 3 }} >Imagery</Typography>
                     <Typography paragraph sx={{ mt: 1, fontSize: '1rem', lineHeight: 1.5 }}>
-                        The ground swaths shown here are derived from over 1.3 million images taken by
-                        U.S. spy satellites between 1960 to 1984. This imagery, from the KH-1 CORONA through KH-9 HEXAGON
-                        satellite programs, was declassified starting in 1995. It does not include any KH-8 GAMBIT-3 imagery, which remains
+                        The ground swaths shown here are derived from metadata for over 1.3 million images taken by
+                        U.S. spy satellites between 1960 to 1984. Imagery from the KH-1 CORONA through KH-9 HEXAGON
+                        satellite programs was declassified starting in 1995, with the exception of any KH-8 GAMBIT-3 imagery which remains
                         classified.
                     </Typography>
                     <Typography
@@ -99,7 +99,7 @@ const Modal: NextPage<Props> = (props) => {
                             available to the public.&quot;</blockquote>
                     </Typography>
                     <Typography paragraph sx={{ fontSize: '1rem', lineHeight: 1.5 }}>
-                        Imagery and metadata are hosted by the USGS at the following datasets:
+                        Imagery and its metadata are hosted by the USGS at the following datasets:
                     </Typography>
                     <Typography
                         component="div"
@@ -124,7 +124,7 @@ const Modal: NextPage<Props> = (props) => {
                     </Typography>
                     <Typography variant="h4" sx={{ mt: 3 }} >Ground Swaths</Typography>
                     <Typography paragraph sx={{ mt: 1, fontSize: '1rem', lineHeight: 1.5 }}>
-                        Swath geometries are generated from the corner coordinates of an image and should be considered a rough estimate of actual imagery coverage. Swaths are styled according to estimates of the {"imagery's"} ground resolution.
+                        Swath geometries are generated from the specified corner coordinates of an image and should be considered a rough estimate of actual imagery coverage. Swaths are styled according to estimates of the {"imagery's"} ground resolution.
                     </Typography>
                     <div>
                         <Stack direction="column">
