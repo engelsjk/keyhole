@@ -72,12 +72,14 @@ const Modal: NextPage<Props> = (props) => {
                         }}>
                         An experimental visualization of ground swaths from declassified spy satellite imagery.
                     </Typography>
+
+                    {/* IMAGERY */}
                     <Typography variant="h4" sx={{ mt: 3 }} >Imagery</Typography>
                     <Typography paragraph sx={{ mt: 1, fontSize: '1rem', lineHeight: 1.5 }}>
-                        The ground swaths shown here are derived from metadata for over 1.3 million images taken by
+                        The ground swaths shown here are derived from metadata for over 1.4 million images taken by
                         U.S. spy satellites between 1960 to 1984. Imagery from the KH-1 CORONA through KH-9 HEXAGON
-                        satellite programs was declassified starting in 1995, with the exception of any KH-8 GAMBIT-3 imagery which remains
-                        classified.
+                        satellite programs was declassified starting in 1995, <b>with the notable exception of KH-8 GAMBIT-3 imagery which remains
+                            classified</b>.
                     </Typography>
                     <Typography
                         component="div"
@@ -98,30 +100,23 @@ const Modal: NextPage<Props> = (props) => {
                             of the United States. Upon transfer, such imagery shall be deemed declassified and shall be made
                             available to the public.&quot;</blockquote>
                     </Typography>
-                    <Typography paragraph sx={{ fontSize: '1rem', lineHeight: 1.5 }}>
-                        Imagery and its metadata are hosted by the USGS at the following datasets:
-                    </Typography>
-                    <Typography
-                        component="div"
-                        sx={{
-                            "& a:link,a:visited": {
-                                color: 'inherit',
-                                textDecoration: 'none',
-                                borderBottom: `1px solid ${theme.palette.primary.main}`,
-                            }
-                        }}>
-                        <ul>
-                            <li><a
-                                href="https://www.usgs.gov/centers/eros/science/usgs-eros-archive-declassified-data-declassified-satellite-imagery-1">Declassified
-                                Data / Declass 1 (1996)</a></li>
-                            <li><a
+                    <Typography paragraph sx={{
+                        fontSize: '1rem', lineHeight: 1.5, "& a:link,a:visited": {
+                            color: 'inherit',
+                            textDecoration: 'none',
+                            borderBottom: `1px solid ${theme.palette.primary.main}`,
+                        }
+                    }}>
+                        Imagery and its metadata are hosted by the USGS at the following datasets: <a
+                            href="https://www.usgs.gov/centers/eros/science/usgs-eros-archive-declassified-data-declassified-satellite-imagery-1">Declassified
+                            Data / Declass 1 (1996)</a>, <a
                                 href="https://www.usgs.gov/centers/eros/science/usgs-eros-archive-declassified-data-declassified-satellite-imagery-2">Declassified
-                                Data / Declass 2 (2002)</a></li>
-                            <li><a
+                            Data / Declass 2 (2002)</a>, <a
                                 href="https://www.usgs.gov/centers/eros/science/usgs-eros-archive-declassified-data-declassified-satellite-imagery-3">Declassified
-                                Data / Declass 3 (2011)</a></li>
-                        </ul>
+                            Data / Declass 3 (2011)</a>
                     </Typography>
+
+                    {/*  GROUND SWATHS */}
                     <Typography variant="h4" sx={{ mt: 3 }} >Ground Swaths</Typography>
                     <Typography paragraph sx={{ mt: 1, fontSize: '1rem', lineHeight: 1.5 }}>
                         Swath geometries are generated from the specified corner coordinates of an image and should be considered a rough estimate of actual imagery coverage. Swaths are styled according to estimates of the {"imagery's"} ground resolution.
@@ -177,13 +172,28 @@ const Modal: NextPage<Props> = (props) => {
                                 label={units ? "METERS" : "FEET"} />
                         </FormGroup>
                     </div>
-                    <Typography paragraph sx={{ mt: 1, fontSize: '1rem', lineHeight: 1.5 }}>
+
+                    {/*  DATA */}
+                    <Typography variant="h4" sx={{ mt: 3 }} >Data</Typography>
+                    <Typography paragraph sx={{
+                        mt: 1, fontSize: '1rem', lineHeight: 1.5, "& a:link,a:visited": {
+                            color: 'inherit',
+                            textDecoration: 'none',
+                            borderBottom: `1px solid ${theme.palette.primary.main}`,
+                        }
+                    }}>
                         Swath geometries are aggregated by mission and can be filtered either by a mission designator or ground
                         resolution. Individual ground swaths are outlined when a
-                        specific mission is selected, and are also highlighted if an image is available to download from the
-                        USGS (as of June 2022).
+                        specific mission is selected and highlighted if an image is available to download from the
+                        USGS. Data was initially processed in June 2022 and then updated in August 2024. To browse imagery, order or download actual imagery from these declassified datasets, check out the
+                        USGS EarthExplorer tool <a href="https://earthexplorer.usgs.gov/">here</a>.
                     </Typography>
-                    <Typography variant="h4" sx={{ mt: 3 }} >Browse</Typography>
+                    <Typography paragraph sx={{ fontSize: '1rem', lineHeight: 1.5, fontStyle: 'italic' }}>
+                        Hint: To preview or download the actual swath imagery, click on a swath and then open the linked USGS EarthExplorer metadata page.
+                    </Typography>
+
+                    {/*  ADDITIONAL INFORMATION */}
+                    <Typography variant="h4" sx={{ mt: 3 }} >Additional Information</Typography>
                     <Typography
                         paragraph
                         sx={{
@@ -196,12 +206,11 @@ const Modal: NextPage<Props> = (props) => {
                                 borderBottom: `1px solid ${theme.palette.primary.main}`,
                             }
                         }}>
-                        To browse, order or download actual imagery from these declassified datasets, check out the
-                        USGS EarthExplorer tool <a href="https://earthexplorer.usgs.gov/">here</a>.
-                    </Typography>
-                    <Typography paragraph sx={{ fontSize: '1rem', lineHeight: 1.5, fontStyle: 'italic' }}>
-                        Hint: You can also click on an image swath and then open the USGS EarthExplorer metadata page
-                        for that image.
+                        Websites and books related to this imagery for inspiration and reference:
+                        <ul>
+                            <li>University of Arkansas Center for Advanced Spatial Technologies: <a href="https://corona.cast.uark.edu/">Corona Atlas</a></li>
+                            <li>SpaceFromSpace by Harry Stranger: <a href="https://www.spacefromspace.com/about">Declassified Gallery</a></li>
+                        </ul>
                     </Typography>
                 </Box>
             </MuiModal>
