@@ -1,8 +1,8 @@
 import { Projection } from '~/shared/types';
 
 export const MAP_TILE_URLS = [
-    'https://djellr4yg949p.cloudfront.net/keyhole',
-    'https://d8it8dv6zj2fq.cloudfront.net/keyhole'
+    'https://djellr4yg949p.cloudfront.net/keyhole/v1',
+    'https://d8it8dv6zj2fq.cloudfront.net/keyhole/v1'
 ];
 
 export const DESIGNATOR_LABELS = [

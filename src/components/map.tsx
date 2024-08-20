@@ -212,7 +212,7 @@ const Map: NextPage<Props> = (props) => {
 
             mapboxMap.addSource('missions', {
                 'type': 'vector',
-                'tiles': MAP_TILE_URLS.map(u => `${u}/v1/missions/{z}/{x}/{y}.pbf`),
+                'tiles': MAP_TILE_URLS.map(u => `${u}/missions/{z}/{x}/{y}.pbf`),
                 'minzoom': 0,
                 'maxzoom': 8,
                 // 'promoteId': 'm'
@@ -294,7 +294,7 @@ const Map: NextPage<Props> = (props) => {
         map.addSource(layer.source, {
             'type': 'vector',
             'tiles': MAP_TILE_URLS.map(
-                u => `${u}/v1/swaths/designators/${layer.designator}/{z}/{x}/{y}.pbf`
+                u => `${u}/swaths/designators/${layer.designator}/{z}/{x}/{y}.pbf`
             ),
             'minzoom': 0,
             'maxzoom': 8,
