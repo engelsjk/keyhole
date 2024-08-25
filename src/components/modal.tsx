@@ -185,7 +185,7 @@ const Modal: NextPage<Props> = (props) => {
                         Swath geometries are aggregated by mission and can be filtered either by a mission designator or ground
                         resolution. Individual ground swaths are outlined when a
                         specific mission is selected and highlighted if an image is available to download from the
-                        USGS. Data was initially processed in June 2022 and then updated in August 2024. To browse imagery, order or download actual imagery from these declassified datasets, check out the
+                        USGS. This site's data was initially processed in June 2022 and then updated in August 2024. To browse imagery, order or download actual imagery from these declassified datasets, check out the
                         USGS EarthExplorer tool <a href="https://earthexplorer.usgs.gov/">here</a>.
                     </Typography>
                     <Typography paragraph sx={{ fontSize: '1rem', lineHeight: 1.5, fontStyle: 'italic' }}>
@@ -206,10 +206,10 @@ const Modal: NextPage<Props> = (props) => {
                                 borderBottom: `1px solid ${theme.palette.primary.main}`,
                             }
                         }}>
-                        Websites and books related to this imagery for inspiration and reference:
+                        Other websites related to this imagery for inspiration and reference:
                         <ul>
                             <li>University of Arkansas Center for Advanced Spatial Technologies: <a href="https://corona.cast.uark.edu/">Corona Atlas</a></li>
-                            <li>SpaceFromSpace by Harry Stranger: <a href="https://www.spacefromspace.com/about">Declassified Gallery</a></li>
+                            <li>SpaceFromSpace by Harry Stranger: <a href="https://www.spacefromspace.com/declassified-satellite-images">Declassified Gallery</a></li>
                         </ul>
                     </Typography>
                 </Box>
