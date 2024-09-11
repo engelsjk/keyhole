@@ -1,7 +1,7 @@
 import { DateTime, Interval } from 'luxon';
 import { TimeRange } from '~/shared/types';
 
-import { DESIGNATOR_LABELS, RESOLUTION_LABELS, CAMERA_TYPE_LABELS } from '~/components/constants';
+import { DESIGNATOR_LABELS, RESOLUTION_LABELS, CAMERA_TYPE_LABELS, MISSIONS_BY_DATASET_ID } from '~/components/constants';
 
 export const getDesignatorLabel = (value: string | undefined) => {
     if (!value) {
@@ -46,6 +46,15 @@ export const getCameraTypeLabel = (value: string | undefined) => {
     }
     return camera_type.label;
 };
+
+export const getDatasetIdByMissionId = (value: string) => {
+    const dataset_ids = Object.keys(MISSIONS_BY_DATASET_ID);
+    const includesMission = (dataset_id: keyof typeof MISSIONS_BY_DATASET_ID, mission_id: string) => {
+        return MISSIONS_BY_DATASET_ID[dataset_id].includes(mission_id);
+    };
+    const dataset_id = dataset_ids.find(dataset_id => includesMission(dataset_id, value));
+    return dataset_id || null;
+}
 
 export const TimestampsToDatetime = (ts: number): string => {
     const dt = DateTime.fromSeconds(ts, { zone: 'utc' })

@@ -46,10 +46,15 @@ const FramePane: NextPage<Props> = (props) => {
         ]
         setRows(rows);
 
-        const href = `https://earthexplorer.usgs.gov/scene/metadata/full/${frame.s}/${frame.e}/`;
+        // Issue: https://github.com/engelsjk/keyhole/issues/1
+        // There was a bug in the processing code, which caused the `frame.s` values in the tile sets
+        // to be incorrect, breaking most of these metadata links. In lieu of updating the tile sets, 
+        // this is a quick fix to dynamically lookup the dataset id by mission id to set the metadata 
+        // href links. This might be a better approach overall as it would allow a mostly repetitive
+        // field to be removed from the tiles.
+        const dataset_id = utils.getDatasetIdByMissionId(frame.m);
 
-        // TODO: validate href!
-
+        const href = `https://earthexplorer.usgs.gov/scene/metadata/full/${dataset_id}/${frame.e}/`;
         setLink(href);
 
     }, [frame]);
