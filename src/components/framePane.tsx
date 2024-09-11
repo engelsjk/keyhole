@@ -53,10 +53,8 @@ const FramePane: NextPage<Props> = (props) => {
         // href links. This might be a better approach overall as it would allow a mostly repetitive
         // field to be removed from the tiles.
         const dataset_id = utils.getDatasetIdByMissionId(frame.m);
-
-        const href = `https://earthexplorer.usgs.gov/scene/metadata/full/${dataset_id}/${frame.e}/`;
+        const href = dataset_id ? `https://earthexplorer.usgs.gov/scene/metadata/full/${dataset_id}/${frame.e}/` : '';  
         setLink(href);
-
     }, [frame]);
 
     return (
