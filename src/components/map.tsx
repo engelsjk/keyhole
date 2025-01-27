@@ -1,24 +1,14 @@
 import { NextPage } from "next";
 import { useEffect, useRef, useState } from "react";
-import mapboxgl, {
-    Expression,
-    // DataDrivenPropertyValueSpecification,
-    ExpressionSpecification,
-    // FilterSpecification,
-    GeoJSONSource,
-    MapLayerMouseEvent,
-    MapMouseEvent
-} from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
-
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import { MapLayerMouseEvent, DataDrivenPropertyValueSpecification, AttributionControl } from 'maplibre-gl'
 import { useAppContext } from "~/context/appContext";
-
 import { Frame } from '~/shared/types';
 import * as utils from '~/shared/utils';
+import { CDN_TILE_URLS, MISSIONS_BY_DATASET_ID } from '~/components/constants';
 
-import { MAP_TILE_URLS } from '~/components/constants';
-
-const COLOR_BY_RESOLUTION_EXPR: Expression =
+const COLOR_BY_RESOLUTION_EXPR: DataDrivenPropertyValueSpecification<string> =
     [
         'match', ['get', 'r'],
         1, "#cb2d2e",
@@ -32,14 +22,14 @@ const COLOR_BY_RESOLUTION_EXPR: Expression =
         "grey",
     ];
 
-const MISSIONS_LINE_WIDTH_EXPR: Expression = [
+const MISSIONS_LINE_WIDTH_EXPR: DataDrivenPropertyValueSpecification<string> = [
     'case',
     ['boolean', ['feature-state', 'hover'], false],
     5,
     0
 ];
 
-const SWATHS_FILL_COLOR_EXPR_1: Expression = [
+const SWATHS_FILL_COLOR_EXPR_1: DataDrivenPropertyValueSpecification<string> = [
     'case',
     ['boolean', ['feature-state', 'click'], false],
     "#F9F9F9",
@@ -51,14 +41,14 @@ const SWATHS_FILL_COLOR_EXPR_1: Expression = [
     ]
 ];
 
-const SWATHS_FILL_COLOR_EXPR_2: Expression = [
+const SWATHS_FILL_COLOR_EXPR_2: DataDrivenPropertyValueSpecification<string> = [
     'case',
     ['boolean', ['feature-state', 'click'], false],
     "#F9F9F9",
     COLOR_BY_RESOLUTION_EXPR
 ]
 
-const SWATHS_LINE_COLOR_EXPR_1: Expression = [
+const SWATHS_LINE_COLOR_EXPR_1: DataDrivenPropertyValueSpecification<string> = [
     'case',
     ['any',
         ['boolean', ['feature-state', 'hover'], false],
@@ -68,7 +58,7 @@ const SWATHS_LINE_COLOR_EXPR_1: Expression = [
     SWATHS_FILL_COLOR_EXPR_1
 ];
 
-const SWATHS_LINE_COLOR_EXPR_2: Expression = [
+const SWATHS_LINE_COLOR_EXPR_2: DataDrivenPropertyValueSpecification<string> = [
     'case',
     ['any',
         ['boolean', ['feature-state', 'hover'], false],
@@ -78,7 +68,7 @@ const SWATHS_LINE_COLOR_EXPR_2: Expression = [
     SWATHS_FILL_COLOR_EXPR_2
 ];
 
-const SWATHS_LINE_WIDTH_EXPR: Expression = [
+const SWATHS_LINE_WIDTH_EXPR: DataDrivenPropertyValueSpecification<string> = [
     'interpolate',
     ['exponential', 0.5],
     ['zoom'],
@@ -117,8 +107,14 @@ const FOG_PARAMS = {
     "star-intensity": 0.25
 };
 
+interface MissionLayer {
+    source: string,
+    sourceLayer: string,
+    fillLayer: string
+}
+
 interface SwathLayer {
-    designator: string,
+    mission: string,
     source: string,
     sourceLayer: string,
     lineLayer: string,
@@ -127,13 +123,25 @@ interface SwathLayer {
 
 interface Props { }
 
-const getLayerFromDesignator = (d: string): SwathLayer => {
-    const source = `swaths-${d}`;
-    const sourceLayer = 'swaths';
-    const lineLayer = `swaths-${d}-line`;
-    const fillLayer = `swaths-${d}-fill`;
+const getMissionLayer = () => {
+    const source = 'missions';
+    const sourceLayer = 'missions';
+    const fillLayer = 'missions-fill';
     return {
-        designator: d,
+        source: source,
+        sourceLayer: sourceLayer,
+        fillLayer: fillLayer
+    }
+}
+
+const getSwathLayerFromMission = (mission_id: string): SwathLayer => {
+    const ii = mission_id;
+    const source = `swaths-${ii}`;
+    const sourceLayer = 'swaths';
+    const lineLayer = `swaths-${ii}-line`;
+    const fillLayer = `swaths-${ii}-fill`;
+    return {
+        mission: mission_id,
         source: source,
         sourceLayer: sourceLayer,
         lineLayer: lineLayer,
@@ -141,7 +149,7 @@ const getLayerFromDesignator = (d: string): SwathLayer => {
     }
 }
 
-const getFirstLayerID = (m: mapboxgl.Map): string => {
+const getFirstLayerID = (m: maplibregl.Map): string => {
     const layers = m.getStyle().layers;
     var firstSymbolId: string = '';
     for (const layer of layers) {
@@ -153,206 +161,240 @@ const getFirstLayerID = (m: mapboxgl.Map): string => {
     return firstSymbolId;
 }
 
+const addMissionSourcesToMap = (map: maplibregl.Map | null) => {
+    if (!map) return;
+    console.log("adding mission sources to map")
+    map.addSource("missions", {
+        type: "vector",
+        url: `pmtiles://${CDN_TILE_URLS[0]}/keyhole-dev/pmtiles/20241210/missions.pmtiles`,
+        attribution: 'Swath data from <a target="_blank" href="https://earthexplorer.usgs.gov/">USGS Earth Explorer</a>'
+    });
+}
+
+const addMissionLayerToMap = (map: maplibregl.Map | null, layer: MissionLayer) =>  {
+    if (!map) return;
+    console.log("adding mission layers to map")
+    if(map.getLayer(layer.fillLayer)) return;
+    map.addLayer({
+        "id": layer.fillLayer,
+        "source": layer.source,
+        "source-layer": layer.sourceLayer,
+        "type": "fill",
+        'paint': {
+            'fill-opacity': 0.4,
+            'fill-color': COLOR_BY_RESOLUTION_EXPR,
+            'fill-antialias': false
+        },
+        'layout': {
+            'visibility': 'visible',
+            'fill-sort-key': ['get', 'o']
+        }
+    });
+}
+
+const addSwathSourceToMap = (map: maplibregl.Map | null, mission_id: string) => {
+    if (!map) return;
+    console.log("adding swath source to map")
+    const source = `swaths-${mission_id}`;
+    if (map.getSource(source)) return;
+    map.addSource(source, {
+        type: "vector",
+        url: `pmtiles://${CDN_TILE_URLS[0]}/keyhole-dev/pmtiles/20241210/missions/${mission_id}.pmtiles`,
+        attribution: 'Swath data from <a target="_blank" href="https://earthexplorer.usgs.gov/">USGS Earth Explorer</a>'
+    })
+}
+
+
+const addSwathSourcesToMap = (map: maplibregl.Map | null) => {
+    if (!map) return;
+    console.log("adding swath sources to map")
+    const dataset_ids = Object.keys(MISSIONS_BY_DATASET_ID);
+    for (const dataset_id of dataset_ids) {
+        let missions = MISSIONS_BY_DATASET_ID[dataset_id];
+        for (const mission_id of missions) {
+            addSwathSourceToMap(map, mission_id);
+        }
+    }
+}
+
+const addSwathLayerToMap = (map: maplibregl.Map | null, layer: SwathLayer, mission_id: string) => {
+    if (!map) return;
+    console.log("adding swath layer to map");
+    if(map.getLayer(layer.fillLayer)) return;
+    const firstSymbolId = getFirstLayerID(map);
+    map.addLayer({
+        'id': layer.fillLayer,
+        'type': 'fill',
+        'source': layer.source,
+        'source-layer': layer.sourceLayer,
+        'paint': {
+            'fill-opacity': [
+                'case',
+                ['boolean', ['feature-state', 'click'], false],
+                0.5,
+                0.25
+            ],
+            'fill-color': SWATHS_FILL_COLOR_EXPR_1,
+
+            'fill-antialias': false
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'filter': ['==', ['get', 'm'], mission_id]
+    }, firstSymbolId);
+    map.addLayer({
+        'id': layer.lineLayer,
+        'type': 'line',
+        'source': layer.source,
+        'source-layer': layer.sourceLayer,
+        'paint': {
+            'line-opacity': 1,
+            'line-width': SWATHS_LINE_WIDTH_EXPR,
+            'line-color': SWATHS_LINE_COLOR_EXPR_1
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'filter': ['==', ['get', 'm'], mission_id]
+    }, firstSymbolId);
+}
+
+const addSwathLayersToMap = (map: maplibregl.Map | null) => {
+    console.log("addSwathLayersToMap");
+    if (!map) return;
+    console.log("adding swath layers to map");
+    const dataset_ids = Object.keys(MISSIONS_BY_DATASET_ID);
+    for (const dataset_id of dataset_ids) {
+        let missions = MISSIONS_BY_DATASET_ID[dataset_id];
+        for (const mission_id of missions) {
+            let layer = getSwathLayerFromMission(mission_id);
+            addSwathLayerToMap(map, layer, mission_id);
+        }
+    }
+}
+
 const Map: NextPage<Props> = (props) => {
 
     const mapContainer = useRef<HTMLDivElement | null>(null);
-    const [map, setMap] = useState<mapboxgl.Map | null>(null);
-
-    // const [hoveredMission, setHoveredMission] = useState<string | undefined>(undefined);
-    // const [prevHoveredMission, setPrevHoveredMission] = useState<string | undefined>(undefined);
+    const map = useRef<maplibregl.Map | null>(null);
 
     const [hoveredFrame, setHoveredFrame] = useState<string | undefined>(undefined);
     const [prevHoveredFrame, setPrevHoveredFrame] = useState<string | undefined>(undefined);
     const [clickedFrame, setClickedFrame] = useState<string | undefined>(undefined);
     const [prevClickedFrame, setPrevClickedFrame] = useState<string | undefined>(undefined);
-
+    const [missionLayer, setMissionLayer] = useState<MissionLayer | null>(null);
     const [swathLayer, setSwathLayer] = useState<SwathLayer | null>(null);
-
-    const [userInteracting, setUserInteracting] = useState<boolean>(false);
-    const [moveEnd, setMoveEnd] = useState<boolean>(false);
 
     const {
         selectedDesignator,
         selectedResolution,
-        selectedMission,
         acquisitionRange,
         acquisitionTimeRange,
         selectedCameraType,
-        showDownloads,
+        highlightDownloads,
         mission,
         setFrame,
+        mapLoading,
         setMapLoading,
         projection,
-        showLabels,
     } = useAppContext();
 
     useEffect(() => {
-        if (map) return;
+        if (map.current || !mapContainer.current || mapLoading) return;
 
-        let mapboxMap = new mapboxgl.Map({
-            container: mapContainer.current!,
-            style: 'mapbox://styles/engelsjk/cl65jk7jr000i15pq8u9qgjab',
-            accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
-            zoom: 2.5,
+        setMapLoading(true)
+
+        const missionLayer = getMissionLayer()
+        setMissionLayer(missionLayer)
+
+        map.current = new maplibregl.Map({
+            container: mapContainer.current,
+            style: `https://api.maptiler.com/maps/dataviz-dark/style.json?key=${process.env.NEXT_PUBLIC_MAPTILER_TOKEN}`,
             center: [46.54, 17.76],
+            zoom: 2.5,
             minZoom: 0,
             maxZoom: 8,
+            attributionControl: false,
         });
 
-        mapboxMap.on("load", () => {
-
-            setMap(mapboxMap);
-            setMapLoading(false);
-
-            mapboxMap.resize();
-
-            mapboxMap.setFog(FOG_PARAMS);
-
-            const firstSymbolId = getFirstLayerID(mapboxMap);
-
-            mapboxMap.addSource('missions', {
-                'type': 'vector',
-                'tiles': MAP_TILE_URLS.map(u => `${u}/missions/{z}/{x}/{y}.pbf`),
-                'minzoom': 0,
-                'maxzoom': 8,
-                // 'promoteId': 'm'
+        map.current.on('style.load', () => {
+            if(!map.current) return;
+            map.current.setProjection({
+                type: 'globe',
             });
-
-            mapboxMap.addLayer({
-                'id': 'missions-fill',
-                'type': 'fill',
-                'source': 'missions',
-                'source-layer': 'missions',
-                'paint': {
-                    'fill-opacity': 0.4,
-                    'fill-color': COLOR_BY_RESOLUTION_EXPR,
-                    'fill-antialias': false
-                },
-                'layout': {
-                    'visibility': 'visible',
-                    'fill-sort-key': ['get', 'o']
-                }
-            }, firstSymbolId);
         });
 
-    }, [map, setMapLoading]);
+        map.current.on("load", () => {
+            addMissionSourcesToMap(map.current);
+            addMissionLayerToMap(map.current, missionLayer);
+            addSwathSourcesToMap(map.current);
+            addSwathLayersToMap(map.current);
+            setMapLoading(false);
+            if(map.current){
+                map.current.addControl(new AttributionControl({
+                    compact: true
+                }))
+            } 
+        });
+    }, [map, mapContainer, mapLoading, setMapLoading]);
 
-    // MISSIONS FILTERS
+    // Updates the missions layer filter when a user selects a mission or adjusts one of the filters
     useEffect(() => {
-        if (!map) return;
-
+        if (!map.current || !missionLayer) return;
+        if (!map.current.getLayer(missionLayer.fillLayer)) return;
         if (mission) {
-            map.setLayoutProperty('missions-fill', 'visibility', 'none');
+            map.current.setLayoutProperty(missionLayer.fillLayer, 'visibility', 'none');
             return;
         }
-
-        map.setLayoutProperty('missions-fill', 'visibility', 'visible');
-
-        var designatorFilter: Expression = ['has', 'd']; // true
-        var resolutionFilter: Expression = ['has', 'r']; // true
-        var missionFilter: Expression = ['has', 'm']; // true
-        var timeFilter: Expression = ['has', 'e']; // true
-
+        map.current.setLayoutProperty(missionLayer.fillLayer, 'visibility', 'visible');
+        let designatorFilter: DataDrivenPropertyValueSpecification<string> = ['has', 'd']; // true
+        let resolutionFilter: DataDrivenPropertyValueSpecification<string> = ['has', 'r']; // true
+        let missionFilter: DataDrivenPropertyValueSpecification<string> = ['has', 'm']; // true
+        let timeFilter: DataDrivenPropertyValueSpecification<string> = ['has', 'e']; // true
         if (selectedDesignator) {
             designatorFilter = ['==', ['get', 'd'], selectedDesignator];
         }
-
         if (selectedResolution) {
             resolutionFilter = ['==', ['get', 'r'], selectedResolution];
         }
-
         if (acquisitionTimeRange.interval) {
             const ts = utils.RangeToTimestamps(acquisitionRange, acquisitionTimeRange);
             timeFilter = [
                 'all',
-                ['>=', ['get', 'e'], ts[0]],
-                ['<=', ['get', 'l'], ts[1]]
+                ['<=', ['get', 'e'], ts[1]],
+                ['>=', ['get', 'l'], ts[0]]
             ];
         }
+        const filterExpressions: DataDrivenPropertyValueSpecification<string> = ['all', designatorFilter, resolutionFilter, missionFilter, timeFilter];
+        map.current.setFilter(missionLayer.fillLayer, filterExpressions, { validate: false });
+    }, [map, mission, missionLayer, selectedDesignator, selectedResolution, acquisitionRange, acquisitionTimeRange]);
 
-        const filterExpressions: Expression = ['all', designatorFilter, resolutionFilter, missionFilter, timeFilter];
 
-        map.setFilter('missions-fill', filterExpressions, { validate: false });
-
-    }, [map, mission, selectedDesignator, selectedResolution, acquisitionRange]);
-
+    // Updates the swath layer when a user selects a mission
     useEffect(() => {
-
-        if (!map) return;
-        if (!mission) return;
-
-        const layer = getLayerFromDesignator(mission.d);
-
-        if (swathLayer && layer.designator == swathLayer.designator) return;
-
+        if (!map.current || !mission) return;
+        const layer = getSwathLayerFromMission(mission.m);
+        if (swathLayer && layer.mission == swathLayer.mission) return;
         if (swathLayer) {
-            if (map.getLayer(swathLayer.fillLayer)) map.removeLayer(swathLayer.fillLayer);
-            if (map.getLayer(swathLayer.lineLayer)) map.removeLayer(swathLayer.lineLayer);
-            if (map.getSource(swathLayer.source)) map.removeSource(swathLayer.source);
+            map.current.setLayoutProperty(swathLayer.lineLayer, 'visibility', 'none');
+            map.current.setLayoutProperty(swathLayer.fillLayer, 'visibility', 'none');
         }
-
-        map.addSource(layer.source, {
-            'type': 'vector',
-            'tiles': MAP_TILE_URLS.map(
-                u => `${u}/swaths/designators/${layer.designator}/{z}/{x}/{y}.pbf`
-            ),
-            'minzoom': 0,
-            'maxzoom': 8,
-            'promoteId': 'e'
-        });
-
-        const firstSymbolId = getFirstLayerID(map);
-
-        map.addLayer({
-            'id': layer.fillLayer,
-            'type': 'fill',
-            'source': layer.source,
-            'source-layer': layer.sourceLayer,
-            'paint': {
-                'fill-color': SWATHS_FILL_COLOR_EXPR_1,
-                'fill-opacity': [
-                    'case',
-                    ['boolean', ['feature-state', 'click'], false],
-                    0.5,
-                    0.25
-                ],
-                'fill-antialias': false
-            },
-            'layout': {
-                'visibility': 'visible' //'visible' //'none'
-            },
-            'filter': ['==', ['get', 'm'], mission.m] // false
-        }, firstSymbolId);
-
-        map.addLayer({
-            'id': layer.lineLayer,
-            'type': 'line',
-            'source': layer.source,
-            'source-layer': layer.sourceLayer,
-            'paint': {
-                'line-opacity': 1,
-                'line-width': SWATHS_LINE_WIDTH_EXPR,
-                'line-color': SWATHS_LINE_COLOR_EXPR_1
-            },
-            'layout': {
-                'visibility': 'visible' //'visible' //'none'
-            },
-            'filter': ['==', ['get', 'm'], mission.m] // false
-        }, firstSymbolId);
-
+        map.current.setLayoutProperty(layer.lineLayer, 'visibility', 'visible');
+        map.current.setLayoutProperty(layer.fillLayer, 'visibility', 'visible');
         const onMouseMoveFill = (e: MapLayerMouseEvent) => {
-            map.getCanvas().style.cursor = 'pointer';
+            if(!map.current) return;
+            map.current.getCanvas().style.cursor = 'pointer';
             if (e.features) {
                 const frameID = e.features[0].id as string;
                 setHoveredFrame(frameID);
             }
         }
-
         const onMouseLeaveFill = (e: MapLayerMouseEvent) => {
-            map.getCanvas().style.cursor = '';
+            if(!map.current) return;
+            map.current.getCanvas().style.cursor = '';
             setHoveredFrame(undefined);
         }
-
         const onClickFill = (e: MapLayerMouseEvent) => {
             e.preventDefault();
             if (e.features) {
@@ -361,176 +403,111 @@ const Map: NextPage<Props> = (props) => {
                 setFrame(e.features[0].properties as Frame);
             }
         }
-
         const onClick = (e: MapLayerMouseEvent) => {
             if (e.defaultPrevented === false) {
                 setClickedFrame(undefined);
                 setFrame(null);
             }
         }
-
-        map.on('click', onClick);
-
-        map.on('mousemove', layer.fillLayer, onMouseMoveFill);
-        map.on('mouseleave', layer.fillLayer, onMouseLeaveFill);
-        map.on('click', layer.fillLayer, onClickFill);
-
+        map.current.on('click', onClick);
+        map.current.on('mousemove', layer.fillLayer, onMouseMoveFill);
+        map.current.on('mouseleave', layer.fillLayer, onMouseLeaveFill);
+        map.current.on('click', layer.fillLayer, onClickFill);
         setSwathLayer(layer);
-
     }, [map, mission, swathLayer, setSwathLayer, setClickedFrame, setHoveredFrame, setFrame]);
 
-    // SWATH FILTER
+    // Updates the swath layer filters when a user selects a mission or camera type
     useEffect(() => {
-        if (!map) return;
-
+        if (!map.current) return;
         if (!mission && swathLayer) {
-            if (map.getLayer(swathLayer.lineLayer) && map.getLayer(swathLayer.fillLayer)) {
-                map.setLayoutProperty(swathLayer.lineLayer, 'visibility', 'none');
-                map.setLayoutProperty(swathLayer.fillLayer, 'visibility', 'none');
+            if (map.current.getLayer(swathLayer.lineLayer) && map.current.getLayer(swathLayer.fillLayer)) {
+                map.current.setLayoutProperty(swathLayer.lineLayer, 'visibility', 'none');
+                map.current.setLayoutProperty(swathLayer.fillLayer, 'visibility', 'none');
             }
             return;
         }
-
         if (!swathLayer) return;
-
-        if (map.getLayer(swathLayer.lineLayer) && map.getLayer(swathLayer.fillLayer)) {
-            map.setLayoutProperty(swathLayer.lineLayer, 'visibility', 'visible');
-            map.setLayoutProperty(swathLayer.fillLayer, 'visibility', 'visible');
+        if (map.current.getLayer(swathLayer.lineLayer) && map.current.getLayer(swathLayer.fillLayer)) {
+            map.current.setLayoutProperty(swathLayer.lineLayer, 'visibility', 'visible');
+            map.current.setLayoutProperty(swathLayer.fillLayer, 'visibility', 'visible');
         }
-
-        var missionFilter: Expression = ['has', 'm'];
-        var cameraTypeFilter: Expression = ['has', 'c'];
-
+        var missionFilter: DataDrivenPropertyValueSpecification<string> = ['has', 'm'];
+        var cameraTypeFilter: DataDrivenPropertyValueSpecification<string> = ['has', 'c'];
         if (mission) {
             missionFilter = ['==', ['get', 'm'], mission.m];
         }
-
         if (selectedCameraType && selectedCameraType != 'ALL') {
             cameraTypeFilter = ['==', ['get', 'c'], selectedCameraType];
         }
-
-        const filterExpressions: Expression = ['all', missionFilter, cameraTypeFilter];
-
-        if (map.getLayer(swathLayer.lineLayer) && map.getLayer(swathLayer.fillLayer)) {
-            map.setFilter(swathLayer.lineLayer, filterExpressions);
-            map.setFilter(swathLayer.fillLayer, filterExpressions);
+        const filterExpressions: DataDrivenPropertyValueSpecification<string> = ['all', missionFilter, cameraTypeFilter];
+        if (map.current.getLayer(swathLayer.lineLayer) && map.current.getLayer(swathLayer.fillLayer)) {
+            map.current.setFilter(swathLayer.lineLayer, filterExpressions);
+            map.current.setFilter(swathLayer.fillLayer, filterExpressions);
         }
-
     }, [map, mission, swathLayer, selectedCameraType]);
 
-    // HOVER MISSION
-    // useEffect(() => {
-    //     if (!map) return;
-    //     if (mission) return;
-
-    //     if (prevHoveredMission && hoveredMission != prevHoveredMission) {
-    //         map.setFeatureState({
-    //             source: 'missions',
-    //             sourceLayer: 'missions', id: prevHoveredMission
-    //         }, { hover: false });
-    //     }
-    //     if (hoveredMission) {
-    //         map.setFeatureState({
-    //             source: 'missions',
-    //             sourceLayer: 'missions', id: hoveredMission
-    //         }, { hover: true });
-    //     }
-
-    //     setPrevHoveredMission(hoveredMission);
-
-    // }, [hoveredMission, prevHoveredMission]);
-
-    // HOVER FRAME
+    // Updates the map feature state when a user hovers on a frame
     useEffect(() => {
-        if (!map) return;
-        if (!swathLayer) return;
-
+        if (!map.current || !swathLayer) return;
         if (prevHoveredFrame && hoveredFrame != prevHoveredFrame) {
-            map.setFeatureState({
+            map.current.setFeatureState({
                 source: swathLayer.source,
                 sourceLayer: swathLayer.sourceLayer, id: prevHoveredFrame
             }, { hover: false });
         }
         if (hoveredFrame) {
-            map.setFeatureState({
+            map.current.setFeatureState({
                 source: swathLayer.source,
                 sourceLayer: swathLayer.sourceLayer, id: hoveredFrame
             }, { hover: true });
         }
-
         setPrevHoveredFrame(hoveredFrame);
-
     }, [map, swathLayer, hoveredFrame, prevHoveredFrame]);
 
-    // CLICKED FRAME
+    // Updates the map feature state when the user clicks on a frame
     useEffect(() => {
-        if (!map) return;
-        if (!swathLayer) return;
-
+        if (!map.current || !swathLayer) return;
         if (prevClickedFrame && clickedFrame != prevClickedFrame) {
-            map.setFeatureState({
+            map.current.setFeatureState({
                 source: swathLayer.source,
                 sourceLayer: swathLayer.sourceLayer, id: prevClickedFrame
             }, { click: false });
         }
         if (clickedFrame) {
-            map.setFeatureState({
+            map.current.setFeatureState({
                 source: swathLayer.source,
                 sourceLayer: swathLayer.sourceLayer, id: clickedFrame
             }, { click: true });
         }
-
         setPrevClickedFrame(clickedFrame);
-
     }, [map, swathLayer, clickedFrame, prevClickedFrame]);
 
-    // SHOW DOWNLOADS
+    // Updates map layer paint properties when the user toggles "show downloads". Only in mission pane.
     useEffect(() => {
-        if (!map) return;
-        if (!mission || !swathLayer) return;
-
-        var lineExpr: ExpressionSpecification = SWATHS_LINE_COLOR_EXPR_2;
-        var fillExpr: ExpressionSpecification = SWATHS_FILL_COLOR_EXPR_2;
-
-        if (showDownloads) {
+        if (!map.current || !mission || !swathLayer) return;
+        var lineExpr = SWATHS_LINE_COLOR_EXPR_2;
+        var fillExpr = SWATHS_FILL_COLOR_EXPR_2;
+        if (highlightDownloads) {
             lineExpr = SWATHS_LINE_COLOR_EXPR_1;
             fillExpr = SWATHS_FILL_COLOR_EXPR_1;
         }
-
-        if (map.getLayer(swathLayer.lineLayer) && map.getLayer(swathLayer.fillLayer)) {
-            map.setPaintProperty(swathLayer.lineLayer, 'line-color', lineExpr);
-            map.setPaintProperty(swathLayer.fillLayer, 'fill-color', fillExpr);
+        if (map.current.getLayer(swathLayer.lineLayer) && map.current.getLayer(swathLayer.fillLayer)) {
+            map.current.setPaintProperty(swathLayer.lineLayer, 'line-color', lineExpr);
+            map.current.setPaintProperty(swathLayer.fillLayer, 'fill-color', fillExpr);
         }
+    }, [map, mission, swathLayer, highlightDownloads]);
 
-    }, [map, mission, swathLayer, showDownloads]);
-
+    // Updates the map projection and adjusts zoom level and fog when the user selects a projection
     useEffect(() => {
-        if (!map) return;
-        map.setProjection(projection);
-
-        map.on('zoom', () => {
+        if (!map.current) return;
+        if(!map.current.isStyleLoaded()) return;
+        map.current.setProjection({type: projection});
+        map.current.on('zoom', () => {
             if (projection != "globe") {
                 return;
             }
-            if (map.getZoom() > 5) {
-                map.setFog(null);
-            } else {
-                if (!map.getFog()) {
-                    map.setFog(FOG_PARAMS);
-                }
-            }
         });
     }, [map, projection]);
-
-    useEffect(() => {
-        if (!map) return;
-        const layers = map.getStyle().layers;
-        for (const layer of layers) {
-            if (layer.type === 'symbol') {
-                map.setLayoutProperty(layer.id, 'visibility', showLabels ? 'visible' : 'none');
-            }
-        }
-    }, [map, showLabels]);
 
     return (
         <div ref={mapContainer} style={{

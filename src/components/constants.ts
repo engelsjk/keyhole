@@ -1,8 +1,8 @@
 import { Projection } from '~/shared/types';
 
-export const MAP_TILE_URLS = [
-    'https://djellr4yg949p.cloudfront.net/keyhole/v1',
-    'https://d8it8dv6zj2fq.cloudfront.net/keyhole/v1'
+export const CDN_TILE_URLS = [
+    'https://djellr4yg949p.cloudfront.net',
+    'https://d8it8dv6zj2fq.cloudfront.net'
 ];
 
 export const DESIGNATOR_LABELS = [
@@ -40,13 +40,7 @@ export const CAMERA_TYPE_LABELS = [
 
 export const PROJECTION_OPTIONS: Projection[] = [
     { id: 'globe', name: 'GLOBE' },
-    { id: 'equalEarth', name: 'EQUAL EARTH' },
-    { id: 'albers', name: 'ALBERS' },
     { id: 'mercator', name: 'MERCATOR' },
-    { id: 'lambertConformalConic', name: 'LAMBERT CONFORMAL CONIC' },
-    { id: 'winkelTripel', name: 'WINKEL TRIPEL' },
-    { id: 'naturalEarth', name: 'NATURAL EARTH' },
-    { id: 'equirectangular', name: 'EQUIRECTANGULAR' },
 ];
 
 export const MISSIONS_BY_DATASET_ID: Record<string, string[]>  = {

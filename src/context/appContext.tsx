@@ -2,38 +2,34 @@ import { createContext, useContext, ReactNode, useState, Dispatch, SetStateActio
 import { MissionData, Mission, Frame, TimeRange } from '~/shared/types';
 
 type appContextType = {
-    selectedDesignator: string;
-    setSelectedDesignator: Dispatch<SetStateAction<string>>
-    selectedResolution: string;
-    setSelectedResolution: Dispatch<SetStateAction<string>>
-    selectedMission: string;
-    setSelectedMission: Dispatch<SetStateAction<string>>
-    acquisitionRange: number[];
-    setAcquisitionRange: Dispatch<SetStateAction<number[]>>
-    acquisitionTimeRange: TimeRange;
-    setAcquisitionTimeRange: Dispatch<SetStateAction<TimeRange>>
-    selectedCameraType: string | null;
-    setSelectedCameraType: Dispatch<SetStateAction<string | null>>
-    showDownloads: boolean;
-    setShowDownloads: Dispatch<SetStateAction<boolean>>,
-    showFrame: boolean;
+    selectedDesignator: string,
+    setSelectedDesignator: Dispatch<SetStateAction<string>>,
+    selectedResolution: string,
+    setSelectedResolution: Dispatch<SetStateAction<string>>,
+    selectedMission: string,
+    setSelectedMission: Dispatch<SetStateAction<string>>,
+    acquisitionRange: number[],
+    setAcquisitionRange: Dispatch<SetStateAction<number[]>>,
+    acquisitionTimeRange: TimeRange,
+    setAcquisitionTimeRange: Dispatch<SetStateAction<TimeRange>>,
+    selectedCameraType: string | null,
+    setSelectedCameraType: Dispatch<SetStateAction<string | null>>,
+    highlightDownloads: boolean,
+    setHighlightDownloads: Dispatch<SetStateAction<boolean>>,
+    showFrame: boolean,
     setShowFrame: Dispatch<SetStateAction<boolean>>,
-    mission: Mission | undefined;
+    mission: Mission | undefined,
     setMission: Dispatch<SetStateAction<Mission | undefined>>,
-    frame: Frame | null;
+    frame: Frame | null,
     setFrame: Dispatch<SetStateAction<Frame | null>>,
     dataLoading: boolean,
     setDataLoading: Dispatch<SetStateAction<boolean>>,
     mapLoading: boolean,
     setMapLoading: Dispatch<SetStateAction<boolean>>,
-    missionData: MissionData | null;
+    missionData: MissionData | null,
     setMissionData: Dispatch<SetStateAction<MissionData | null>>,
-    projection: string;
+    projection: string,
     setProjection: Dispatch<SetStateAction<string>>,
-    showLabels: boolean;
-    setShowLabels: Dispatch<SetStateAction<boolean>>,
-    spinGlobe: boolean;
-    setSpinGlobe: Dispatch<SetStateAction<boolean>>,
 };
 
 const appContextDefaultValues: appContextType = {
@@ -49,8 +45,8 @@ const appContextDefaultValues: appContextType = {
     setAcquisitionTimeRange: () => { },
     selectedCameraType: null,
     setSelectedCameraType: () => { },
-    showDownloads: true,
-    setShowDownloads: () => { },
+    highlightDownloads: true,
+    setHighlightDownloads: () => { },
     showFrame: false,
     setShowFrame: () => { },
     mission: undefined,
@@ -59,16 +55,12 @@ const appContextDefaultValues: appContextType = {
     setFrame: () => { },
     dataLoading: true,
     setDataLoading: () => { },
-    mapLoading: true,
+    mapLoading: false,
     setMapLoading: () => { },
     missionData: null,
     setMissionData: () => { },
     projection: 'globe',
     setProjection: () => { },
-    showLabels: false,
-    setShowLabels: () => { },
-    spinGlobe: false,
-    setSpinGlobe: () => { },
 };
 
 const AppContext = createContext<appContextType>(appContextDefaultValues);
@@ -88,22 +80,15 @@ export function AppContextProvider({ children }: Props) {
     const [selectedMission, setSelectedMission] = useState<string>('');
     const [mission, setMission] = useState<Mission | undefined>(undefined);
     const [frame, setFrame] = useState<Frame | null>(null);
-
     const [acquisitionRange, setAcquisitionRange] = useState<number[]>([0, 0]);
     const [acquisitionTimeRange, setAcquisitionTimeRange] = useState<TimeRange>({ range: [0, 0] } as TimeRange);
-
     const [selectedCameraType, setSelectedCameraType] = useState<string | null>(null);
-    const [showDownloads, setShowDownloads] = useState<boolean>(true);
+    const [highlightDownloads, setHighlightDownloads] = useState<boolean>(true);
     const [showFrame, setShowFrame] = useState<boolean>(false);
-
-    const [dataLoading, setDataLoading] = useState<boolean>(true);
-    const [mapLoading, setMapLoading] = useState<boolean>(true);
-
+    const [dataLoading, setDataLoading] = useState<boolean>(false);
+    const [mapLoading, setMapLoading] = useState<boolean>(false);
     const [missionData, setMissionData] = useState<MissionData | null>(null);
-
     const [projection, setProjection] = useState<string>('globe');
-    const [showLabels, setShowLabels] = useState<boolean>(false);
-    const [spinGlobe, setSpinGlobe] = useState<boolean>(false);
 
     const value = {
         selectedDesignator,
@@ -118,8 +103,8 @@ export function AppContextProvider({ children }: Props) {
         setAcquisitionTimeRange,
         selectedCameraType,
         setSelectedCameraType,
-        showDownloads,
-        setShowDownloads,
+        highlightDownloads,
+        setHighlightDownloads,
         showFrame,
         setShowFrame,
         mission,
@@ -133,11 +118,7 @@ export function AppContextProvider({ children }: Props) {
         missionData,
         setMissionData,
         projection,
-        setProjection,
-        showLabels,
-        setShowLabels,
-        spinGlobe,
-        setSpinGlobe,
+        setProjection
     }
 
     return (

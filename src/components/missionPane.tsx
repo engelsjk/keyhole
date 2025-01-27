@@ -1,6 +1,5 @@
 import { NextPage } from "next";
 import { useEffect, useState, ChangeEvent } from "react";
-
 import { Box, Switch, Typography } from '@mui/material';
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -8,11 +7,8 @@ import { FormGroup, FormControlLabel, InputLabel, FormControl, MenuItem } from '
 import { Table, TableBody, TableCell, TableContainer, TableRow } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import Paper from '@mui/material/Paper';
-
 import Select from '~/components/styled/Select';
-
 import { useAppContext } from "~/context/appContext";
-
 import * as utils from '~/shared/utils';
 
 type Row = {
@@ -20,16 +16,14 @@ type Row = {
     value: string,
 };
 
-interface Props {
-
-};
+interface Props {};
 
 const MissionPane: NextPage<Props> = (props) => {
 
     const {
         selectedCameraType,
         setSelectedCameraType,
-        setShowDownloads,
+        setHighlightDownloads,
         mission,
     } = useAppContext();
 
@@ -39,15 +33,14 @@ const MissionPane: NextPage<Props> = (props) => {
     const handleCameraTypesChange = (event: SelectChangeEvent<unknown>) => {
         setSelectedCameraType(event.target.value as string);
     };
-
-    const handleShowDownloadsChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setShowDownloads(event.target.checked);
+    const handleHighlightDownloadsChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setHighlightDownloads(event.target.checked);
     };
-
     const handleExpanded = (event: React.SyntheticEvent, newExpanded: boolean) => {
         setExpanded(newExpanded);
     };
 
+    // Update the mission metadata when a new mission is selected
     useEffect(() => {
         if (!mission) return;
         const rows: Row[] = [
@@ -165,9 +158,9 @@ const MissionPane: NextPage<Props> = (props) => {
                                     <FormControlLabel control={
                                         <Switch
                                             defaultChecked
-                                            onChange={handleShowDownloadsChange}
+                                            onChange={handleHighlightDownloadsChange}
                                         />
-                                    } label="SHOW DOWNLOADS" />
+                                    } label="HIGHLIGHT DOWNLOADS" />
                                 </FormGroup>
                             </Box>
                         </AccordionDetails>

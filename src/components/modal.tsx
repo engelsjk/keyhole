@@ -1,11 +1,9 @@
 import { NextPage } from "next";
-
 import { useState } from 'react';
 import { Box, Typography, Stack, Switch, FormGroup, FormControlLabel } from '@mui/material';
 import MuiModal from '@mui/material/Modal';
 import CircleTwoToneIcon from '@mui/icons-material/CircleTwoTone';
 import { useTheme } from '@mui/material/styles';
-
 import { RESOLUTION_LABELS } from '~/components/constants';
 
 interface Props {

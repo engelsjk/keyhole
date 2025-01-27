@@ -37,8 +37,6 @@ export type Projection = {
 }
 
 export type TimeRange = {
-    // earliest: DateTime,
-    // latest: DateTime,
     interval: Interval,
     range: number[],
     units: string

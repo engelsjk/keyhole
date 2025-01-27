@@ -1,15 +1,12 @@
 import { NextPage } from "next";
 import { useEffect, useState, ChangeEvent } from "react";
 import { DateTime } from 'luxon';
-
 import { Box, Typography, Button } from '@mui/material';
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Table, TableBody, TableCell, TableContainer, TableRow } from '@mui/material';
 import Paper from '@mui/material/Paper';
-
 import { useAppContext } from "~/context/appContext";
-
 import * as utils from '~/shared/utils';
 
 type Row = {
@@ -27,16 +24,16 @@ const FramePane: NextPage<Props> = (props) => {
 
     const [expanded, setExpanded] = useState<boolean>(true);
     const [rows, setRows] = useState<Row[]>([]);
-
     const [link, setLink] = useState<string>('');
 
     const handleExpanded = (event: React.SyntheticEvent, newExpanded: boolean) => {
         setExpanded(newExpanded);
     };
 
+    // Updates the metadata table and href link when a new frame is selected
     useEffect(() => {
-
         if (!frame) return;
+
         const rows: Row[] = [
             { label: 'FRAME', value: `${frame.e}` },
             { label: 'CAMERA TYPE', value: `${utils.getCameraTypeLabel(frame.c)}` },

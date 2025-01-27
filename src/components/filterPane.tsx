@@ -1,20 +1,16 @@
 import { NextPage } from "next";
-import { useEffect, useState } from "react";
+import { useEffect, useState, ChangeEvent } from "react";
 import useMediaQuery from '@mui/material/useMediaQuery';
-
-import { Box, Typography, TextField, Slider, Stack } from '@mui/material';
+import { Box, Typography, TextField, Slider, Stack, Switch } from '@mui/material';
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { InputLabel, FormControl, MenuItem } from '@mui/material';
+import { InputLabel, FormGroup, FormControl, FormControlLabel, MenuItem } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
 import CircleTwoToneIcon from '@mui/icons-material/CircleTwoTone';
-
 import Autocomplete from '~/components/styled/Autocomplete';
 import Select from '~/components/styled/Select';
-
 import { useAppContext } from "~/context/appContext";
-
 import { MissionData, Mission, TimeRange } from '~/shared/types';
 import * as utils from '~/shared/utils';
 import { RESOLUTION_LABELS } from '~/components/constants';
@@ -43,10 +39,8 @@ const FilterPane: NextPage<Props> = (props) => {
     } = useAppContext();
 
     const [expanded, setExpanded] = useState<boolean>(true);
-
     const [designatorCanBeFiltered, setDesignatorCanBeFiltered] = useState<boolean>(true);
     const [resolutionCanBeFiltered, setResolutionCanBeFiltered] = useState<boolean>(true);
-
     const [designatorOptions, setDesignatorOptions] = useState<string[]>([]);
     const [resolutionOptions, setResolutionOptions] = useState<string[]>([]);
     const [missionOptions, setMissionOptions] = useState<MissionData>([]);
@@ -57,19 +51,18 @@ const FilterPane: NextPage<Props> = (props) => {
         setExpanded(newExpanded);
     };
 
+    // Handles the event when the user selects a designator.
     const handleChangeDesignator = (event: SelectChangeEvent<unknown>) => {
-
         if (!missionData) return;
 
         const designator = event.target.value as string;
         setSelectedDesignator(designator);
+
+        // Filter list of resolutions based on selected designator
         designator && resolutionCanBeFiltered ? setDesignatorCanBeFiltered(false) : setDesignatorCanBeFiltered(true);
-
         var r = selectedResolution;
-
         var filteredMissionData = designator ?
             missionData.filter(m => { return m.d == designator }) : missionData;
-
         if (resolutionCanBeFiltered) {
             const resolutionOptions = [...new Set(
                 filteredMissionData
@@ -80,40 +73,36 @@ const FilterPane: NextPage<Props> = (props) => {
             r = "";
             setSelectedResolution(r);
         }
-
+   
+        // Filter list of missions based on selected designator
         filteredMissionData = r ?
             filteredMissionData.filter(m => { return m.r == Number(selectedResolution) }) : filteredMissionData;
-
         if (filteredMissionData.length > 0) {
-
             const earliestMission = filteredMissionData.reduce((prev, current) => {
                 return (prev.e < current.e) ? prev : current;
             })
             const latestMission = filteredMissionData.reduce((prev, current) => {
                 return (prev.l > current.l) ? prev : current;
             })
-
             const units = !designator && !r ? 'years' : 'months';
             const timeRange = utils.TimestampsToTimerange([earliestMission.e, latestMission.l], units);
-
             setAcquisitionRange(timeRange.range);
             setAcquisitionTimeRange(timeRange);
         }
     };
 
+    // Handles the event when the user selects a resolution.
     const handleChangeResolution = (event: SelectChangeEvent<unknown>) => {
-
         if (!missionData) return;
 
         const resolution = event.target.value as string;
         setSelectedResolution(resolution);
+
+        // Filter list of designators based on selected resolution
         resolution && designatorCanBeFiltered ? setResolutionCanBeFiltered(false) : setResolutionCanBeFiltered(true);
-
         var d = selectedDesignator;
-
         var filteredMissionData = resolution ?
             missionData.filter(m => { return m.r == Number(resolution) }) : missionData;
-
         if (designatorCanBeFiltered) {
             const designatorOptions = [...new Set(
                 filteredMissionData
@@ -124,10 +113,10 @@ const FilterPane: NextPage<Props> = (props) => {
             d = ""
             setSelectedDesignator(d);
         }
-
+        
+        // Filter list of missions based on selected resolution
         filteredMissionData = d ?
             filteredMissionData.filter(m => { return m.d == selectedDesignator }) : filteredMissionData;
-
         if (filteredMissionData.length > 0) {
             const earliestMission = filteredMissionData.reduce((prev, current) => {
                 return (prev.e < current.e) ? prev : current;
@@ -135,17 +124,15 @@ const FilterPane: NextPage<Props> = (props) => {
             const latestMission = filteredMissionData.reduce((prev, current) => {
                 return (prev.l > current.l) ? prev : current;
             })
-
             const units = !d && !resolution ? 'years' : 'months';
             const timeRange = utils.TimestampsToTimerange([earliestMission.e, latestMission.l], units);
-
             setAcquisitionRange(timeRange.range);
             setAcquisitionTimeRange(timeRange);
         }
     };
 
+    // Handles the event when the user selects an acquisition time range.
     const handleChangeAcquisitionRange = (event: Event, newValue: number | number[]) => {
-
         if (!missionData) return;
 
         const newRange = newValue as number[];
@@ -153,20 +140,16 @@ const FilterPane: NextPage<Props> = (props) => {
 
         const ts = utils.RangeToTimestamps(newRange, acquisitionTimeRange);
 
-        // // TODO: fix bad string => number casting!
-
-        // DESIGNATOR
-
+        // Filter list of designators based on selected acquisition range
         if (designatorCanBeFiltered) {
-
             var filteredMissionDataForDesignator = selectedResolution ?
                 missionData.filter(m => { return m.r == Number(selectedResolution) }) : missionData;
-
+            // ??? is this filter handling -timestamps across the epoch appropriately?
             filteredMissionDataForDesignator = !selectedDesignator && !selectedResolution ?
                 filteredMissionDataForDesignator
-                    .filter(m => { return m.e >= ts[0] && m.l <= ts[1] }) : filteredMissionDataForDesignator;
-
-            const designatorOptions = [...new Set(
+                    .filter(m => { return m.e <= ts[1] && m.l >= ts[0] }) : filteredMissionDataForDesignator;
+            
+                    const designatorOptions = [...new Set(
                 filteredMissionDataForDesignator
                     .sort((a, b) => (a.d > b.d) ? 1 : -1)
                     .map(m => m.d)
@@ -174,17 +157,13 @@ const FilterPane: NextPage<Props> = (props) => {
             if (!selectedDesignator) setDesignatorOptions(designatorOptions);
         }
 
-        // RESOLUTION
-
+        // Filter list of resolutions based on selected acquisition range
         if (resolutionCanBeFiltered) {
-
             var filteredMissionDataForResolution = selectedDesignator ?
                 missionData.filter(m => { return m.d == selectedDesignator }) : missionData;
-
             filteredMissionDataForResolution = !selectedDesignator && !selectedResolution ?
                 filteredMissionDataForResolution
-                    .filter(m => { return m.e >= ts[0] && m.l <= ts[1] }) : filteredMissionDataForResolution;
-
+                    .filter(m => { return m.e <= ts[1] && m.l >= ts[0] }) : filteredMissionDataForResolution;
             const resolutionOptions = [...new Set(
                 filteredMissionDataForResolution
                     .sort((a, b) => (a.r > b.r) ? 1 : -1)
@@ -194,6 +173,7 @@ const FilterPane: NextPage<Props> = (props) => {
         }
     };
 
+    // ??? 
     const handleChangeMissionMobile = (event: SelectChangeEvent<unknown>) => {
         const m = event.target.value as string;
         setSelectedMission(m);
@@ -207,7 +187,7 @@ const FilterPane: NextPage<Props> = (props) => {
         setMission(mission);
     }
 
-
+    // Handles the event when the user selects a mission.
     const handleChangeMission = (event: React.SyntheticEvent, value: unknown) => {
         const newMission = value as Mission;
         const m: string = newMission ? newMission.m : '';
@@ -222,6 +202,7 @@ const FilterPane: NextPage<Props> = (props) => {
         setMission(mission);
     }
 
+    // Update all filter options when the mission data changes.
     useEffect(() => {
         if (!missionData) return;
 
@@ -249,29 +230,26 @@ const FilterPane: NextPage<Props> = (props) => {
         const timeRange = utils.TimestampsToTimerange([earliestMission.e, latestMission.l], 'years');
         setAcquisitionRange(timeRange.range);
         setAcquisitionTimeRange(timeRange);
+    }, [missionData, setAcquisitionRange, setAcquisitionTimeRange])
 
-    }, [missionData])
-
+    // Filters list of missions based on selected designator, resolution, and acquisition range.
     useEffect(() => {
         if (!missionData) return;
 
         const ts = utils.RangeToTimestamps(acquisitionRange, acquisitionTimeRange);
-
-        // // TODO: fix bad string => number casting!
-
         const missionOpts = missionData
             .filter(m => {
                 return (
                     (selectedDesignator ? m.d == selectedDesignator : true) &&
                     (selectedResolution ? m.r == selectedResolution as unknown as number : true) &&
-                    (acquisitionRange ? m.e >= ts[0] && m.l <= ts[1] : true)
+                    (acquisitionRange ? m.e <= ts[1] && m.l >= ts[0] : true)
                 )
             })
             .sort((a, b) => (a.m > b.m) ? 1 : -1);
         setMissionOptions(missionOpts);
+    }, [missionData, selectedDesignator, selectedResolution, acquisitionRange, acquisitionTimeRange]);
 
-    }, [missionData, selectedDesignator, selectedResolution, acquisitionRange]);
-
+    // ???
     useEffect(() => {
         setExpanded(frame ? false : true);
     }, [frame]);
@@ -350,7 +328,6 @@ const FilterPane: NextPage<Props> = (props) => {
                             }
                         </Select>
                     </FormControl>
-
                     <FormControl
                         fullWidth
                         size="small"
@@ -412,7 +389,6 @@ const FilterPane: NextPage<Props> = (props) => {
                             }
                         </Select>
                     </FormControl>
-
                     <Typography gutterBottom>
                         ACQUISITIONS
                     </Typography>
@@ -437,9 +413,7 @@ const FilterPane: NextPage<Props> = (props) => {
                             min={acquisitionTimeRange.range[0]}
                             max={acquisitionTimeRange.range[1]}
                         />
-
                     </Box>
-
                     <Divider
                         sx={{
                             mt: 2,
@@ -449,7 +423,6 @@ const FilterPane: NextPage<Props> = (props) => {
                             bgcolor: 'primary.dark',
                         }}
                     />
-
                     {matches ? (
                         <Autocomplete
                             size="small"

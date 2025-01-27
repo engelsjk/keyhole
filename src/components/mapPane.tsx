@@ -1,18 +1,13 @@
 import { NextPage } from "next";
 import { useState, ChangeEvent } from "react";
-
 import { Box, Typography, Button, Switch } from '@mui/material';
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { InputLabel, FormControl, FormGroup, FormControlLabel, MenuItem } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-
 import Select from '~/components/styled/Select';
-
 import { useAppContext } from "~/context/appContext";
-
 import { PROJECTION_OPTIONS } from '~/components/constants';
-
 
 interface Props { }
 
@@ -21,10 +16,6 @@ const MapPane: NextPage<Props> = (props) => {
     const {
         projection,
         setProjection,
-        showLabels,
-        setShowLabels,
-        // spinGlobe,
-        // setSpinGlobe,
     } = useAppContext();
 
     const [expanded, setExpanded] = useState<boolean>(false);
@@ -37,16 +28,6 @@ const MapPane: NextPage<Props> = (props) => {
         const proj = event.target.value as string;
         setProjection(proj);
     }
-
-    const handleShowLabels = (event: ChangeEvent<HTMLInputElement>) => {
-        const showLabels = event.target.checked;
-        setShowLabels(showLabels);
-    };
-
-    // const toggleSpinGlobe = () => {
-    //     console.log('toggle')
-    //     setSpinGlobe(v => !v);
-    // }
 
     return (
         <Box
@@ -111,29 +92,6 @@ const MapPane: NextPage<Props> = (props) => {
                                 })
                             }
                         </Select>
-                        <FormGroup sx={{ mt: 1 }}>
-                            <FormControlLabel control={
-                                <Switch
-                                    value={showLabels}
-                                    onChange={handleShowLabels}
-                                />
-                            } label="SHOW LABELS" />
-                        </FormGroup>
-                        {/* {projection == "globe" &&
-                            <Button
-                                variant="contained"
-                                sx={{
-                                    mt: 1,
-                                    color: 'primary.dark',
-                                    "&:hover": {
-                                        color: 'primary.main',
-                                    },
-                                }}
-                                onClick={toggleSpinGlobe}
-                            >
-                                {!spinGlobe ? "SPIN GLOBE" : "STOP GLOBE"}
-                            </Button>
-                        } */}
                     </FormControl>
                 </AccordionDetails>
             </Accordion>

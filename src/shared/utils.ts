@@ -82,13 +82,14 @@ export const TimestampsToTimerange = (ts: number[], units: string): TimeRange =>
 }
 
 export const RangeToTimestamps = (r: number[], tr: TimeRange): number[] => {
+    if(!tr.interval || !tr.interval.start) return [0,0];
     if (tr.units == 'months') {
         const from = tr.interval.start.plus({ months: r[0] }).startOf('month');
         const to = tr.interval.start.plus({ months: r[1] }).endOf('month');
         return [from.toSeconds(), to.toSeconds()];
     }
-
     if (tr.units == 'years') {
+        if(!tr.interval.end) return [0,0];
         const from = tr.interval.start.plus({ years: r[0] }).startOf('year');
         const to = tr.interval.start.plus({ years: r[1] }).set({ 'month': tr.interval.end.get('month') }).endOf('year');
         return [from.toSeconds(), to.toSeconds()];
@@ -97,17 +98,16 @@ export const RangeToTimestamps = (r: number[], tr: TimeRange): number[] => {
 }
 
 export const TimesToString = (ts: number[], tr: TimeRange): string => {
+    if(!tr.interval || !tr.interval.start) return '';
     if (tr.units == 'months') {
         const from = tr.interval.start.plus({ months: ts[0] });
         const to = tr.interval.start.plus({ months: ts[1] });
         return `FROM ${from.toFormat('yyyy-MM')} TO ${to.toFormat('yyyy-MM')}`;
     }
-
     if (tr.units == 'years') {
         const from = tr.interval.start.plus({ years: ts[0] });
         const to = tr.interval.start.plus({ years: ts[1] });
         return `FROM ${from.toFormat('yyyy')} TO ${to.toFormat('yyyy')}`;
     }
-
     return '';
 }

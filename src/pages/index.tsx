@@ -1,5 +1,7 @@
 import type { NextPage } from "next";
 import { useEffect, useState } from "react";
+import maplibregl from "maplibre-gl";
+import { Protocol, PMTiles } from "pmtiles";
 
 import { Container, Box, Drawer, Typography, AppBar, Toolbar, IconButton } from '@mui/material';
 import HelpIcon from '@mui/icons-material/Help';
@@ -54,7 +56,15 @@ const Home: NextPage = () => {
     fetchData()
       .catch(console.error);
 
-  }, [])
+  }, [missionData, setMissionData, setDataLoading]);
+
+  useEffect(() => {
+    let protocol = new Protocol();
+    maplibregl.addProtocol("pmtiles",protocol.tile);
+    return () => {
+      maplibregl.removeProtocol("pmtiles");
+    }
+  }, []);
 
   return (
     <div>
@@ -198,7 +208,6 @@ const Home: NextPage = () => {
         />
       </Container>
       {(dataLoading || mapLoading) && <MapLoadingHolder className="loading-holder" />}
-
     </div >
   );
 }
